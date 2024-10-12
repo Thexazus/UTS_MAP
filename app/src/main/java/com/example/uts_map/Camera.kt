@@ -16,96 +16,95 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import java.io.File
 
-class FiturCamera : Fragment() {
+class Camera : Fragment() {
 
-    private lateinit var imageView: ImageView
-    private lateinit var resultTextView: TextView
-    private lateinit var cameraButton: Button
-    private lateinit var currentPhotoPath: String
+  private lateinit var imageView: ImageView
+  private lateinit var resultTextView: TextView
+  private lateinit var cameraButton: Button
+  private lateinit var currentPhotoPath: String
 
-    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+  private val cameraPermissionLauncher =
+      registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            openCamera()
+          openCamera()
         } else {
-            // Handle permission denied
+          // Handle permission denied
         }
-    }
+      }
 
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+  private val cameraLauncher =
+      registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            // Handle successful image capture
-            processImage()
+          // Handle successful image capture
+          processImage()
         }
+      }
+
+  override fun onCreateView(
+      inflater: LayoutInflater,
+      container: ViewGroup?,
+      savedInstanceState: Bundle?
+  ): View? {
+    return inflater.inflate(R.layout.fragment_camera, container, false)
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    imageView = view.findViewById(R.id.capturedImageView)
+    resultTextView = view.findViewById(R.id.resultTextView)
+    cameraButton = view.findViewById(R.id.cameraButton)
+
+    cameraButton.setOnClickListener { checkCameraPermissionAndOpen() }
+  }
+
+  private fun checkCameraPermissionAndOpen() {
+    when {
+      ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) ==
+          PackageManager.PERMISSION_GRANTED -> {
+        openCamera()
+      }
+      shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+        // Show an explanation to the user
+      }
+      else -> {
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+      }
     }
+  }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_camera, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        imageView = view.findViewById(R.id.capturedImageView)
-        resultTextView = view.findViewById(R.id.resultTextView)
-        cameraButton = view.findViewById(R.id.cameraButton)
-
-        cameraButton.setOnClickListener {
-            checkCameraPermissionAndOpen()
-        }
-    }
-
-    private fun checkCameraPermissionAndOpen() {
-        when {
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
-                openCamera()
-            }
-            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                // Show an explanation to the user
-            }
-            else -> {
-                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
-    }
-
-    private fun openCamera() {
-        val photoFile: File? = try {
-            createImageFile()
+  private fun openCamera() {
+    val photoFile: File? =
+        try {
+          createImageFile()
         } catch (ex: Exception) {
-            null
+          null
         }
 
-        photoFile?.also {
-            val photoURI: Uri = FileProvider.getUriForFile(
-                requireContext(),
-                "com.example.drinkremindermap.fileprovider",
-                it
-            )
-            cameraLauncher.launch(photoURI)
-        }
+    photoFile?.also {
+      val photoURI: Uri =
+          FileProvider.getUriForFile(requireContext(), "com.example.uts_map.fileprovider", it)
+      cameraLauncher.launch(photoURI)
     }
+  }
 
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(java.util.Date())
-        val storageDir: File? = requireActivity().getExternalFilesDir(null)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply {
-            currentPhotoPath = absolutePath
-        }
-    }
+  private fun createImageFile(): File {
+    // Create an image file name
+    val timeStamp: String = java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(java.util.Date())
+    val storageDir: File? = requireActivity().getExternalFilesDir(null)
+    return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */ ".jpg", /* suffix */ storageDir /* directory */)
+        .apply { currentPhotoPath = absolutePath }
+  }
 
-    private fun processImage() {
-        // Implement your image processing logic here
-        // For example:
-        // val bitmap = BitmapFactory.decodeFile(currentPhotoPath)
-        // detectWaterInBottle(bitmap)
-    }
+  private fun processImage() {
+    // Implement your image processing logic here
+    // For example:
+    // val bitmap = BitmapFactory.decodeFile(currentPhotoPath)
+    // detectWaterInBottle(bitmap)
+  }
 
-    private fun detectWaterInBottle(bitmap: android.graphics.Bitmap) {
-        // Implement your water detection logic here
-    }
+  private fun detectWaterInBottle(bitmap: android.graphics.Bitmap) {
+    // Implement your water detection logic here
+  }
 }
