@@ -1,4 +1,24 @@
 <resources>
-    <string name="app_name">UTS_MAP</string>>
+    <string name="app_name">UTS_MAP</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nama_app">DrinkMe</string>
+    <string name="text_1_splash">Stay hydrated and track your daily water intake</string>
+    <string name="login_title">Welcome back! Glad to see you, Again!</string>
+    <string name="login_hint_email">Enter Your Email</string>
+    <string name="login_hint_password">Enter Your Password</string>
+    <string name="login_button_text">Login</string>
+    <string name="or_login_with">Or Login with</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="dont_have_account">Don\'t have an account? Register Now</string>
+
+    <string name="register_title">Hello! Register to get started</string>
+    <string name="register_hint_email">Enter Your Email</string>
+    <string name="register_hint_phone">Phone Number</string>
+    <string name="register_hint_password">Password</string>
+    <string name="register_hint_confirm_password">Confirm Password</string>
+    <string name="register_button_text">Register</string>
+    <string name="or_register_with">Or Register with</string>
+    <string name="register_with_google">Register with Google</string>
+    <string name="already_have_account">Already have an account? Login Now</string>
 </resources>
+
