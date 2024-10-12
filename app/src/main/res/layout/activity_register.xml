@@ -6,16 +6,16 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center"
-    android:background="@android:color/white">
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/tvRegisterTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello! Register to get started"
+        android:text="@string/register_title"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         android:layout_gravity="center"/>
 
     <!-- Email Field -->
@@ -23,54 +23,67 @@
         android:id="@+id/etEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Your Email"
-        android:inputType="textEmailAddress"/>
+        android:autofillHints=""
+        android:hint="@string/register_hint_email"
+        android:inputType="textEmailAddress"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- Phone Number Field -->
     <EditText
         android:id="@+id/etPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Phone Number"
-        android:inputType="phone" />
+        android:autofillHints=""
+        android:hint="@string/register_hint_phone"
+        android:inputType="phone"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- Password Field -->
     <EditText
         android:id="@+id/etPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"/>
+        android:hint="@string/register_hint_password"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- Confirm Password Field -->
     <EditText
         android:id="@+id/etConfirmPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Confirm Password"
-        android:inputType="textPassword"/>
+        android:hint="@string/register_hint_confirm_password"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- Register Button -->
     <Button
         android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Register"
-        android:backgroundTint="@android:color/holo_blue_light"/>
+        android:backgroundTint="@color/holo_blue_light"
+        android:text="@string/register_button_text"
+        android:textColor="#4E342E" />
 
     <!-- Google Register -->
     <TextView
         android:id="@+id/tvOrRegisterWith"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Or Register with"
+        android:text="@string/or_register_with"
         android:layout_gravity="center"/>
 
     <Button
         android:id="@+id/btnRegisterGoogle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register with Google"
+        android:text="@string/register_with_google"
         android:layout_gravity="center"/>
 
     <!-- Already have an account? -->
@@ -78,7 +91,7 @@
         android:id="@+id/tvLoginRedirect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Already have an account? Login Now"
         android:layout_gravity="center"
-        android:textColor="@android:color/holo_blue_light"/>
+        android:text="@string/already_have_account"
+        android:textColor="#00838F" />
 </LinearLayout>
