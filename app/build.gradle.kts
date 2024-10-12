@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_EXPRESSION")
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
@@ -6,6 +8,10 @@ plugins {
 android {
   namespace = "com.example.uts_map"
   compileSdk = 34
+
+  buildFeatures {
+    viewBinding = true
+  }
 
   defaultConfig {
     applicationId = "com.example.uts_map"
