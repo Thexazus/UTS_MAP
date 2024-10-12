@@ -2,4 +2,5 @@
     <string name="app_name">UTS_MAP</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="nama_app">DrinkMe</string>
+    <string name="text_1_splash">Stay hydrated and track your daily water intake</string>
 </resources>
