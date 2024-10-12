@@ -6,22 +6,6 @@
     android:background="@color/blue">
 
     <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_centerInParent="true"
-        android:src="@drawable/desain_tanpa_judul_removebg_preview" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="265dp"
-        android:text="@string/nama_app"
-        android:textSize="30sp"
-        android:textColor="@android:color/white" />
-
-    <ImageView
         android:id="@+id/vectorTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
