@@ -26,6 +26,7 @@
         android:autofillHints=""
         android:hint="@string/register_hint_email"
         android:inputType="textEmailAddress"
+        android:minHeight="48dp"
         android:textColorHint="#757575" />
 
     <!-- Phone Number Field -->
@@ -33,9 +34,10 @@
         android:id="@+id/etPhone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/register_hint_phone"
         android:autofillHints=""
+        android:hint="@string/register_hint_phone"
         android:inputType="phone"
+        android:minHeight="48dp"
         android:textColorHint="#757575" />
 
     <!-- Password Field -->
@@ -45,7 +47,9 @@
         android:layout_height="wrap_content"
         android:hint="@string/register_hint_password"
         android:importantForAutofill="no"
-        android:inputType="textPassword"/>
+        android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- Confirm Password Field -->
     <EditText
@@ -55,6 +59,7 @@
         android:hint="@string/register_hint_confirm_password"
         android:importantForAutofill="no"
         android:inputType="textPassword"
+        android:minHeight="48dp"
         android:textColorHint="#757575" />
 
     <!-- Register Button -->
