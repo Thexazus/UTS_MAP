@@ -34,6 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/register_hint_phone"
+        android:autofillHints=""
         android:inputType="phone"
         android:textColorHint="#757575" />
 
