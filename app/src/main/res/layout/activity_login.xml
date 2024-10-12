@@ -3,19 +3,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:importantForAutofill="no"
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center"
-    android:background="@android:color/white">
+    android:background="@color/white">
 
     <TextView
         android:id="@+id/tvLoginTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome back! Glad to see you, Again!"
+        android:text="@string/login_title"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         android:layout_gravity="center"/>
 
     <!-- Email Field -->
@@ -23,7 +24,9 @@
         android:id="@+id/etLoginEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Your Email"
+        android:autofillHints=""
+        android:hint="@string/login_hint_email"
+        android:importantForAutofill="no"
         android:inputType="textEmailAddress"/>
 
     <!-- Password Field -->
@@ -31,7 +34,8 @@
         android:id="@+id/etLoginPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Your Password"
+        android:hint="@string/login_hint_password"
+        android:importantForAutofill="no"
         android:inputType="textPassword"/>
 
     <!-- Login Button -->
@@ -39,23 +43,22 @@
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:backgroundTint="@android:color/holo_blue_light"/>
+        android:text="@string/login_button_text"
+        android:backgroundTint="@color/holo_blue_light"/>
 
     <!-- Google Login -->
     <TextView
         android:id="@+id/tvOrLoginWith"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Or Login with"
+        android:text="@string/or_login_with"
         android:layout_gravity="center"/>
 
     <Button
         android:id="@+id/btnLoginGoogle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-        android:text="Login with Google"
+        android:text="@string/login_with_google"
         android:layout_gravity="center"/>
 
     <!-- Don't have an account? -->
@@ -63,7 +66,7 @@
         android:id="@+id/tvRegisterRedirect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Don't have an account? Register Now"
+        android:text="@string/dont_have_account"
         android:layout_gravity="center"
-        android:textColor="@android:color/holo_blue_light"/>
+        android:textColor="@color/holo_blue_light"/>
 </LinearLayout>
