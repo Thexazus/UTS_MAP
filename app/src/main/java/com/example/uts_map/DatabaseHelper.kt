@@ -119,7 +119,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                     val id = cursor.getLong(idIndex)
                     val date = cursor.getString(dateIndex)
                     val amount = cursor.getInt(amountIndex)
-                    intakeList.add(WaterIntake(id, amount, date))
+                    intakeList.add(WaterIntake(id,amount,date))
                 }
             } while (cursor.moveToNext())
         }
