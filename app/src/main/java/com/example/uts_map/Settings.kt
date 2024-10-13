@@ -17,7 +17,7 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class Settings : Fragment() {
-    // TODO: Rename and change types of parameters
+
     private var param1: String? = null
     private var param2: String? = null
 
@@ -46,7 +46,7 @@ class Settings : Fragment() {
          * @param param2 Parameter 2.
          * @return A new instance of fragment Settings.
          */
-        // TODO: Rename and change types and number of parameters
+
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             Settings().apply {
