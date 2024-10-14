@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -56,6 +57,14 @@ class RegisterActivity : AppCompatActivity() {
           }
         }
       }
+    }
+    val tvLoginRedirect = findViewById<TextView>(R.id.tvLoginRedirect)
+
+    tvLoginRedirect.setOnClickListener {
+      // Intent untuk berpindah ke halaman Login
+      val intent = Intent(this, LoginActivity::class.java)
+      startActivity(intent)
+      finish()  // Tutup RegisterActivity setelah berpindah ke Login
     }
   }
 }

@@ -14,10 +14,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val DATABASE_VERSION = 1
 
         private const val TABLE_USERS = "Users"
+        private const val TABLE_WATER_INTAKE = "WaterIntake"
         private const val COLUMN_ID = "id"
         private const val COLUMN_EMAIL = "email"
         private const val COLUMN_PHONE = "phone"
         private const val COLUMN_PASSWORD = "password"
+        private const val COLUMN_DATE = "date"
+        private const val COLUMN_GOAL = "goal"
+        private const val COLUMN_AMOUNT = "amount"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -70,4 +74,58 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         return exists // Jika count > 0, berarti user valid
     }
+
+    fun addOrUpdateWaterIntake(date: String, amount: Int, goal: Int) {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(COLUMN_DATE, date)
+        contentValues.put(COLUMN_AMOUNT, amount)
+        contentValues.put(COLUMN_GOAL, goal)
+
+        db.insertWithOnConflict(TABLE_WATER_INTAKE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE)
+        db.close()
+    }
+
+    fun getWaterIntake(date: String): Pair<Int, Int> {
+        val db = this.readableDatabase
+        val query = "SELECT $COLUMN_AMOUNT, $COLUMN_GOAL FROM $TABLE_WATER_INTAKE WHERE $COLUMN_DATE = ?"
+        val cursor: Cursor = db.rawQuery(query, arrayOf(date))
+        var amount = 0
+        var goal = 0
+        if (cursor.moveToFirst()) {
+            val amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT)
+            val goalIndex = cursor.getColumnIndex(COLUMN_GOAL)
+            if (amountIndex >= 0 && goalIndex >= 0) {
+                amount = cursor.getInt(amountIndex)
+                goal = cursor.getInt(goalIndex)
+            }
+        }
+        cursor.close()
+        db.close()
+        return Pair(amount, goal)
+    }
+
+    fun getWaterIntakeHistory(): List<WaterIntake> {
+        val intakeList = mutableListOf<WaterIntake>()
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_WATER_INTAKE ORDER BY $COLUMN_DATE DESC"
+        val cursor: Cursor = db.rawQuery(query, null)
+        if (cursor.moveToFirst()) {
+            do {
+                val idIndex = cursor.getColumnIndex(COLUMN_ID)
+                val dateIndex = cursor.getColumnIndex(COLUMN_DATE)
+                val amountIndex = cursor.getColumnIndex(COLUMN_AMOUNT)
+                if (idIndex >= 0 && dateIndex >= 0 && amountIndex >= 0) {
+                    val id = cursor.getLong(idIndex)
+                    val date = cursor.getString(dateIndex)
+                    val amount = cursor.getInt(amountIndex)
+                    intakeList.add(WaterIntake(id,amount,date))
+                }
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return intakeList
+    }
 }
+

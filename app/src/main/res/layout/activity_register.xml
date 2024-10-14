@@ -16,7 +16,8 @@
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"/>
 
     <!-- Email Field -->
     <EditText
@@ -27,7 +28,10 @@
         android:hint="@string/register_hint_email"
         android:inputType="textEmailAddress"
         android:minHeight="48dp"
-        android:textColorHint="#757575" />
+        android:textColorHint="#757575"
+        android:background="@drawable/edittext_border"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp"/>
 
     <!-- Phone Number Field -->
     <EditText
@@ -38,7 +42,10 @@
         android:hint="@string/register_hint_phone"
         android:inputType="phone"
         android:minHeight="48dp"
-        android:textColorHint="#757575" />
+        android:textColorHint="#757575"
+        android:background="@drawable/edittext_border"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp"/>
 
     <!-- Password Field -->
     <EditText
@@ -49,7 +56,10 @@
         android:importantForAutofill="no"
         android:inputType="textPassword"
         android:minHeight="48dp"
-        android:textColorHint="#757575" />
+        android:textColorHint="#757575"
+        android:background="@drawable/edittext_border"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp"/>
 
     <!-- Confirm Password Field -->
     <EditText
@@ -60,7 +70,10 @@
         android:importantForAutofill="no"
         android:inputType="textPassword"
         android:minHeight="48dp"
-        android:textColorHint="#757575" />
+        android:textColorHint="#757575"
+        android:background="@drawable/edittext_border"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp"/>
 
     <!-- Register Button -->
     <Button
@@ -79,19 +92,26 @@
         android:text="@string/or_register_with"
         android:layout_gravity="center"/>
 
-    <Button
-        android:id="@+id/btnRegisterGoogle"
+    <ImageButton
+        android:id="@+id/btnLoginGoogle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/register_with_google"
-        android:layout_gravity="center"/>
+        android:src="@drawable/ic_google_logo"
+        android:background="@drawable/button_google"
+        android:padding="10dp"
+        android:layout_margin="10dp">
+    </ImageButton>/>
 
     <!-- Already have an account? -->
     <TextView
         android:id="@+id/tvLoginRedirect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Already have an account? Login Now"
         android:layout_gravity="center"
-        android:text="@string/already_have_account"
-        android:textColor="#00838F" />
+        android:textColor="@android:color/holo_blue_light"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"/>
 </LinearLayout>

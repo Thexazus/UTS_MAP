@@ -20,5 +20,14 @@
     <string name="or_register_with">Or Register with</string>
     <string name="register_with_google">Register with Google</string>
     <string name="already_have_account">Already have an account? Login Now</string>
+    <string name="progress_percentage">Progress: %d%%</string>
+    <string name="current_intake">Current Intake: %d ml</string>
+    <string name="water_amount">Water Amount: %d ml</string>
+    <string name="goal_amount">Goal: %d ml</string>
+    <string name="amount_ml">%d ml</string>
+    <string name="greeting">Hi, %1$s!</string>
+    <string name="today_date">Today, %1$s</string>
+
+
 </resources>
 
