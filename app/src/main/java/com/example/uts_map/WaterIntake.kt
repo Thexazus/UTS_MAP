@@ -1,3 +1,9 @@
 package com.example.uts_map
 
-data class WaterIntake(val amount: Long, val timestamp: Int, val id: String)
+import java.util.Date
+
+data class WaterIntake(
+    val id: Long, // Bisa menggunakan timestamp sebagai ID
+    val amount: Int,
+    val timestamp: Date
+)

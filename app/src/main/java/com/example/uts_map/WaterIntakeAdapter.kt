@@ -9,7 +9,17 @@ import com.example.uts_map.databinding.ItemWaterIntakeBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class WaterIntakeAdapter(waterAmounts: List<Int>) : ListAdapter<WaterIntake, WaterIntakeAdapter.WaterIntakeViewHolder>(WaterIntakeDiffCallback()) {
+class WaterIntakeAdapter : ListAdapter<WaterIntake, WaterIntakeAdapter.WaterIntakeViewHolder>(WaterIntakeDiffCallback()) {
+
+    interface OnDeleteClickListener {
+        fun onDeleteClick(waterIntake: WaterIntake)
+    }
+
+    private var onDeleteClickListener: OnDeleteClickListener? = null
+
+    fun setOnDeleteClickListener(listener: OnDeleteClickListener) {
+        onDeleteClickListener = listener
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WaterIntakeViewHolder {
         val binding = ItemWaterIntakeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -20,16 +30,21 @@ class WaterIntakeAdapter(waterAmounts: List<Int>) : ListAdapter<WaterIntake, Wat
         holder.bind(getItem(position))
     }
 
-    class WaterIntakeViewHolder(private val binding: ItemWaterIntakeBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class WaterIntakeViewHolder(private val binding: ItemWaterIntakeBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(waterIntake: WaterIntake) {
-            binding.textViewAmount.text = binding.root.context.getString(R.string.amount_ml, waterIntake.amount)
+            binding.textViewIntakeAmount.text = binding.root.context.getString(R.string.amount_ml, waterIntake.amount)
             binding.textViewTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(waterIntake.timestamp)
+
+            binding.buttonDelete.setOnClickListener {
+                onDeleteClickListener?.onDeleteClick(waterIntake)
+            }
         }
     }
 
     class WaterIntakeDiffCallback : DiffUtil.ItemCallback<WaterIntake>() {
         override fun areItemsTheSame(oldItem: WaterIntake, newItem: WaterIntake): Boolean {
-            return oldItem.amount == newItem.amount
+            // Assuming WaterIntake has a unique id field
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: WaterIntake, newItem: WaterIntake): Boolean {
@@ -37,5 +52,3 @@ class WaterIntakeAdapter(waterAmounts: List<Int>) : ListAdapter<WaterIntake, Wat
         }
     }
 }
-
-// Hapus definisi WaterIntake di sini jika sudah didefinisikan di file lain
