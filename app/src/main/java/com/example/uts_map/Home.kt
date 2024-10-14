@@ -21,7 +21,7 @@ class HomeFragment : Fragment() {
     private lateinit var databaseHelper: DatabaseHelper
     private lateinit var recyclerViewWaterAmount: RecyclerView
     private lateinit var layoutManager: LinearLayoutManager
-    private val waterAmounts = listOf(200, 50, 550)
+    private val waterAmounts = listOf(200, 50, 550, 100, 600, 500, 400, 300)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -31,19 +31,19 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView(view)
+        setupRecyclerView()
         setupUI()
         setupViewModel()
         setupBottomNavigation()
         loadDataFromDatabase()
     }
 
-    private fun setupRecyclerView(view: View) {
-        recyclerViewWaterAmount = view.findViewById(R.id.recyclerViewWaterAmount)
+    private fun setupRecyclerView() {
+        recyclerViewWaterAmount = binding.recyclerViewWaterAmount
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewWaterAmount.layoutManager = layoutManager
 
-        val adapter = WaterIntakeAdapter(waterAmounts)
+        adapter = WaterIntakeAdapter()
         recyclerViewWaterAmount.adapter = adapter
 
         recyclerViewWaterAmount.postDelayed({
@@ -78,7 +78,6 @@ class HomeFragment : Fragment() {
             buttonDrinkNow.setOnClickListener {
                 viewModel.addWater()
                 updateHistory()
-                animateProgress()
             }
 
             textViewGreeting.text = getString(R.string.greeting, "Mesaya")
@@ -104,7 +103,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // ... other observers ...
+
     }
 
     private fun animateProgress(newProgress: Int) {
@@ -114,7 +113,7 @@ class HomeFragment : Fragment() {
         animator.start()
     }
 
-    // ... other functions ...
+
 
     override fun onDestroyView() {
         super.onDestroyView()
