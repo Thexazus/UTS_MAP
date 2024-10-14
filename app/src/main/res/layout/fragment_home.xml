@@ -51,8 +51,8 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
-        android:contentDescription="Sync Icon"
         android:src="@drawable/sync"
+        android:contentDescription="Sync to Google Drive"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageViewProfile" />
 
