@@ -27,6 +27,12 @@
     <string name="amount_ml">%d ml</string>
     <string name="greeting">Hi, %1$s!</string>
     <string name="today_date">Today, %1$s</string>
+    <string name="onboard1">Track your daily water intake with Us.</string>
+    <string name="onboard11">Achieve your hydration goals with a simple tap!</string>
+    <string name="onboard2">Smart Reminders Tailored to You</string>
+    <string name="onboard22">Quick and easy to set your hydration goal and then track your daily water intake progress.</string>
+    <string name="onboard3">Easy to Use – Drink, Tap, Repeat</string>
+    <string name="onboard33">Staying hydrated every day is easy with Drops Water Tracker.</string>
 
 
 </resources>
