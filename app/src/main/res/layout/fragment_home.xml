@@ -7,6 +7,17 @@
     android:background="#A5D7EB"
     android:padding="16dp">
 
+    <View
+        android:id="@+id/backgroundView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#33A5D7EB"
+        app:layout_constraintBottom_toBottomOf="@id/cardViewGoal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
     <!-- Greeting Text -->
     <TextView
         android:id="@+id/textViewGreeting"
