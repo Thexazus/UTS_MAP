@@ -35,5 +35,16 @@
     <string name="onboard33">Staying hydrated every day is easy with Drops Water Tracker.</string>
     <string name="reportTitle">Report</string>
 
+    <string name="my_profile">My Profile</string>
+    <string name="height_value">%d cm</string>
+    <string name="weight_value">%d kg</string>
+    <string name="age_value">%d yo</string>
+    <string name="intake_value">%d ml</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+
+
+
 </resources>
 

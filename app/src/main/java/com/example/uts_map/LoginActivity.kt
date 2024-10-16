@@ -30,13 +30,16 @@ class LoginActivity : AppCompatActivity() {
       if (email.isEmpty() || password.isEmpty()) {
         Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
       } else {
-        // Cek apakah user ada di database dan password benar
         val userExists = databaseHelper.isUserValid(email, password)
         if (userExists) {
           Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-          // Masuk ke halaman utama atau dashboard
-          val intent = Intent(this, MainActivity::class.java)
-          startActivity(intent)
+          SessionManager.setLogin(this, email)
+
+          if (databaseHelper.isProfileComplete(email)) {
+            startActivity(Intent(this, MainActivity::class.java))
+          } else {
+            startActivity(Intent(this, ProfileDetailActivity::class.java))
+          }
           finish()
         } else {
           Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
@@ -44,7 +47,6 @@ class LoginActivity : AppCompatActivity() {
       }
     }
 
-    // TextView untuk pindah ke halaman Register
     val registerNow = findViewById<TextView>(R.id.tvRegisterRedirect)
     registerNow.setOnClickListener {
       val intent = Intent(this, RegisterActivity::class.java)

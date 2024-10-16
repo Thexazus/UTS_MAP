@@ -12,7 +12,7 @@ import com.example.uts_map.databinding.FragmentHomeBinding
 import com.example.uts_map.viewmodel.WaterViewModel
 import java.util.*
 
-class HomeFragment : Fragment() {
+class Home : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!

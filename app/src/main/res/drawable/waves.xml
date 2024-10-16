@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#E6F3FF"/>
+        </shape>
+    </item>
+    <item>
+        <bitmap
+            android:src="@drawable/vector_1"
+            android:tint="#87CEEB"/>
+    </item>
+    <item>
+        <bitmap
+            android:src="@drawable/vector_2"
+            android:tint="#4682B4"/>
+    </item>
+</layer-list>

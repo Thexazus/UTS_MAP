@@ -32,7 +32,7 @@ class WaterViewModel : ViewModel() {
         _currentIntake.value = (_currentIntake.value ?: 0) + amount
 
         val newIntake = WaterIntake(
-            id = System.currentTimeMillis().toString(),
+            id = System.currentTimeMillis(),
             amount = amount,
             timestamp = Date()
         )

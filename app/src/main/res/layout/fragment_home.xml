@@ -7,11 +7,16 @@
     android:background="#A5D7EB"
     android:padding="16dp">
 
-    <!-- FrameLayout -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".HomeFragment" />
+    <View
+        android:id="@+id/backgroundView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#33A5D7EB"
+        app:layout_constraintBottom_toBottomOf="@id/cardViewGoal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <!-- Greeting Text -->
     <TextView
@@ -25,11 +30,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Profile Image -->
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/circleImageView"
         android:src="@drawable/profile_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageViewBell" />
@@ -40,7 +47,6 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:clickable="true"
-        android:contentDescription="Notification Bell"
         android:focusable="true"
         android:src="@drawable/set_notification"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +58,6 @@
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/sync"
-        android:contentDescription="Sync to Google Drive"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageViewProfile" />
 
@@ -327,23 +332,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <ImageView
-        android:id="@+id/backgroundImage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:src="@drawable/background_drink"
-        android:scaleType="centerCrop"
-        android:alpha="0.1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/cardViewGoal"/>
-
-    <!-- FrameLayout -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".HomeFragment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

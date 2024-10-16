@@ -5,4 +5,5 @@
     <color name="blue">#FF5DCCFC</color>
     <color name="holo_blue_light">#FF33B5E5</color>
     <color name="light_blue">#FF03A9F4</color>
+    <color name="blue_accent">#87CEEB</color>
 </resources>
