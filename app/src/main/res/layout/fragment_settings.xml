@@ -134,6 +134,7 @@
                         android:textSize="18sp"/>
 
                     <TextView
+                        android:id="@+id/heightValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Height"
@@ -164,6 +165,7 @@
                         android:textSize="18sp"/>
 
                     <TextView
+                        android:id="@+id/weightValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Weight"
@@ -194,6 +196,7 @@
                         android:textSize="18sp"/>
 
                     <TextView
+                        android:id="@+id/ageValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Age"
@@ -228,6 +231,7 @@
                 android:src="@drawable/glass_setting" />
 
             <TextView
+                android:id="@+id/intakeValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0 ml"
@@ -255,6 +259,7 @@
             app:layout_constraintTop_toBottomOf="@id/genderTitle">
 
             <RadioButton
+                android:id="@+id/radioMale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Male"
@@ -263,6 +268,7 @@
                 android:textColor="@color/radio_button_tint" />
 
             <RadioButton
+                android:id="@+id/radioFemale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Female"
@@ -270,6 +276,7 @@
                 android:textColor="@color/radio_button_tint" />
 
             <RadioButton
+                android:id="@+id/radioOther"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Other"
@@ -297,6 +304,7 @@
             app:layout_constraintTop_toBottomOf="@id/sleepingTimeTitle">
 
             <TextView
+                android:id="@+id/sleepingTimeValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="10 : 41"
@@ -306,6 +314,7 @@
                 android:padding="8dp"/>
 
             <TextView
+                android:id="@+id/sleepingTimeAmPm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Off"
@@ -346,6 +355,7 @@
             app:layout_constraintTop_toBottomOf="@id/wakeUpTimeTitle">
 
             <TextView
+                android:id="@+id/wakeUpTimeValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="09 : 41"
@@ -355,6 +365,7 @@
                 android:padding="8dp"/>
 
             <TextView
+                android:id="@+id/wakeUpTimeAmPm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="AM"
