@@ -4,6 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Topbar -->
+    <com.example.uts_map.Topbar
+        android:id="@+id/topbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Fragment Container -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
