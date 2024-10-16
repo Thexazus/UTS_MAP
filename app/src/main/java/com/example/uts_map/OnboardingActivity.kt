@@ -56,8 +56,8 @@ class OnboardingActivity : AppCompatActivity() {
                 // Move to the next page
                 viewPager.currentItem = currentItem + 1
             } else {
-                // If on the last page, navigate to MainActivity
-                startActivity(Intent(this, MainActivity::class.java))
+                // If on the last page, navigate to LoginActivity
+                startActivity(Intent(this, LoginActivity::class.java))
                 finish()  // Close OnboardingActivity
             }
         }

@@ -43,13 +43,15 @@ class RegisterActivity : AppCompatActivity() {
       } else if (password != confirmPassword) {
         Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
       } else {
-        if (databaseHelper.isUserExists(email, phone)) {
+        if (databaseHelper.isUserValid(email, phone)) {
           Toast.makeText(this, "Email or Phone already registered", Toast.LENGTH_SHORT).show()
         } else {
           val success = databaseHelper.addUser(email, phone, password)
           if (success) {
             Toast.makeText(this, "Registered Successfully", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, LoginActivity::class.java)
+            SessionManager.setLogin(this, email)
+            SessionManager.setProfileCompleted(this, false)
+            val intent = Intent(this, ProfileDetailActivity::class.java)
             startActivity(intent)
             finish()  // Tutup RegisterActivity
           } else {
@@ -59,7 +61,6 @@ class RegisterActivity : AppCompatActivity() {
       }
     }
     val tvLoginRedirect = findViewById<TextView>(R.id.tvLoginRedirect)
-
     tvLoginRedirect.setOnClickListener {
       // Intent untuk berpindah ke halaman Login
       val intent = Intent(this, LoginActivity::class.java)

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center"
-    android:background="@color/white">
+    android:background="@color/white"
+    tools:ignore="ExtraText">
 
     <TextView
         android:id="@+id/tvRegisterTitle"
@@ -96,6 +98,7 @@
         android:id="@+id/btnLoginGoogle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="TODO"
         android:src="@drawable/ic_google_logo"
         android:background="@drawable/button_google"
         android:padding="10dp"
@@ -107,11 +110,12 @@
         android:id="@+id/tvLoginRedirect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Already have an account? Login Now"
         android:layout_gravity="center"
-        android:textColor="@android:color/holo_blue_light"
-        android:textStyle="bold"
         android:clickable="true"
         android:focusable="true"
-        android:padding="8dp"/>
+        android:minHeight="48dp"
+        android:padding="8dp"
+        android:text="Already have an account? Login Now"
+        android:textColor="@android:color/holo_blue_light"
+        android:textStyle="bold" />
 </LinearLayout>
