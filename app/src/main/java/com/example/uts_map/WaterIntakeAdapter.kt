@@ -32,9 +32,14 @@ class WaterIntakeAdapter : ListAdapter<WaterIntake, WaterIntakeAdapter.WaterInta
 
     inner class WaterIntakeViewHolder(private val binding: ItemWaterIntakeBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(waterIntake: WaterIntake) {
+            // Display water intake amount
             binding.textViewIntakeAmount.text = binding.root.context.getString(R.string.amount_ml, waterIntake.amount)
-            binding.textViewTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(waterIntake.timestamp)
 
+            // Format and display the time of intake
+            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+            binding.textViewTime.text = timeFormat.format(waterIntake.timestamp)
+
+            // Set up delete button functionality
             binding.buttonDelete.setOnClickListener {
                 onDeleteClickListener?.onDeleteClick(waterIntake)
             }

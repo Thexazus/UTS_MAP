@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.uts_map.databinding.FragmentHomeBinding
 import com.example.uts_map.viewmodel.WaterViewModel
-import java.util.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 
 class Home : Fragment() {
 
@@ -18,8 +20,7 @@ class Home : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: WaterViewModel
     private lateinit var adapter: WaterIntakeAdapter
-    private lateinit var databaseHelper: DatabaseHelper
-    private lateinit var recyclerViewWaterAmount: RecyclerView
+    private lateinit var recyclerViewHistory: RecyclerView
     private lateinit var layoutManager: LinearLayoutManager
     private val waterAmounts = listOf(200, 50, 550, 100, 600, 500, 400, 300)
 
@@ -34,23 +35,22 @@ class Home : Fragment() {
         setupRecyclerView()
         setupUI()
         setupViewModel()
-        setupBottomNavigation()
         loadDataFromDatabase()
     }
 
     private fun setupRecyclerView() {
-        recyclerViewWaterAmount = binding.recyclerViewWaterAmount
+        recyclerViewHistory = binding.recyclerViewHistory
         layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        recyclerViewWaterAmount.layoutManager = layoutManager
+        recyclerViewHistory.layoutManager = layoutManager
 
         adapter = WaterIntakeAdapter()
-        recyclerViewWaterAmount.adapter = adapter
+        recyclerViewHistory.adapter = adapter
 
-        recyclerViewWaterAmount.postDelayed({
-            recyclerViewWaterAmount.smoothScrollToPosition(1)
+        recyclerViewHistory.postDelayed({
+            recyclerViewHistory.smoothScrollToPosition(1)
         }, 100)
 
-        recyclerViewWaterAmount.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        recyclerViewHistory.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 updateItemAppearance()
@@ -62,7 +62,7 @@ class Home : Fragment() {
         for (i in 0 until layoutManager.childCount) {
             val child = layoutManager.getChildAt(i)
             val childCenter = (child?.left ?: 0) + (child?.width ?: 0) / 2
-            val screenCenter = recyclerViewWaterAmount.width / 2
+            val screenCenter = recyclerViewHistory.width / 2
             val distanceFromCenter = Math.abs(screenCenter - childCenter)
             val scale = Math.max(0.8f, 1 - distanceFromCenter.toFloat() / screenCenter)
             child?.scaleX = scale
@@ -73,47 +73,68 @@ class Home : Fragment() {
 
     private fun setupUI() {
         binding.apply {
-            buttonDecrease.setOnClickListener { viewModel.adjustWaterAmount(-50) }
-            buttonIncrease.setOnClickListener { viewModel.adjustWaterAmount(50) }
+            buttonMinus.setOnClickListener { showRemoveQuantityDialog() }
+            buttonPlus.setOnClickListener { showInputWaterIntakeDialog() }
             buttonDrinkNow.setOnClickListener {
-                viewModel.addWater()
+                viewModel.addWater(200) // Jumlah default atau sesuaikan sesuai kebutuhan
                 updateHistory()
             }
+            imageViewSync.setOnClickListener { syncToGoogleDrive() }
 
             textViewGreeting.text = getString(R.string.greeting, "Mesaya")
             textViewToday.text = getString(R.string.today_date, AppUtils.getCurrentDate())
         }
     }
 
-    private fun setupViewModel() {
-        viewModel = ViewModelProvider(this).get(WaterViewModel::class.java)
-        observeViewModel()
-    }
-
-    private fun observeViewModel() {
-        viewModel.currentIntake.observe(viewLifecycleOwner) { intake ->
-            binding.apply {
-                val goal = viewModel.goal.value ?: 2000
-                val progress = (intake.toFloat() / goal * 100).toInt()
-                animateProgress(progress)
-                textViewProgress.text = getString(R.string.progress_percentage, progress)
-                textViewCurrentIntake.text = getString(R.string.current_intake, intake)
-
-                databaseHelper.addOrUpdateWaterIntake(AppUtils.getCurrentDate(), intake, goal)
+    private fun showRemoveQuantityDialog() {
+        val items = waterAmounts.map { "$it ml" }.toTypedArray()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Remove Water Intake")
+            .setItems(items) { dialog, which ->
+                val amount = waterAmounts[which]
+                viewModel.removeWater(amount)
+                updateHistory()
+                Snackbar.make(binding.root, "$amount ml removed", Snackbar.LENGTH_SHORT).show()
             }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showInputWaterIntakeDialog() {
+        val items = waterAmounts.map { "$it ml" }.toTypedArray()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Add Water Intake")
+            .setItems(items) { dialog, which ->
+                val amount = waterAmounts[which]
+                viewModel.addWater(amount)
+                updateHistory()
+                Snackbar.make(binding.root, "$amount ml added", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun updateHistory() {
+        viewModel.intakeHistory.observe(viewLifecycleOwner) { history -> // Ganti dari waterIntakeHistory ke intakeHistory
+            adapter.submitList(history)
         }
-
-
     }
 
-    private fun animateProgress(newProgress: Int) {
-        val animator = ObjectAnimator.ofInt(binding.progressCircular, "progress",
-            binding.progressCircular.progress, newProgress)
-        animator.duration = 500 // Duration in milliseconds
-        animator.start()
+    private fun syncToGoogleDrive() {
+        Snackbar.make(binding.root, "Syncing to Google Drive...", Snackbar.LENGTH_SHORT).show()
+        // Tambahkan logika sinkronisasi Google Drive Anda di sini
     }
 
+    private fun setupViewModel() {
+        // Inisialisasi DatabaseHelper
+        val databaseHelper = DatabaseHelper(requireContext())
+        viewModel = ViewModelProvider(this).get(WaterViewModel::class.java) // Menggunakan constructor default
+        viewModel.init(databaseHelper) // Inisialisasi DatabaseHelper di WaterViewModel
+    }
 
+    private fun loadDataFromDatabase() {
+        viewModel.loadWaterIntakeDataFromDatabase()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
