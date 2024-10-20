@@ -15,12 +15,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val userEmail = SessionManager.getUserEmail(this)
         if (userEmail != null) {
             Toast.makeText(this, "HALOOOOOOO, $userEmail", Toast.LENGTH_SHORT).show()
         }
-
 
         // Cek apakah pengguna sudah login
         if (!SessionManager.isLoggedIn(this)) {
