@@ -8,7 +8,7 @@
 
     <ImageView
         android:id="@+id/vectorTop"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="-30dp"
@@ -17,7 +17,7 @@
 
     <ImageView
         android:id="@+id/vectorBottom"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:scaleType="fitCenter"
