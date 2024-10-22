@@ -20,28 +20,39 @@
     <string name="or_register_with">Or Register with</string>
     <string name="register_with_google">Register with Google</string>
     <string name="already_have_account">Already have an account? Login Now</string>
+
+    <!-- Water Intake Tracking -->
     <string name="progress_percentage">Progress: %d%%</string>
     <string name="current_intake">Current Intake: %d ml</string>
     <string name="water_amount">Water Amount: %d ml</string>
     <string name="goal_amount">Goal: %d ml</string>
     <string name="amount_ml">%d ml</string>
+
+    <!-- Greetings and Date -->
     <string name="greeting">Hi, %1$s!</string>
     <string name="today_date">Today, %1$s</string>
+
+    <!-- Onboarding Messages -->
     <string name="onboard1">Track your daily water intake with Us.</string>
     <string name="onboard11">Achieve your hydration goals with a simple tap!</string>
     <string name="onboard2">Smart Reminders Tailored to You</string>
     <string name="onboard22">Quick and easy to set your hydration goal and then track your daily water intake progress.</string>
     <string name="onboard3">Easy to Use – Drink, Tap, Repeat</string>
     <string name="onboard33">Staying hydrated every day is easy with Drops Water Tracker.</string>
-    <string name="reportTitle">Report</string>
 
+    <!-- Profile and Report -->
+    <string name="reportTitle">Report</string>
     <string name="my_profile">My Profile</string>
     <string name="height_value">%d cm</string>
     <string name="weight_value">%d kg</string>
     <string name="age_value">%d yo</string>
     <string name="intake_value">%d ml</string>
+
+    <!-- Gender Options -->
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
-</resources>
 
+    <string name="emoji_icon">Emoji Icon</string>
+    <string name="trophy_icon">Trophy Icon</string>
+</resources>
