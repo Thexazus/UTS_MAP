@@ -4,11 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import androidx.fragment.app.DialogFragment
 
 class ReminderActivity : AppCompatActivity() {
 
@@ -17,10 +17,20 @@ class ReminderActivity : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var reminderAdapter: ReminderAdapter
     private val reminderList = mutableListOf<Reminder>()
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
+
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateToHome()
+            }
+        }
+        onBackPressedCallback.isEnabled = true
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
 
         initializeViews()
         setupRecyclerView()
@@ -58,10 +68,6 @@ class ReminderActivity : AppCompatActivity() {
         finish()
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        navigateToHome()
-    }
 
     private fun showReminderDialog() {
         val dialogFragment = ReminderDialogFragment.newInstance()

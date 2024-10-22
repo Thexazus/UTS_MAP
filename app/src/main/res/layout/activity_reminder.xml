@@ -19,13 +19,14 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back_arrow"
-            android:tint="@color/light_blue"
             android:padding="12dp"
-            android:contentDescription="Back" />
+            android:contentDescription="@string/back"
+            app:tint="@color/light_blue" />
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:contentDescription="@string/todo"
             android:src="@drawable/alarm"
             android:layout_marginStart="8dp" />
 
@@ -33,7 +34,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Reminders"
+            android:text="@string/reminders"
             android:textSize="24sp"
             android:textColor="@color/black"
             android:layout_marginStart="8dp" />
@@ -45,7 +46,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/plus"
             android:padding="12dp"
-            android:contentDescription="Add Reminder" />
+            android:contentDescription="@string/add_reminder" />
 
     </LinearLayout>
 
