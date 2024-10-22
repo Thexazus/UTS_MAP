@@ -33,9 +33,9 @@ class ProfileDetailActivity : AppCompatActivity() {
         btnSave.setOnClickListener {
             val firstName = etFirstName.text.toString()
             val lastName = etLastName.text.toString()
-            val age = etAge.text.toString()
-            val weight = etWeight.text.toString()
-            val height = etHeight.text.toString()
+            val age = etAge.text.toString().toInt()
+            val weight = etWeight.text.toString().toInt()
+            val height = etHeight.text.toString().toInt()
             val gender = when (rgGender.checkedRadioButtonId) {
                 R.id.rbMale -> "Male"
                 R.id.rbFemale -> "Female"
