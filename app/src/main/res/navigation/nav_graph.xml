@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_drink_water">
+
+    <!-- Drink Water Fragment -->
+    <fragment
+        android:id="@+id/nav_drink_water"
+        android:name="com.example.uts_map.HomeFragment"
+        android:label="Drink Water" />
+
+    <!-- Reports Fragment -->
+    <fragment
+        android:id="@+id/nav_reports"
+        android:name="com.example.uts_map.Reports"
+        android:label="Reports" />
+
+    <!-- Settings Fragment -->
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.uts_map.Settings"
+        android:label="Settings" />
+</navigation>

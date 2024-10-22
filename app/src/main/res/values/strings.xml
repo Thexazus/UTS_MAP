@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">UTS_MAP</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nama_app">DrinkMe</string>
+    <string name="text_1_splash">Stay hydrated and track your daily water intake</string>
+    <string name="login_title">Welcome back! Glad to see you, Again!</string>
+    <string name="login_hint_email">Enter Your Email</string>
+    <string name="login_hint_password">Enter Your Password</string>
+    <string name="login_button_text">Login</string>
+    <string name="or_login_with">Or Login with</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="dont_have_account">Don\'t have an account? Register Now</string>
+
+    <string name="register_title">Hello! Register to get started</string>
+    <string name="register_hint_email">Enter Your Email</string>
+    <string name="register_hint_phone">Phone Number</string>
+    <string name="register_hint_password">Password</string>
+    <string name="register_hint_confirm_password">Confirm Password</string>
+    <string name="register_button_text">Register</string>
+    <string name="or_register_with">Or Register with</string>
+    <string name="register_with_google">Register with Google</string>
+    <string name="already_have_account">Already have an account? Login Now</string>
+    <string name="progress_percentage">Progress: %d%%</string>
+    <string name="current_intake">Current Intake: %d ml</string>
+    <string name="water_amount">Water Amount: %d ml</string>
+    <string name="goal_amount">Goal: %d ml</string>
+    <string name="amount_ml">%d ml</string>
+    <string name="greeting">Hi, %1$s!</string>
+    <string name="today_date">Today, %1$s</string>
+    <string name="onboard1">Track your daily water intake with Us.</string>
+    <string name="onboard11">Achieve your hydration goals with a simple tap!</string>
+    <string name="onboard2">Smart Reminders Tailored to You</string>
+    <string name="onboard22">Quick and easy to set your hydration goal and then track your daily water intake progress.</string>
+    <string name="onboard3">Easy to Use – Drink, Tap, Repeat</string>
+    <string name="onboard33">Staying hydrated every day is easy with Drops Water Tracker.</string>
+    <string name="reportTitle">Report</string>
+
+    <string name="my_profile">My Profile</string>
+    <string name="height_value">%d cm</string>
+    <string name="weight_value">%d kg</string>
+    <string name="age_value">%d yo</string>
+    <string name="intake_value">%d ml</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+</resources>
+

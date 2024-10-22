@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Warna ketika tombol ditekan -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@android:color/darker_gray"/> <!-- Latar belakang saat ditekan -->
+            <corners android:radius="8dp"/>
+            <stroke android:width="2dp" android:color="@android:color/darker_gray"/> <!-- Border -->
+        </shape>
+    </item>
+
+    <!-- Warna default tombol -->
+    <item android:state_pressed="false">
+        <shape>
+            <solid android:color="@android:color/white"/>
+            <corners android:radius="8dp"/>
+            <stroke android:width="2dp" android:color="@android:color/darker_gray"/> <!-- Border -->
+        </shape>
+    </item>
+</selector>
