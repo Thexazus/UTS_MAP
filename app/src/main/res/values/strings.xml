@@ -55,4 +55,8 @@
 
     <string name="emoji_icon">Emoji Icon</string>
     <string name="trophy_icon">Trophy Icon</string>
+    <string name="todo">TODO</string>
+    <string name="reminders">Reminders</string>
+    <string name="add_reminder">Add Reminder</string>
+    <string name="back">Back</string>
 </resources>
