@@ -13,7 +13,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val DATABASE_NAME = "UserDatabase.db"
         private const val DATABASE_VERSION = 2
         private const val TABLE_USERS = "Users"
-        private const val TABLE_WATER_INTAKE = "WaterIntake" // Tabel baru untuk asupan air
+        private const val TABLE_WATER_INTAKE = "WaterIntake"
         private const val COLUMN_ID = "id"
         private const val COLUMN_EMAIL = "email"
         private const val COLUMN_PHONE = "phone"
@@ -51,8 +51,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val createWaterIntakeTable = """
             CREATE TABLE $TABLE_WATER_INTAKE (
                 $COLUMN_ID INTEGER PRIMARY KEY,
-                $COLUMN_AMOUNT INTEGER,
-                $COLUMN_TIMESTAMP TEXT
+                $COLUMN_AMOUNT INTEGER NOT NULL,
+                $COLUMN_TIMESTAMP TEXT NOT NULL
             )
         """.trimIndent()
 
@@ -71,20 +71,25 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val contentValues = ContentValues()
         contentValues.put(COLUMN_EMAIL, email)
         contentValues.put(COLUMN_PHONE, phone)
-
-        // Hash password sebelum menyimpannya
         val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
         contentValues.put(COLUMN_PASSWORD, hashedPassword)
 
         val result = db.insert(TABLE_USERS, null, contentValues)
         db.close()
-        return result != -1L // Jika -1, berarti insert gagal
+        return result != -1L
     }
 
     fun isUserValid(email: String, password: String): Boolean {
         val db = this.readableDatabase
-        val query = "SELECT $COLUMN_PASSWORD FROM $TABLE_USERS WHERE $COLUMN_EMAIL = ?"
-        val cursor: Cursor = db.rawQuery(query, arrayOf(email))
+        val cursor = db.query(
+            TABLE_USERS,
+            arrayOf(COLUMN_PASSWORD),
+            "$COLUMN_EMAIL = ?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
 
         var isValid = false
         if (cursor.moveToFirst()) {
@@ -97,17 +102,28 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return isValid
     }
 
-    fun updateUserProfile(email: String, firstName: String, lastName: String, age: Int, weight: Int, height: Int, gender: String, sleepingTime: String, wakeUpTime: String): Boolean {
+    fun updateUserProfile(
+        email: String,
+        firstName: String,
+        lastName: String,
+        age: Int,
+        weight: Int,
+        height: Int,
+        gender: String,
+        sleepingTime: String,
+        wakeUpTime: String
+    ): Boolean {
         val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(COLUMN_FIRST_NAME, firstName)
-        contentValues.put(COLUMN_LAST_NAME, lastName)
-        contentValues.put(COLUMN_AGE, age)
-        contentValues.put(COLUMN_WEIGHT, weight)
-        contentValues.put(COLUMN_HEIGHT, height)
-        contentValues.put(COLUMN_GENDER, gender)
-        contentValues.put(COLUMN_SLEEPING_TIME, sleepingTime)
-        contentValues.put(COLUMN_WAKE_UP_TIME, wakeUpTime)
+        val contentValues = ContentValues().apply {
+            put(COLUMN_FIRST_NAME, firstName)
+            put(COLUMN_LAST_NAME, lastName)
+            put(COLUMN_AGE, age)
+            put(COLUMN_WEIGHT, weight)
+            put(COLUMN_HEIGHT, height)
+            put(COLUMN_GENDER, gender)
+            put(COLUMN_SLEEPING_TIME, sleepingTime)
+            put(COLUMN_WAKE_UP_TIME, wakeUpTime)
+        }
 
         val result = db.update(TABLE_USERS, contentValues, "$COLUMN_EMAIL = ?", arrayOf(email))
         db.close()
@@ -116,8 +132,24 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun isProfileComplete(email: String): Boolean {
         val db = this.readableDatabase
-        val query = "SELECT $COLUMN_FIRST_NAME, $COLUMN_LAST_NAME, $COLUMN_AGE, $COLUMN_WEIGHT, $COLUMN_HEIGHT, $COLUMN_GENDER FROM $TABLE_USERS WHERE $COLUMN_EMAIL = ?"
-        val cursor: Cursor = db.rawQuery(query, arrayOf(email))
+        val projection = arrayOf(
+            COLUMN_FIRST_NAME,
+            COLUMN_LAST_NAME,
+            COLUMN_AGE,
+            COLUMN_WEIGHT,
+            COLUMN_HEIGHT,
+            COLUMN_GENDER
+        )
+
+        val cursor = db.query(
+            TABLE_USERS,
+            projection,
+            "$COLUMN_EMAIL = ?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
 
         var isComplete = false
         if (cursor.moveToFirst()) {
@@ -130,11 +162,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return isComplete
     }
 
-    // Metode untuk menyimpan asupan air
     fun insertWaterIntake(waterIntake: WaterIntake) {
         val db = writableDatabase
         val values = ContentValues().apply {
-            put(COLUMN_ID, waterIntake.id) // ID yang unik untuk setiap asupan air
+            put(COLUMN_ID, waterIntake.id)
             put(COLUMN_AMOUNT, waterIntake.amount)
             put(COLUMN_TIMESTAMP, waterIntake.timestamp)
         }
@@ -142,30 +173,41 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
     }
 
-    // Metode untuk menghapus asupan air terakhir
     fun removeLastWaterIntake(amount: Int) {
         val db = writableDatabase
-        db.delete(TABLE_WATER_INTAKE, "$COLUMN_AMOUNT = ?", arrayOf(amount.toString())) // Menghapus berdasarkan jumlah
+        // Menghapus entry terakhir dengan amount tertentu
+        val selection = "$COLUMN_AMOUNT = ? AND $COLUMN_TIMESTAMP = (SELECT MAX($COLUMN_TIMESTAMP) FROM $TABLE_WATER_INTAKE WHERE $COLUMN_AMOUNT = ?)"
+        db.delete(TABLE_WATER_INTAKE, selection, arrayOf(amount.toString(), amount.toString()))
         db.close()
     }
 
-    // Metode untuk mengambil semua data asupan air
     fun getWaterIntakeData(): List<WaterIntake> {
         val waterIntakeList = mutableListOf<WaterIntake>()
-        val db = this.readableDatabase
-        val cursor: Cursor = db.query(TABLE_WATER_INTAKE, null, null, null, null, null, null)
+        val db = readableDatabase
 
-        if (cursor.moveToFirst()) {
-            do {
-                val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
-                val amount = cursor.getInt(cursor.getColumnIndex(COLUMN_AMOUNT))
-                val timestamp = cursor.getString(cursor.getColumnIndex(COLUMN_TIMESTAMP))
+        val cursor = db.query(
+            TABLE_WATER_INTAKE,
+            arrayOf(COLUMN_ID, COLUMN_AMOUNT, COLUMN_TIMESTAMP),
+            null,
+            null,
+            null,
+            null,
+            "$COLUMN_TIMESTAMP DESC"
+        )
 
+        cursor.use { c ->
+            val idIndex = c.getColumnIndexOrThrow(COLUMN_ID)
+            val amountIndex = c.getColumnIndexOrThrow(COLUMN_AMOUNT)
+            val timestampIndex = c.getColumnIndexOrThrow(COLUMN_TIMESTAMP)
+
+            while (c.moveToNext()) {
+                val id = c.getLong(idIndex)
+                val amount = c.getInt(amountIndex)
+                val timestamp = c.getString(timestampIndex)
                 waterIntakeList.add(WaterIntake(id, amount, timestamp))
-            } while (cursor.moveToNext())
+            }
         }
 
-        cursor.close()
         db.close()
         return waterIntakeList
     }
