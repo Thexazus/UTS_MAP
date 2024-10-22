@@ -4,90 +4,152 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".AchievementActivity">
+    android:background="@color/white"
+    android:padding="24dp">
 
-
+    <!-- Date -->
     <TextView
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Today - 22 October"
-        android:textSize="24sp"
+        android:text="Today - 14 September"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:layout_marginTop="24dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Emoji Icon -->
-    <ImageView
-        android:id="@+id/ivEmoji"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:contentDescription="@string/emoji_icon"
-        android:src="@drawable/happy_emoji"
+    <!-- Greeting -->
+    <TextView
+        android:id="@+id/tvGreeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hi, Mesaya."
+        android:textSize="16sp"
+        android:textColor="@color/grey"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tvDate"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
-
-    <!-- Status -->
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Congratulations!"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/ivEmoji"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Pesan Motivasi -->
-    <TextView
-        android:id="@+id/tvMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="You can get everything in life you want\nif you just help enough other\npeople get what they want."
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvStatus"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Ikon Trophy -->
+    <!-- Emoji -->
     <ImageView
-        android:id="@+id/ivTrophy"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:contentDescription="@string/trophy_icon"
-        android:src="@drawable/trophy_gold"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvMessage"
+        android:id="@+id/ivEmoji"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/happy_emoji"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tvGreeting"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tombol Back to Home -->
+    <!-- Status Container using CardView for shadow and rounded corners -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/statusContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/ivEmoji">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F5F9FF"
+            android:padding="24dp">
+
+            <!-- Status Container for Text and Confetti -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/congratsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <!-- Status -->
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Congratulations!"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <!-- Confetti Icon -->
+                <ImageView
+                    android:id="@+id/ivConfetti"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/confetti"
+                    android:layout_marginStart="-8dp"
+                    android:layout_marginTop="-24dp"
+                    app:layout_constraintStart_toEndOf="@id/tvStatus"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Achievement Message -->
+            <TextView
+                android:id="@+id/tvAchievementMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mesaya has achieve your goal today"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/congratsContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Motivational Message -->
+            <TextView
+                android:id="@+id/tvMotivationalMsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="You can get everything in life you want\nif you will just help enough other\npeople get what they want."
+                android:textSize="14sp"
+                android:textColor="@color/grey"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tvAchievementMsg"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Trophy -->
+            <ImageView
+                android:id="@+id/ivTrophy"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/trophy_gold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/tvMotivationalMsg"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Go to Home Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnHome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/blue"
-        android:padding="12dp"
-        android:text="Back to Home"
+        android:text="Go to Home"
         android:textAllCaps="false"
         android:textColor="@color/white"
+        android:backgroundTint="#40BFFF"
+        android:paddingVertical="12dp"
         app:cornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/statusContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
