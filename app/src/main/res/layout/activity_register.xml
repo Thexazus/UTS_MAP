@@ -86,26 +86,12 @@
         android:text="@string/register_button_text"
         android:textColor="#4E342E" />
 
-    <!-- Google Register -->
-    <TextView
-        android:id="@+id/tvOrRegisterWith"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/or_register_with"
-        android:layout_gravity="center"/>
+    <!-- Google Register --><![CDATA[
 
-    <ImageButton
-        android:id="@+id/btnLoginGoogle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="TODO"
-        android:src="@drawable/ic_google_logo"
-        android:background="@drawable/button_google"
-        android:padding="10dp"
-        android:layout_margin="10dp">
-    </ImageButton>/>
 
-    <!-- Already have an account? -->
+    />
+
+    ]]><!-- Already have an account? -->
     <TextView
         android:id="@+id/tvLoginRedirect"
         android:layout_width="wrap_content"
