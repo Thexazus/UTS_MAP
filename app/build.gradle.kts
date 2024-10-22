@@ -39,14 +39,14 @@ android {
 }
 
 dependencies {
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.5.3")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation (libs.androidx.navigation.fragment.ktx.v253)
+    implementation (libs.androidx.navigation.ui.ktx.v253)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation ("org.mindrot:jbcrypt:0.4")
+    implementation (libs.jbcrypt)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
