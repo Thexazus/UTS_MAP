@@ -157,9 +157,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         if (cursor.moveToFirst()) {
             do {
-                val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
-                val amount = cursor.getInt(cursor.getColumnIndex(COLUMN_AMOUNT))
-                val timestamp = cursor.getString(cursor.getColumnIndex(COLUMN_TIMESTAMP))
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID))
+                val amount = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
+                val timestamp = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TIMESTAMP))
 
                 waterIntakeList.add(WaterIntake(id, amount, timestamp))
             } while (cursor.moveToNext())
