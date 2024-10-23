@@ -27,7 +27,6 @@
         android:layout_height="wrap_content"
         android:text="Hi, Mesaya."
         android:textSize="16sp"
-        android:textColor="@color/grey"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tvDate"
         app:layout_constraintStart_toStartOf="parent"
