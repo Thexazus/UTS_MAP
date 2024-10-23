@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- State ketika hari dipilih/aktif -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <!-- Warna background saat dipilih -->
+            <solid android:color="#1E293B" />
+            <!-- Corner radius untuk bentuk rounded rectangle -->
+            <corners android:radius="12dp" />
+            <!-- Ukuran minimum untuk memastikan bentuk konsisten -->
+            <size android:width="40dp" android:height="40dp" />
+        </shape>
+    </item>
+
+    <!-- State ketika hari adalah hari ini -->
+    <item android:state_activated="true">
+        <shape android:shape="rectangle">
+            <!-- Warna background untuk hari ini -->
+            <solid android:color="#E6F2FF" />
+            <corners android:radius="12dp" />
+            <size android:width="40dp" android:height="40dp" />
+        </shape>
+    </item>
+
+    <!-- State default/normal -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Background transparent untuk hari normal -->
+            <solid android:color="@android:color/transparent" />
+            <corners android:radius="12dp" />
+            <size android:width="40dp" android:height="40dp" />
+        </shape>
+    </item>
+</selector>
