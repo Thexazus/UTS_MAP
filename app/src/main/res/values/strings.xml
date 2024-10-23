@@ -59,4 +59,17 @@
     <string name="reminders">Reminders</string>
     <string name="add_reminder">Add Reminder</string>
     <string name="back">Back</string>
+
+
+    <string name="report">Report</string>
+    <string name="username">Mesaya</string>
+    <string name="activity_progress">Activity Progress</string>
+    <string name="details">Details ></string>
+    <string name="progress_this_week">Progress this week</string>
+    <string name="default_progress_value">1845ml</string>
+    <string name="default_progress_percentage">50%</string>
+    <string name="congratulations">Congratulations!!</string>
+    <string name="achievement_streak_message">You are on a 7 days completion streak</string>
+
+
 </resources>
