@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="circleImageView" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">30%</item>
+        <item name="cornerSize">50%</item>
     </style>
 
     <style name="CalendarWeekdayText">
@@ -17,8 +18,13 @@
         <item name="android:background">@drawable/day_button_background</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">14sp</item>
-<!--        <item name="android:textColor">@color/day_button_text</item>-->
+        <!--        <item name="android:textColor">@color/day_button_text</item>-->
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.Theme.UTS_MAP.MyView" parent="">
+        <item name="android:background">@color/gray_400</item>
+        <item name="exampleColor">@color/light_blue_400</item>
     </style>
 </resources>

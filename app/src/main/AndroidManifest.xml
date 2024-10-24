@@ -13,12 +13,6 @@
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
         <activity
-            android:name=".ReportActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SettingActivity"
-            android:exported="false" />
-        <activity
             android:name=".AchievementActivity"
             android:exported="false" />
         <activity
