@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_drink_water">
 
@@ -8,6 +9,17 @@
     <fragment
         android:id="@+id/nav_drink_water"
         android:name="com.example.uts_map.HomeFragment"
-        android:label="Drink Water" />
+        android:label="Drink Water"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/nav_reports"
+        android:name="com.example.uts_map.ReportFragment"
+        android:label="Reports"
+        tools:layout="@layout/fragment_report" />
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.uts_map.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
 
 </navigation>
