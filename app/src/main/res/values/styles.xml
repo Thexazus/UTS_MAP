@@ -4,4 +4,21 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">30%</item>
     </style>
+
+    <style name="CalendarWeekdayText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="DayOfWeekButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/day_button_background</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/day_button_text</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
 </resources>

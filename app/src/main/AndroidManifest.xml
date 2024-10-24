@@ -13,6 +13,24 @@
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
         <activity
+            android:name=".ReportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".AchievementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DailyAchievement"
+            android:exported="false" />
+        <activity
+            android:name=".ReminderActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashScreen1"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar">
@@ -33,8 +51,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".OnboardingActivity"
             android:exported="false" />

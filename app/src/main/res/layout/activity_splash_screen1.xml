@@ -51,4 +51,6 @@
         android:text="@string/nama_app"
         android:textSize="30sp"
         android:textColor="@android:color/white"/>
+
+
 </RelativeLayout>
