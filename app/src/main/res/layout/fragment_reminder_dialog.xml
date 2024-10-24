@@ -42,7 +42,7 @@
 
         <!-- Time Picker -->
         <TextView
-            android:id="@+id/tvTime"
+            android:id="@+id/timePicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -104,7 +104,7 @@
 
         <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
+            android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Save"

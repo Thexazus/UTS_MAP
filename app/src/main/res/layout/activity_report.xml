@@ -88,16 +88,16 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"/>
 
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/progressToday"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:cpb_background_progressbar_color="#EAEAEA"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_progress_direction="counterclockwise"
-                app:cpb_progressbar_color="@color/primary_blue"
-                app:cpb_progressbar_width="8dp"
-                app:cpb_round_border="false"/>
+<!--            <com.mikhaellopez.circularprogressbar.CircularProgressBar-->
+<!--                android:id="@+id/progressToday"-->
+<!--                android:layout_width="80dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                app:cpb_background_progressbar_color="#EAEAEA"-->
+<!--                app:cpb_background_progressbar_width="8dp"-->
+<!--                app:cpb_progress_direction="counterclockwise"-->
+<!--                app:cpb_progressbar_color="@color/primary_blue"-->
+<!--                app:cpb_progressbar_width="8dp"-->
+<!--                app:cpb_round_border="false"/>-->
         </LinearLayout>
 
         <LinearLayout
@@ -114,16 +114,16 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"/>
 
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/progressYesterday"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:cpb_background_progressbar_color="#EAEAEA"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_progress_direction="counterclockwise"
-                app:cpb_progressbar_color="@color/primary_blue"
-                app:cpb_progressbar_width="8dp"
-                app:cpb_round_border="false"/>
+<!--            <com.mikhaellopez.circularprogressbar.CircularProgressBar-->
+<!--                android:id="@+id/progressYesterday"-->
+<!--                android:layout_width="80dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                app:cpb_background_progressbar_color="#EAEAEA"-->
+<!--                app:cpb_background_progressbar_width="8dp"-->
+<!--                app:cpb_progress_direction="counterclockwise"-->
+<!--                app:cpb_progressbar_color="@color/primary_blue"-->
+<!--                app:cpb_progressbar_width="8dp"-->
+<!--                app:cpb_round_border="false"/>-->
         </LinearLayout>
 
         <LinearLayout
@@ -140,16 +140,16 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"/>
 
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/progress2DaysAgo"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:cpb_background_progressbar_color="#EAEAEA"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_progress_direction="counterclockwise"
-                app:cpb_progressbar_color="@color/primary_blue"
-                app:cpb_progressbar_width="8dp"
-                app:cpb_round_border="false"/>
+<!--            <com.mikhaellopez.circularprogressbar.CircularProgressBar-->
+<!--                android:id="@+id/progress2DaysAgo"-->
+<!--                android:layout_width="80dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                app:cpb_background_progressbar_color="#EAEAEA"-->
+<!--                app:cpb_background_progressbar_width="8dp"-->
+<!--                app:cpb_progress_direction="counterclockwise"-->
+<!--                app:cpb_progressbar_color="@color/primary_blue"-->
+<!--                app:cpb_progressbar_width="8dp"-->
+<!--                app:cpb_round_border="false"/>-->
         </LinearLayout>
     </LinearLayout>
 
