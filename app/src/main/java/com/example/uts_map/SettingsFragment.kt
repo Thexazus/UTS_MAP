@@ -31,6 +31,8 @@ class SettingsFragment : Fragment() {
     private fun setupUI() {
         binding.apply {
             titleText.text = "My Profile"
+//            userName.text = UserPreferences.getName(requireContext())
+//            userEmail.text = UserPreferences.getEmail(requireContext())
             heightValue.text = "${UserPreferences.getHeight(requireContext())} cm"
             weightValue.text = "${UserPreferences.getWeight(requireContext())} kg"
             ageValue.text = "${UserPreferences.getAge(requireContext())} yo"

@@ -33,8 +33,8 @@
     <!-- Profile Image -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewProfile"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/circleImageView"
@@ -45,8 +45,8 @@
     <!-- Bell Icon -->
     <ImageView
         android:id="@+id/imageViewBell"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:clickable="true"
         android:contentDescription="Bell Icon"
         android:focusable="true"
@@ -58,8 +58,8 @@
     <ImageView
         android:contentDescription="Google Sync"
         android:id="@+id/imageViewSync"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/sync"
         app:layout_constraintEnd_toEndOf="parent"
