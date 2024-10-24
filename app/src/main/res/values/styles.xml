@@ -17,7 +17,7 @@
         <item name="android:background">@drawable/day_button_background</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/day_button_text</item>
+<!--        <item name="android:textColor">@color/day_button_text</item>-->
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
     </style>

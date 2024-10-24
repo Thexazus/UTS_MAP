@@ -39,17 +39,18 @@ android {
 }
 
 dependencies {
-    implementation (libs.androidx.navigation.fragment.ktx.v253)
-    implementation (libs.androidx.navigation.ui.ktx.v253)
+    implementation(libs.androidx.navigation.fragment.ktx.v253)
+    implementation(libs.androidx.navigation.ui.ktx.v253)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation (libs.jbcrypt)
+    implementation(libs.jbcrypt)
+    implementation(libs.circularprogressbar)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("de.hdodenhof:circleimageview:3.1.0")
-    implementation("com.mikhaellopez:circularprogressbar:3.1.0")
+    implementation(libs.circleimageview)
+    implementation(libs.circularprogressbar)
 }
