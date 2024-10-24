@@ -1,59 +1,127 @@
 package com.example.uts_map
 
+import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import com.example.uts_map.databinding.FragmentSettingsBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SettingsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SettingsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        setupUI()
+        setupListeners()
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SettingsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SettingsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+    private fun setupUI() {
+        binding.apply {
+            titleText.text = "My Profile"
+            heightValue.text = "${UserPreferences.getHeight(requireContext())} cm"
+            weightValue.text = "${UserPreferences.getWeight(requireContext())} kg"
+            ageValue.text = "${UserPreferences.getAge(requireContext())} yo"
+            intakeValue.text = "${UserPreferences.getDailyIntakeGoal(requireContext())} ml"
+
+            when(UserPreferences.getGender(requireContext())) {
+                "Male" -> genderRadioGroup.check(R.id.radioMale)
+                "Female" -> genderRadioGroup.check(R.id.radioFemale)
+                else -> genderRadioGroup.check(R.id.radioOther)
             }
+
+            updateTimeDisplay(UserPreferences.getSleepingTime(requireContext()), sleepingTimeLayout)
+            updateTimeDisplay(UserPreferences.getWakeUpTime(requireContext()), wakeUpTimeLayout)
+        }
+    }
+
+    private fun setupListeners() {
+        binding.apply {
+            editButton.setOnClickListener {
+                val intent = Intent(requireContext(), ProfileDetailActivity::class.java)
+                startActivity(intent)
+            }
+
+            genderRadioGroup.setOnCheckedChangeListener{_, checkedId ->
+                val gender = when(checkedId) {
+                    R.id.radioMale -> "Male"
+                    R.id.radioFemale -> "Female"
+                    else -> "Other"
+                }
+                UserPreferences.setGender(requireContext(), gender)
+            }
+
+            sleepingTimeLayout.setOnClickListener{
+                showTimePickerDialog("sleeping")
+            }
+
+            wakeUpTimeLayout.setOnClickListener {
+                showTimePickerDialog("wakeup")
+            }
+
+        }
+    }
+
+    private fun showTimePickerDialog(type: String) {
+        val calendar = Calendar.getInstance()
+        TimePickerDialog(
+            requireContext(),
+            { _, hourOfDay, minute ->
+                val time = String.format("%02d:%02d", hourOfDay, minute)
+                when (type) {
+                    "sleeping" -> {
+                        UserPreferences.setSleepingTime(requireContext(), time)
+                        updateTimeDisplay(time, binding.sleepingTimeLayout)
+                    }
+                    "wakeup" -> {
+                        UserPreferences.setWakeUpTime(requireContext(), time)
+                        updateTimeDisplay(time, binding.wakeUpTimeLayout)
+                    }
+                }
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            false
+        ).show()
+    }
+
+    private fun updateTimeDisplay(time: String, layout: android.view.ViewGroup) {
+        val (hour, minute) = time.split(":").map { it.toInt() }
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+        }
+        val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
+        val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
+
+        val timeValueView = when (layout.id) {
+            R.id.sleepingTimeLayout -> layout.findViewById<TextView>(R.id.sleepingTimeValue)
+            R.id.wakeUpTimeLayout -> layout.findViewById<TextView>(R.id.wakeUpTimeValue)
+            else -> null
+        }
+        val amPmValueView = when (layout.id) {
+            R.id.sleepingTimeLayout -> layout.findViewById<TextView>(R.id.sleepingTimeAmPm)
+            R.id.wakeUpTimeLayout -> layout.findViewById<TextView>(R.id.wakeUpTimeAmPm)
+            else -> null
+        }
+
+        timeValueView?.text = timeFormat.format(calendar.time)
+        amPmValueView?.text = amPmFormat.format(calendar.time)
+    }
+
+
+    companion object {
     }
 }
