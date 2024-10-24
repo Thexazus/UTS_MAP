@@ -2,6 +2,7 @@ package com.example.uts_map
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.SharedPreferences
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -9,11 +10,16 @@ import org.mindrot.jbcrypt.BCrypt
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    private val editor: SharedPreferences.Editor = sharedPreferences.edit()
+
     companion object {
         private const val DATABASE_NAME = "UserDatabase.db"
         private const val DATABASE_VERSION = 2
         private const val TABLE_USERS = "Users"
         private const val TABLE_WATER_INTAKE = "WaterIntake"
+
+        // Database columns
         private const val COLUMN_ID = "id"
         private const val COLUMN_EMAIL = "email"
         private const val COLUMN_PHONE = "phone"
@@ -28,6 +34,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val COLUMN_WAKE_UP_TIME = "wake_up_time"
         private const val COLUMN_AMOUNT = "amount"
         private const val COLUMN_TIMESTAMP = "timestamp"
+
+        // SharedPreferences
+        private const val PREF_NAME = "UserPrefs"
+        private const val KEY_IS_LOGGED_IN = "is_logged_in"
+        private const val KEY_CURRENT_USER_EMAIL = "current_user_email"
+        private const val KEY_CURRENT_USER_FIRST_NAME = "current_user_first_name"
+        private const val KEY_CURRENT_USER_LAST_NAME = "current_user_last_name"
+        private const val KEY_CURRENT_USER_FULL_NAME = "current_user_full_name"
+        private const val KEY_DAILY_WATER_GOAL = "daily_water_goal"
+        private const val KEY_LAST_LOGIN = "last_login"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -66,6 +82,88 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         onCreate(db)
     }
 
+    // SharedPreferences methods for name management
+    fun setUserName(firstName: String, lastName: String) {
+        editor.apply {
+            putString(KEY_CURRENT_USER_FIRST_NAME, firstName)
+            putString(KEY_CURRENT_USER_LAST_NAME, lastName)
+            putString(KEY_CURRENT_USER_FULL_NAME, "$firstName $lastName")
+            apply()
+        }
+    }
+
+    fun getCurrentUserFirstName(): String {
+        return sharedPreferences.getString(KEY_CURRENT_USER_FIRST_NAME, "") ?: ""
+    }
+
+    fun getCurrentUserLastName(): String {
+        return sharedPreferences.getString(KEY_CURRENT_USER_LAST_NAME, "") ?: ""
+    }
+
+    fun getCurrentUserFullName(): String {
+        return sharedPreferences.getString(KEY_CURRENT_USER_FULL_NAME, "") ?: ""
+    }
+
+    // Other SharedPreferences methods
+    fun setUserLoggedIn(email: String) {
+        editor.apply {
+            putBoolean(KEY_IS_LOGGED_IN, true)
+            putString(KEY_CURRENT_USER_EMAIL, email)
+            putLong(KEY_LAST_LOGIN, System.currentTimeMillis())
+            apply()
+        }
+
+        // Fetch and save user name when logging in
+        val db = this.readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            arrayOf(COLUMN_FIRST_NAME, COLUMN_LAST_NAME),
+            "$COLUMN_EMAIL = ?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
+
+        if (cursor.moveToFirst()) {
+            val firstName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FIRST_NAME))
+            val lastName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LAST_NAME))
+            if (firstName != null && lastName != null) {
+                setUserName(firstName, lastName)
+            }
+        }
+        cursor.close()
+        db.close()
+    }
+
+    fun setUserLoggedOut() {
+        editor.apply {
+            putBoolean(KEY_IS_LOGGED_IN, false)
+            remove(KEY_CURRENT_USER_EMAIL)
+            remove(KEY_CURRENT_USER_FIRST_NAME)
+            remove(KEY_CURRENT_USER_LAST_NAME)
+            remove(KEY_CURRENT_USER_FULL_NAME)
+            apply()
+        }
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
+    }
+
+    fun getCurrentUserEmail(): String? {
+        return sharedPreferences.getString(KEY_CURRENT_USER_EMAIL, null)
+    }
+
+    fun setDailyWaterGoal(goal: Int) {
+        editor.putInt(KEY_DAILY_WATER_GOAL, goal).apply()
+    }
+
+    fun getDailyWaterGoal(): Int {
+        return sharedPreferences.getInt(KEY_DAILY_WATER_GOAL, 2000) // Default 2000ml
+    }
+
+    // Modified database methods to integrate with SharedPreferences
     fun addUser(email: String, phone: String, password: String): Boolean {
         val db = this.writableDatabase
         val contentValues = ContentValues()
@@ -76,14 +174,19 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         val result = db.insert(TABLE_USERS, null, contentValues)
         db.close()
-        return result != -1L
+
+        if (result != -1L) {
+            setUserLoggedIn(email)
+            return true
+        }
+        return false
     }
 
     fun isUserValid(email: String, password: String): Boolean {
         val db = this.readableDatabase
         val cursor = db.query(
             TABLE_USERS,
-            arrayOf(COLUMN_PASSWORD),
+            arrayOf(COLUMN_PASSWORD, COLUMN_FIRST_NAME, COLUMN_LAST_NAME),
             "$COLUMN_EMAIL = ?",
             arrayOf(email),
             null,
@@ -94,7 +197,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         var isValid = false
         if (cursor.moveToFirst()) {
             val storedHashedPassword = cursor.getString(0)
+            val firstName = cursor.getString(1)
+            val lastName = cursor.getString(2)
             isValid = BCrypt.checkpw(password, storedHashedPassword)
+
+            if (isValid) {
+                setUserLoggedIn(email)
+                if (firstName != null && lastName != null) {
+                    setUserName(firstName, lastName)
+                }
+            }
         }
 
         cursor.close()
@@ -127,7 +239,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
         val result = db.update(TABLE_USERS, contentValues, "$COLUMN_EMAIL = ?", arrayOf(email))
         db.close()
-        return result > 0
+
+        if (result > 0) {
+            setUserName(firstName, lastName)
+            // Calculate and set recommended daily water intake based on weight
+            val recommendedWaterIntake = weight * 30 // 30ml per kg of body weight
+            setDailyWaterGoal(recommendedWaterIntake)
+            return true
+        }
+        return false
     }
 
     fun isProfileComplete(email: String): Boolean {
@@ -175,7 +295,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun removeLastWaterIntake(amount: Int) {
         val db = writableDatabase
-        // Menghapus entry terakhir dengan amount tertentu
         val selection = "$COLUMN_AMOUNT = ? AND $COLUMN_TIMESTAMP = (SELECT MAX($COLUMN_TIMESTAMP) FROM $TABLE_WATER_INTAKE WHERE $COLUMN_AMOUNT = ?)"
         db.delete(TABLE_WATER_INTAKE, selection, arrayOf(amount.toString(), amount.toString()))
         db.close()
