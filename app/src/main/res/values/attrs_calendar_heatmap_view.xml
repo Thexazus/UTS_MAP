@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="CalendarHeatmapView">
+        <attr name="exampleStringHeatmap" format="string" />
+        <attr name="exampleDimensionHeatmap" format="dimension" />
+        <attr name="exampleColorHeatmap" format="color" />
+        <attr name="exampleDrawableHeatmap" format="color|reference" />
+    </declare-styleable>
+</resources>
