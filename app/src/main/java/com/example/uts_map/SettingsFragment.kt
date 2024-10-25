@@ -72,9 +72,14 @@ class SettingsFragment : Fragment() {
             wakeUpTimeLayout.setOnClickListener {
                 showTimePickerDialog("wakeup")
             }
+                logoutButton.setOnClickListener {
+                    val intent = Intent(requireContext(), LoginActivity::class.java)
+                    startActivity(intent)
+                    requireActivity().finish()
+                }
+            }
 
         }
-    }
 
     private fun showTimePickerDialog(type: String) {
         val calendar = Calendar.getInstance()
