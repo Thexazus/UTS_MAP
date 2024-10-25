@@ -16,9 +16,6 @@
             android:name=".AchievementActivity"
             android:exported="false" />
         <activity
-            android:name=".ReminderActivity"
-            android:exported="false" />
-        <activity
             android:name=".SplashScreen1"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar">

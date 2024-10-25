@@ -1,69 +1,61 @@
 package com.example.uts_map
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ReminderActivity : AppCompatActivity() {
+class ReminderFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var addReminderButton: ImageButton // Diubah ke ImageButton
+    private lateinit var addReminderButton: ImageButton
     private lateinit var backButton: ImageButton
     private lateinit var reminderAdapter: ReminderAdapter
     private val reminderList = mutableListOf<Reminder>()
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_reminder)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_reminder, container, false)
+    }
 
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                navigateToHome()
-            }
-        }
-        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-
-        initializeViews()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initializeViews(view)
         setupRecyclerView()
         setupClickListeners()
     }
 
-    private fun initializeViews() {
-        recyclerView = findViewById(R.id.reminderRecyclerView)
-        addReminderButton = findViewById(R.id.addReminderButton)
-        backButton = findViewById(R.id.backButton)
+    private fun initializeViews(view: View) {
+        recyclerView = view.findViewById(R.id.reminderRecyclerView)
+        addReminderButton = view.findViewById(R.id.addReminderButton)
+        backButton = view.findViewById(R.id.backButton)
     }
 
     private fun setupRecyclerView() {
         reminderAdapter = ReminderAdapter(reminderList)
         recyclerView.apply {
-            layoutManager = LinearLayoutManager(this@ReminderActivity)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = reminderAdapter
         }
     }
 
     private fun setupClickListeners() {
         backButton.setOnClickListener {
-            navigateToHome()
+            // Kembali ke fragment sebelumnya
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
         addReminderButton.setOnClickListener {
             showReminderDialog()
         }
-    }
-
-    private fun navigateToHome() {
-        // Navigasi ke MainActivity bukan HomeFragment
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        startActivity(intent)
-        finish()
     }
 
     private fun showReminderDialog() {
@@ -78,12 +70,12 @@ class ReminderActivity : AppCompatActivity() {
             reminderAdapter.notifyItemInserted(reminderList.size - 1)
 
             Toast.makeText(
-                this,
+                requireContext(),
                 "Reminder set for $timeString",
                 Toast.LENGTH_SHORT
             ).show()
         }
-        dialogFragment.show(supportFragmentManager, "reminder_dialog")
+        dialogFragment.show(parentFragmentManager, "reminder_dialog")
     }
 
     private fun editReminder(position: Int) {
@@ -94,6 +86,11 @@ class ReminderActivity : AppCompatActivity() {
             reminderList[position] = Reminder(timeString, reminder.daysOfWeek, reminder.isActive)
             reminderAdapter.notifyItemChanged(position)
         }
-        dialogFragment.show(supportFragmentManager, "reminder_dialog")
+        dialogFragment.show(parentFragmentManager, "reminder_dialog")
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = ReminderFragment()
     }
 }

@@ -1,6 +1,5 @@
 package com.example.uts_map
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,9 +21,12 @@ class HomeFragment : Fragment() {
 
         // Setup click listener untuk icon notifikasi
         view.findViewById<ImageView>(R.id.imageViewBell).setOnClickListener {
-            // Navigasi ke ReminderActivity
-            val intent = Intent(requireContext(), ReminderActivity::class.java)
-            startActivity(intent)
+            // Navigasi ke ReminderFragment
+            val reminderFragment = ReminderFragment.newInstance()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, reminderFragment) // Pastikan ID container sesuai
+                .addToBackStack(null)  // Menambahkan ke back stack agar bisa kembali
+                .commit()
         }
 
         // Inisialisasi komponen UI lainnya di sini
