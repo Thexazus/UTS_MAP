@@ -12,7 +12,7 @@
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Today - 14 September"
+        android:text="Today - Date Month"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -25,7 +25,7 @@
         android:id="@+id/tvGreeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hi, Mesaya."
+        android:text="Hi, User."
         android:textSize="16sp"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tvDate"
@@ -43,7 +43,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Status Container using CardView for shadow and rounded corners -->
+
     <androidx.cardview.widget.CardView
         android:id="@+id/statusContainer"
         android:layout_width="match_parent"
@@ -59,7 +59,6 @@
             android:background="#F5F9FF"
             android:padding="24dp">
 
-            <!-- Status Container for Text and Confetti -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/congratsContainer"
                 android:layout_width="wrap_content"
@@ -99,7 +98,7 @@
                 android:id="@+id/tvAchievementMsg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mesaya has achieve your goal today"
+                android:text="User has achieve your goal today"
                 android:textSize="16sp"
                 android:textColor="@color/black"
                 android:layout_marginTop="8dp"
