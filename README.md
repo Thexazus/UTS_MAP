@@ -3,13 +3,13 @@ Name App : DrinkMe
 
 Kelompok minum bang
 Anggota :
-1. Aurelius Brandon Alexander Abuthan
-2. Christopher Mesaya
-3. Audrey Gracia Chandra
-4. Nicholas Miguel Syachnanta
+1. Aurelius Brandon Alexander Abuthan (00000075101)
+2. Christopher Mesaya (00000070524)
+3. Audrey Gracia Chandra (00000069296)
+4. Nicholas Miguel Syachnanta (00000076394)
 
-DrinkMe adalah sebuah aplikasi tracker berbasis android yang dimana kita dapat mengontrol minuman yang kita konsumsi dalam menjalankan aktivitas kita.Aplikasi DrinkMe sangat bermanfaat dalam 
-kehidupan sehari-hari yang dimana melalui aplikasi ini bisa menjadi pengontrol dan pengingat untuk kita minum.
+DrinkMe adalah sebuah aplikasi tracker berbasis android dimana kita dapat mengontrol minuman yang kita konsumsi dalam menjalankan aktivitas kita. Aplikasi DrinkMe sangat bermanfaat dalam 
+kehidupan sehari-hari. Melalui aplikasi ini, bisa menjadi pengontrol dan pengingat teratur untuk kita minum, sehinga dapat membantu pengguna agar tidak mengalami dehidrasi air putih.
 
 Fitur-Fitur yang disediakan dalam DrinkMw
 1. Login & SignUp : merupakan fitur untuk kita dapat membuat akun dan melakukan login untuk dapat masuk ke dalam aplikasi.
@@ -21,5 +21,5 @@ Fitur-Fitur yang disediakan dalam DrinkMw
 6. Alarm :  merupakan fitur yang dibuat sebagai pengingat bagi user untuk mengkonsumsi air minum.Fitur ini dapat diset seperti alarm pada umumnya seperti menambahkan jadwal alarm berbunyi.
 
 
-link video :https://drive.google.com/file/d/17Crjvrtr8QLh1j5rtYxQWNCj6flq3AMN/view?usp=drive_link
+link video : https://drive.google.com/file/d/1fO5vgfYvOFXpKYUI4WwbqWXmeQ8yriQO/view?usp=drivesdk
 link dokumentasi github : https://github.com/Thexazus/UTS_MAP.git
