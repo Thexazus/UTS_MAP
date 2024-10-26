@@ -19,5 +19,7 @@ Fitur-Fitur yang disediakan dalam DrinkMw
 5. Profile : merupakan fitur yang dibuat untuk melihat profil yang kita buat yang dimana terdapat berbagai informasi seperti nama,berat badan,tinggi badan,umur,dll.Terdapat juga fitur edit profile
    yang dimana kita dapat mengedit profile kita seperti mengganti nama,umur,berat badan,tinggi badan,dll.
 6. Alarm :  merupakan fitur yang dibuat sebagai pengingat bagi user untuk mengkonsumsi air minum.Fitur ini dapat diset seperti alarm pada umumnya seperti menambahkan jadwal alarm berbunyi.
-   
-   
+
+
+link video :https://drive.google.com/file/d/17Crjvrtr8QLh1j5rtYxQWNCj6flq3AMN/view?usp=drive_link
+link dokumentasi github : https://github.com/Thexazus/UTS_MAP.git
