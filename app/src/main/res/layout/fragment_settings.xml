@@ -71,7 +71,7 @@
                     android:padding="16dp"
                     android:text="D r i n k  M e"
                     android:textAlignment="center"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#546E7A"
                     android:textSize="24sp" />
 
                 <LinearLayout
@@ -326,12 +326,12 @@
                 android:id="@+id/sleepingTimeAmPm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PM"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:background="#87CEEB"
                 android:layout_marginStart="8dp"
-                android:padding="8dp"/>
+                android:background="#87CEEB"
+                android:padding="8dp"
+                android:text="PM"
+                android:textColor="#1B5E20"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <TextView
@@ -348,45 +348,56 @@
             android:id="@+id/wakeUpTimeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="8dp"
             android:gravity="center_vertical"
-            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeTitle">
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeTitle"
+            tools:layout_editor_absoluteX="16dp">
 
             <TextView
                 android:id="@+id/wakeUpTimeValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09 : 41"
-                android:textSize="24sp"
-                android:textColor="#000000"
                 android:background="#E6E6FA"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                android:text="09 : 41"
+                android:textColor="#000000"
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/wakeUpTimeAmPm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AM"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:background="#87CEEB"
                 android:layout_marginStart="8dp"
-                android:padding="8dp"/>
+                android:background="#87CEEB"
+                android:padding="8dp"
+                android:text="AM"
+                android:textColor="#1B5E20"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <!-- Logout Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteY="68dp">
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@color/blue"
             android:text="Logout"
             android:textColor="#FFFFFF"
-            android:backgroundTint="@color/blue"
-            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeLayout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@+id/wakeUpTimeLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

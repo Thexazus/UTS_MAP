@@ -12,7 +12,7 @@ DrinkMe adalah sebuah aplikasi tracker berbasis android dimana kita dapat mengon
 kehidupan sehari-hari. Melalui aplikasi ini, bisa menjadi pengontrol dan pengingat teratur untuk kita minum, sehinga dapat membantu pengguna agar tidak mengalami dehidrasi air putih.
 
 Fitur-Fitur yang disediakan dalam DrinkMw
-1. Login & SignUp : merupakan fitur untuk kita dapat membuat akun dan melakukan login untuk dapat masuk ke dalam aplikasi.
+1. Login & SignUp : merupakan fitur untuk kita dapat membuat akun dan melakukan login untuk dapat masuk ke dalam aplikasi. Disini menerapkan create dan read akun dari database lokal menggunakan SQLite.
 2. Home : di dalam menu home terdapat berbagai fitur seperti persen bar,input manual jumlah konsumsi air minum dan juga jumlah yang diminum per hari.
 3. Camera : merupakan fitur untuk kita menginput jumlah air minum melalui kamera.
 4. Report : merupakan fitur report atau riwayat dari jumlah konsumsi minum yang dapat dilihat statistiknya dalam graph yang disusun secara per minggu dan per tahun.
