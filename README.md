@@ -22,5 +22,5 @@ Fitur-Fitur yang disediakan dalam DrinkMe
 6. Alarm :  merupakan fitur yang dibuat sebagai pengingat bagi user untuk mengkonsumsi air minum. Fitur ini dapat diset seperti alarm pada umumnya seperti menambahkan jadwal alarm berbunyi.
 
 
-link video : https://drive.google.com/file/d/1fO5vgfYvOFXpKYUI4WwbqWXmeQ8yriQO/view?usp=drivesdk
+link video : https://drive.google.com/file/d/1fWkq0X-UmMAcFOiz-n7wZH0J9EGue1YE/view?usp=drivesdk
 link dokumentasi github : https://github.com/Thexazus/UTS_MAP.git
