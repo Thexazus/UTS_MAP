@@ -70,6 +70,7 @@
     <string name="default_progress_percentage">50%</string>
     <string name="congratulations">Congratulations!!</string>
     <string name="achievement_streak_message">You are on a 7 days completion streak</string>
+    <string name="already_have_an_account_login_now">Already have an account? Login Now</string>
 
 
 </resources>
