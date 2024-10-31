@@ -146,8 +146,18 @@
                 android:layout_gravity="center_vertical"
                 app:thumbTint="@android:color/white"/>
 
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/close"
+            android:contentDescription="@string/delete"
+            android:layout_gravity="end|top"
+            android:tint="@color/black"/>
 
+
+    </LinearLayout>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
