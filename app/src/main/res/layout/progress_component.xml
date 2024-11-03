@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:columnCount="3"
+    android:background="#FFFFFF"
     android:useDefaultMargins="true"
     android:orientation="horizontal">
 

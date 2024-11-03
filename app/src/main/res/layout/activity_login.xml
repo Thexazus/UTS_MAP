@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/holo_blue_light"
         android:text="@string/login_button_text"
-        android:textColor="#4E342E" />
+        android:textColor="#FFFFFF" />
 
     <!-- Google Login -->
 

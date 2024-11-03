@@ -84,7 +84,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/holo_blue_light"
         android:text="@string/register_button_text"
-        android:textColor="#4E342E" />
+        android:textColor="#FFFFFF" />
 
     <!-- Google Register --><![CDATA[
 
@@ -101,7 +101,7 @@
         android:focusable="true"
         android:minHeight="48dp"
         android:padding="8dp"
-        android:text="Already have an account? Login Now"
+        android:text="@string/already_have_an_account_login_now"
         android:textColor="@android:color/holo_blue_light"
         android:textStyle="bold" />
 </LinearLayout>

@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TimePicker
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class ProfileDetailActivity : AppCompatActivity() {
@@ -31,24 +32,42 @@ class ProfileDetailActivity : AppCompatActivity() {
         val userEmail = SessionManager.getUserEmail(this)
 
         btnSave.setOnClickListener {
-            val firstName = etFirstName.text.toString()
-            val lastName = etLastName.text.toString()
-            val age = etAge.text.toString().toInt()
-            val weight = etWeight.text.toString().toInt()
-            val height = etHeight.text.toString().toInt()
+            val firstName = etFirstName.text.toString().trim()
+            val lastName = etLastName.text.toString().trim()
+            val ageText = etAge.text.toString().trim()
+            val weightText = etWeight.text.toString().trim()
+            val heightText = etHeight.text.toString().trim()
             val gender = when (rgGender.checkedRadioButtonId) {
                 R.id.rbMale -> "Male"
                 R.id.rbFemale -> "Female"
-                else -> "Other"
+                else -> null
             }
             val sleepingTime = "${tpSleepingTime.hour}:${tpSleepingTime.minute}"
             val wakeUpTime = "${tpWakeUpTime.hour}:${tpWakeUpTime.minute}"
 
-            if (userEmail != null) {
-                databaseHelper.updateUserProfile(userEmail, firstName, lastName, age, weight, height, gender, sleepingTime, wakeUpTime)
-                SessionManager.setProfileCompleted(this, true)
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+            // Validasi input
+            if (firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() ||
+                weightText.isEmpty() || heightText.isEmpty() || gender == null) {
+
+                Toast.makeText(this, "Semua bidang harus diisi", Toast.LENGTH_SHORT).show()
+            } else {
+                val age = ageText.toIntOrNull()
+                val weight = weightText.toIntOrNull()
+                val height = heightText.toIntOrNull()
+
+                // Validasi apakah input angka valid (misalnya umur, berat, dan tinggi)
+                if (age == null || weight == null || height == null) {
+                    Toast.makeText(this, "Umur, berat, dan tinggi harus berupa angka yang valid", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // Jika semua validasi lolos, simpan data
+                if (userEmail != null) {
+                    databaseHelper.updateUserProfile(userEmail, firstName, lastName, age, weight, height, gender, sleepingTime, wakeUpTime)
+                    SessionManager.setProfileCompleted(this, true)
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
             }
         }
     }
