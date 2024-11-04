@@ -139,6 +139,7 @@
             android:textColor="#000000"
             android:layout_marginBottom="8dp"/>
 
+
         <EditText
             android:id="@+id/etWeight"
             android:layout_width="match_parent"
@@ -148,6 +149,25 @@
             android:text="0"
             android:inputType="numberDecimal"
             android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Height"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp"/>
+
+
+        <EditText
+            android:id="@+id/etHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittext_border"
+            android:padding="12dp"
+            android:text="0"
+            android:inputType="numberDecimal"
+            android:layout_marginBottom="16dp"/>
+
 
 
         <TextView
@@ -191,6 +211,7 @@
 
         <!-- Sleeping time -->
         <TextView
+            android:id="@+id/tpSleepingTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sleeping time"
@@ -232,6 +253,7 @@
 
         <!-- Wake up time -->
         <TextView
+            android:id="@+id/tpWakeUpTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Wake up time"
@@ -273,7 +295,7 @@
 
         <!-- Update Button -->
         <Button
-            android:id="@+id/btnUpdate"
+            android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Update"
