@@ -31,21 +31,25 @@ class SettingsFragment : Fragment() {
     private fun setupUI() {
         binding.apply {
             titleText.text = "My Profile"
-//            userName.text = UserPreferences.getName(requireContext())
-//            userEmail.text = UserPreferences.getEmail(requireContext())
-            heightValue.text = "${UserPreferences.getHeight(requireContext())} cm"
-            weightValue.text = "${UserPreferences.getWeight(requireContext())} kg"
-            ageValue.text = "${UserPreferences.getAge(requireContext())} yo"
-            intakeValue.text = "${UserPreferences.getDailyIntakeGoal(requireContext())} ml"
 
-            when(UserPreferences.getGender(requireContext())) {
+            // Ambil data dari SharedPreferences yang diisi saat registrasi atau login
+            val context = requireContext()
+            userName.text = "${UserPreferences.getCurrentUserFirstName(context)} ${UserPreferences.getCurrentUserLastName(context)}"
+            userEmail.text = UserPreferences.getCurrentUserEmail(context)
+            heightValue.text = "${UserPreferences.getHeight(context)} cm"
+            weightValue.text = "${UserPreferences.getWeight(context)} kg"
+            ageValue.text = "${UserPreferences.getAge(context)} yo"
+            intakeValue.text = "${UserPreferences.getDailyIntakeGoal(context)} ml"
+
+            when (UserPreferences.getGender(context)) {
                 "Male" -> genderRadioGroup.check(R.id.radioMale)
                 "Female" -> genderRadioGroup.check(R.id.radioFemale)
                 else -> genderRadioGroup.check(R.id.radioOther)
             }
 
-            updateTimeDisplay(UserPreferences.getSleepingTime(requireContext()), sleepingTimeLayout)
-            updateTimeDisplay(UserPreferences.getWakeUpTime(requireContext()), wakeUpTimeLayout)
+            // Menampilkan waktu tidur dan waktu bangun
+            updateTimeDisplay(UserPreferences.getSleepingTime(context), sleepingTimeLayout)
+            updateTimeDisplay(UserPreferences.getWakeUpTime(context), wakeUpTimeLayout)
         }
     }
 
@@ -56,8 +60,8 @@ class SettingsFragment : Fragment() {
                 startActivity(intent)
             }
 
-            genderRadioGroup.setOnCheckedChangeListener{_, checkedId ->
-                val gender = when(checkedId) {
+            genderRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+                val gender = when (checkedId) {
                     R.id.radioMale -> "Male"
                     R.id.radioFemale -> "Female"
                     else -> "Other"
@@ -65,21 +69,21 @@ class SettingsFragment : Fragment() {
                 UserPreferences.setGender(requireContext(), gender)
             }
 
-            sleepingTimeLayout.setOnClickListener{
+            sleepingTimeLayout.setOnClickListener {
                 showTimePickerDialog("sleeping")
             }
 
             wakeUpTimeLayout.setOnClickListener {
                 showTimePickerDialog("wakeup")
             }
-                logoutButton.setOnClickListener {
-                    val intent = Intent(requireContext(), LoginActivity::class.java)
-                    startActivity(intent)
-                    requireActivity().finish()
-                }
-            }
 
+            logoutButton.setOnClickListener {
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                startActivity(intent)
+                requireActivity().finish()
+            }
         }
+    }
 
     private fun showTimePickerDialog(type: String) {
         val calendar = Calendar.getInstance()
@@ -104,7 +108,7 @@ class SettingsFragment : Fragment() {
         ).show()
     }
 
-    private fun updateTimeDisplay(time: String, layout: android.view.ViewGroup) {
+    private fun updateTimeDisplay(time: String, layout: ViewGroup) {
         val (hour, minute) = time.split(":").map { it.toInt() }
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
@@ -128,7 +132,8 @@ class SettingsFragment : Fragment() {
         amPmValueView?.text = amPmFormat.format(calendar.time)
     }
 
-
-    companion object {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
