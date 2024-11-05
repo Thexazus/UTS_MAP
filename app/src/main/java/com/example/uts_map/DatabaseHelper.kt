@@ -241,14 +241,20 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
 
         if (result > 0) {
+            // Update SharedPreferences dengan data terbaru
             setUserName(firstName, lastName)
-            // Calculate and set recommended daily water intake based on weight
-            val recommendedWaterIntake = weight * 30 // 30ml per kg of body weight
-            setDailyWaterGoal(recommendedWaterIntake)
+            setDailyWaterGoal(weight * 30) // Asupan air berdasarkan berat badan
+            // Update waktu tidur dan bangun di SharedPreferences juga jika diperlukan
+            editor.apply {
+                putString(KEY_SLEEPING_TIME, sleepingTime)
+                putString(KEY_WAKE_UP_TIME, wakeUpTime)
+                apply()
+            }
             return true
         }
         return false
     }
+
 
     fun isProfileComplete(email: String): Boolean {
         val db = this.readableDatabase
