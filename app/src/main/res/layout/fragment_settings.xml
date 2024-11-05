@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".SettingsFragment"
-    tools:ignore="HardcodedText">
+    tools:context=".SettingsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,7 +17,7 @@
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My profile"
+            android:text="My Profile"
             android:textColor="#000000"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -69,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:background="#87CEEB"
                     android:padding="16dp"
-                    android:text="D r i n k  M e"
+                    android:text="Drink Me"
                     android:textAlignment="center"
                     android:textColor="#546E7A"
                     android:textSize="24sp" />
@@ -222,7 +221,7 @@
             android:id="@+id/dailyIntakeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Daily intake goal"
+            android:text="Daily Intake Goal"
             android:layout_marginTop="16dp"
             android:textStyle="bold"
             app:layout_constraintTop_toBottomOf="@id/statsLayout"
@@ -251,7 +250,7 @@
                 android:text="0 ml"
                 android:textColor="#87CEEB"
                 android:layout_marginStart="8dp"
-                android:textSize="18sp" />
+                android:textSize="24sp" />
         </LinearLayout>
 
         <!-- Gender Section -->
@@ -330,7 +329,7 @@
                 android:background="#87CEEB"
                 android:padding="8dp"
                 android:text="PM"
-                android:textColor="#1B5E20"
+                android:textColor="@color/black"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -372,7 +371,7 @@
                 android:background="#87CEEB"
                 android:padding="8dp"
                 android:text="AM"
-                android:textColor="#1B5E20"
+                android:textColor="@color/black"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -400,5 +399,4 @@
             app:layout_constraintTop_toBottomOf="@+id/wakeUpTimeLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </ScrollView>

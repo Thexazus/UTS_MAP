@@ -5,6 +5,9 @@ import android.content.SharedPreferences
 
 object UserPreferences {
     private const val PREF_NAME = "UserPreferences"
+    private const val KEY_FIRST_NAME = "firstName"
+    private const val KEY_LAST_NAME = "lastName"
+    private const val KEY_EMAIL = "email"
     private const val KEY_HEIGHT = "height"
     private const val KEY_WEIGHT = "weight"
     private const val KEY_AGE = "age"
@@ -16,6 +19,36 @@ object UserPreferences {
     private fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
+
+    // First Name
+    fun getCurrentUserFirstName(context: Context): String {
+        return getPreferences(context).getString(KEY_FIRST_NAME, "") ?: ""
+    }
+
+    fun setCurrentUserFirstName(context: Context, firstName: String) {
+        getPreferences(context).edit().putString(KEY_FIRST_NAME, firstName).apply()
+    }
+
+    // Last Name
+    fun getCurrentUserLastName(context: Context): String {
+        return getPreferences(context).getString(KEY_LAST_NAME, "") ?: ""
+    }
+
+    fun setCurrentUserLastName(context: Context, lastName: String) {
+        getPreferences(context).edit().putString(KEY_LAST_NAME, lastName).apply()
+    }
+
+    // Email
+    fun getCurrentUserEmail(context: Context): String {
+        return getPreferences(context).getString(KEY_EMAIL, "") ?: ""
+    }
+
+    fun setCurrentUserEmail(context: Context, email: String) {
+        getPreferences(context).edit().putString(KEY_EMAIL, email).apply()
+    }
+
+
+
 
     fun getHeight(context: Context): Int = getPreferences(context).getInt(KEY_HEIGHT, 170)
     fun setHeight(context: Context, height: Int) = getPreferences(context).edit().putInt(KEY_HEIGHT, height).apply()

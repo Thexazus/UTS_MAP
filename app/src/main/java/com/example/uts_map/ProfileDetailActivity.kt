@@ -1,13 +1,18 @@
 package com.example.uts_map
 
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
-import android.widget.TimePicker
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class ProfileDetailActivity : AppCompatActivity() {
 
@@ -25,8 +30,10 @@ class ProfileDetailActivity : AppCompatActivity() {
         val etWeight = findViewById<EditText>(R.id.etWeight)
         val etHeight = findViewById<EditText>(R.id.etHeight)
         val rgGender = findViewById<RadioGroup>(R.id.rgGender)
-        val tpSleepingTime = findViewById<TimePicker>(R.id.tpSleepingTime)
-        val tpWakeUpTime = findViewById<TimePicker>(R.id.tpWakeUpTime)
+
+        val sleepingTimeLayout = findViewById<ViewGroup>(R.id.sleepingTimeLayout)
+        val wakeUpTimeLayout = findViewById<ViewGroup>(R.id.wakeUpTimeLayout)
+
         val btnSave = findViewById<Button>(R.id.btnSave)
 
         val userEmail = SessionManager.getUserEmail(this)
@@ -37,15 +44,19 @@ class ProfileDetailActivity : AppCompatActivity() {
             val ageText = etAge.text.toString().trim()
             val weightText = etWeight.text.toString().trim()
             val heightText = etHeight.text.toString().trim()
+
             val gender = when (rgGender.checkedRadioButtonId) {
                 R.id.rbMale -> "Male"
                 R.id.rbFemale -> "Female"
+                R.id.rbOther -> "Other"
                 else -> null
             }
-            val sleepingTime = "${tpSleepingTime.hour}:${tpSleepingTime.minute}"
-            val wakeUpTime = "${tpWakeUpTime.hour}:${tpWakeUpTime.minute}"
 
-            // Validasi input
+            val sleepingTime = sleepingTimeLayout.findViewById<TextView>(R.id.sleepingTimeValue).text.toString() +
+                    " " + sleepingTimeLayout.findViewById<TextView>(R.id.sleepingTimeAmPm).text.toString()
+            val wakeUpTime = wakeUpTimeLayout.findViewById<TextView>(R.id.wakeUpTimeValue).text.toString() +
+                    " " + wakeUpTimeLayout.findViewById<TextView>(R.id.wakeUpTimeAmPm).text.toString()
+
             if (firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() ||
                 weightText.isEmpty() || heightText.isEmpty() || gender == null) {
 
@@ -55,13 +66,11 @@ class ProfileDetailActivity : AppCompatActivity() {
                 val weight = weightText.toIntOrNull()
                 val height = heightText.toIntOrNull()
 
-                // Validasi apakah input angka valid (misalnya umur, berat, dan tinggi)
                 if (age == null || weight == null || height == null) {
                     Toast.makeText(this, "Umur, berat, dan tinggi harus berupa angka yang valid", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                // Jika semua validasi lolos, simpan data
                 if (userEmail != null) {
                     databaseHelper.updateUserProfile(userEmail, firstName, lastName, age, weight, height, gender, sleepingTime, wakeUpTime)
                     SessionManager.setProfileCompleted(this, true)
@@ -70,5 +79,44 @@ class ProfileDetailActivity : AppCompatActivity() {
                 }
             }
         }
+
+        sleepingTimeLayout.setOnClickListener {
+            showTimePickerDialog { selectedTime ->
+                updateTimeDisplay(selectedTime, sleepingTimeLayout)
+            }
+        }
+
+        wakeUpTimeLayout.setOnClickListener {
+            showTimePickerDialog { selectedTime ->
+                updateTimeDisplay(selectedTime, wakeUpTimeLayout)
+            }
+        }
+    }
+
+    private fun showTimePickerDialog(onTimeSelected: (String) -> Unit) {
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+        val timePickerDialog = TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+            val time = String.format("%02d:%02d", selectedHour, selectedMinute)
+            onTimeSelected(time)
+        }, hour, minute, false)
+        timePickerDialog.show()
+    }
+
+    private fun updateTimeDisplay(time: String, layout: ViewGroup) {
+        val (hour, minute) = time.split(":").map { it.toInt() }
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+        }
+        val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
+        val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
+
+        val timeValueView = layout.findViewById<TextView>(R.id.sleepingTimeValue) ?: layout.findViewById(R.id.wakeUpTimeValue)
+        val amPmValueView = layout.findViewById<TextView>(R.id.sleepingTimeAmPm) ?: layout.findViewById(R.id.wakeUpTimeAmPm)
+
+        timeValueView?.text = timeFormat.format(calendar.time)
+        amPmValueView?.text = amPmFormat.format(calendar.time)
     }
 }

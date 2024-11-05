@@ -3,6 +3,7 @@ package com.example.uts_map
 import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import org.mindrot.jbcrypt.BCrypt
@@ -43,8 +44,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val KEY_CURRENT_USER_FULL_NAME = "current_user_full_name"
         private const val KEY_DAILY_WATER_GOAL = "daily_water_goal"
         private const val KEY_LAST_LOGIN = "last_login"
-        private const val KEY_SLEEPING_TIME = "sleeping_time"
-        private const val KEY_WAKE_UP_TIME = "wake_up_time"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -83,7 +82,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         onCreate(db)
     }
 
-    // SharedPreferences helper methods
+    // SharedPreferences methods for name management
     fun setUserName(firstName: String, lastName: String) {
         editor.apply {
             putString(KEY_CURRENT_USER_FIRST_NAME, firstName)
@@ -93,12 +92,19 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
     }
 
-    fun getCurrentUserFirstName(): String = sharedPreferences.getString(KEY_CURRENT_USER_FIRST_NAME, "") ?: ""
+    fun getCurrentUserFirstName(): String {
+        return sharedPreferences.getString(KEY_CURRENT_USER_FIRST_NAME, "") ?: ""
+    }
 
-    fun getCurrentUserLastName(): String = sharedPreferences.getString(KEY_CURRENT_USER_LAST_NAME, "") ?: ""
+    fun getCurrentUserLastName(): String {
+        return sharedPreferences.getString(KEY_CURRENT_USER_LAST_NAME, "") ?: ""
+    }
 
-    fun getCurrentUserFullName(): String = sharedPreferences.getString(KEY_CURRENT_USER_FULL_NAME, "") ?: ""
+    fun getCurrentUserFullName(): String {
+        return sharedPreferences.getString(KEY_CURRENT_USER_FULL_NAME, "") ?: ""
+    }
 
+    // Other SharedPreferences methods
     fun setUserLoggedIn(email: String) {
         editor.apply {
             putBoolean(KEY_IS_LOGGED_IN, true)
@@ -106,6 +112,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             putLong(KEY_LAST_LOGIN, System.currentTimeMillis())
             apply()
         }
+
         // Fetch and save user name when logging in
         val db = this.readableDatabase
         val cursor = db.query(
@@ -140,31 +147,72 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
     }
 
-    fun isUserLoggedIn(): Boolean = sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
+    fun isUserLoggedIn(): Boolean {
+        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
+    }
 
-    fun getCurrentUserEmail(): String? = sharedPreferences.getString(KEY_CURRENT_USER_EMAIL, null)
+    fun getCurrentUserEmail(): String? {
+        return sharedPreferences.getString(KEY_CURRENT_USER_EMAIL, null)
+    }
 
     fun setDailyWaterGoal(goal: Int) {
         editor.putInt(KEY_DAILY_WATER_GOAL, goal).apply()
     }
 
-    fun getDailyWaterGoal(): Int = sharedPreferences.getInt(KEY_DAILY_WATER_GOAL, 2000) // Default 2000ml
-
-    // Getter methods for sleeping and wake-up times
-    fun getSleepingTime(): String = sharedPreferences.getString(KEY_SLEEPING_TIME, "N/A") ?: "N/A"
-
-    fun getWakeUpTime(): String = sharedPreferences.getString(KEY_WAKE_UP_TIME, "N/A") ?: "N/A"
-
-    // Setter methods for sleeping and wake-up times
-    fun setSleepingTime(time: String) {
-        editor.putString(KEY_SLEEPING_TIME, time).apply()
+    fun getDailyWaterGoal(): Int {
+        return sharedPreferences.getInt(KEY_DAILY_WATER_GOAL, 2000) // Default 2000ml
     }
 
-    fun setWakeUpTime(time: String) {
-        editor.putString(KEY_WAKE_UP_TIME, time).apply()
+    // Modified database methods to integrate with SharedPreferences
+    fun addUser(email: String, phone: String, password: String): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(COLUMN_EMAIL, email)
+        contentValues.put(COLUMN_PHONE, phone)
+        val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+        contentValues.put(COLUMN_PASSWORD, hashedPassword)
+
+        val result = db.insert(TABLE_USERS, null, contentValues)
+        db.close()
+
+        if (result != -1L) {
+            setUserLoggedIn(email)
+            return true
+        }
+        return false
     }
 
-    // Database methods (addUser, isUserValid, updateUserProfile, etc.) remain the same
+    fun isUserValid(email: String, password: String): Boolean {
+        val db = this.readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            arrayOf(COLUMN_PASSWORD, COLUMN_FIRST_NAME, COLUMN_LAST_NAME),
+            "$COLUMN_EMAIL = ?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
+
+        var isValid = false
+        if (cursor.moveToFirst()) {
+            val storedHashedPassword = cursor.getString(0)
+            val firstName = cursor.getString(1)
+            val lastName = cursor.getString(2)
+            isValid = BCrypt.checkpw(password, storedHashedPassword)
+
+            if (isValid) {
+                setUserLoggedIn(email)
+                if (firstName != null && lastName != null) {
+                    setUserName(firstName, lastName)
+                }
+            }
+        }
+
+        cursor.close()
+        db.close()
+        return isValid
+    }
 
     fun updateUserProfile(
         email: String,
@@ -193,14 +241,99 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
 
         if (result > 0) {
+            // Update SharedPreferences dengan data terbaru
             setUserName(firstName, lastName)
-            setDailyWaterGoal(weight * 30)
-            setSleepingTime(sleepingTime)
-            setWakeUpTime(wakeUpTime)
+            setDailyWaterGoal(weight * 30) // Asupan air berdasarkan berat badan
+            // Update waktu tidur dan bangun di SharedPreferences juga jika diperlukan
+            editor.apply {
+                putString(KEY_SLEEPING_TIME, sleepingTime)
+                putString(KEY_WAKE_UP_TIME, wakeUpTime)
+                apply()
+            }
             return true
         }
         return false
     }
 
-    // Other methods related to water intake and profile completeness remain unchanged
+
+    fun isProfileComplete(email: String): Boolean {
+        val db = this.readableDatabase
+        val projection = arrayOf(
+            COLUMN_FIRST_NAME,
+            COLUMN_LAST_NAME,
+            COLUMN_AGE,
+            COLUMN_WEIGHT,
+            COLUMN_HEIGHT,
+            COLUMN_GENDER
+        )
+
+        val cursor = db.query(
+            TABLE_USERS,
+            projection,
+            "$COLUMN_EMAIL = ?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
+
+        var isComplete = false
+        if (cursor.moveToFirst()) {
+            isComplete = !cursor.isNull(0) && !cursor.isNull(1) && !cursor.isNull(2) &&
+                    !cursor.isNull(3) && !cursor.isNull(4) && !cursor.isNull(5)
+        }
+
+        cursor.close()
+        db.close()
+        return isComplete
+    }
+
+    fun insertWaterIntake(waterIntake: WaterIntake) {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_ID, waterIntake.id)
+            put(COLUMN_AMOUNT, waterIntake.amount)
+            put(COLUMN_TIMESTAMP, waterIntake.timestamp)
+        }
+        db.insert(TABLE_WATER_INTAKE, null, values)
+        db.close()
+    }
+
+    fun removeLastWaterIntake(amount: Int) {
+        val db = writableDatabase
+        val selection = "$COLUMN_AMOUNT = ? AND $COLUMN_TIMESTAMP = (SELECT MAX($COLUMN_TIMESTAMP) FROM $TABLE_WATER_INTAKE WHERE $COLUMN_AMOUNT = ?)"
+        db.delete(TABLE_WATER_INTAKE, selection, arrayOf(amount.toString(), amount.toString()))
+        db.close()
+    }
+
+    fun getWaterIntakeData(): List<WaterIntake> {
+        val waterIntakeList = mutableListOf<WaterIntake>()
+        val db = readableDatabase
+
+        val cursor = db.query(
+            TABLE_WATER_INTAKE,
+            arrayOf(COLUMN_ID, COLUMN_AMOUNT, COLUMN_TIMESTAMP),
+            null,
+            null,
+            null,
+            null,
+            "$COLUMN_TIMESTAMP DESC"
+        )
+
+        cursor.use { c ->
+            val idIndex = c.getColumnIndexOrThrow(COLUMN_ID)
+            val amountIndex = c.getColumnIndexOrThrow(COLUMN_AMOUNT)
+            val timestampIndex = c.getColumnIndexOrThrow(COLUMN_TIMESTAMP)
+
+            while (c.moveToNext()) {
+                val id = c.getLong(idIndex)
+                val amount = c.getInt(amountIndex)
+                val timestamp = c.getString(timestampIndex)
+                waterIntakeList.add(WaterIntake(id, amount, timestamp))
+            }
+        }
+
+        db.close()
+        return waterIntakeList
+    }
 }

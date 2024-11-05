@@ -71,7 +71,7 @@ class AchieveDayGoalFragment : Fragment() {
         ivEmoji.setImageResource(R.drawable.happy_emoji)
         tvStatus.text = "Congratulations!"
         ivConfetti.visibility = View.VISIBLE
-        tvAchievementMsg.text = "Mesaya has achieved your goal today"
+        tvAchievementMsg.text = "User has achieved your goal today"
         tvMotivationalMsg.text = "You can get everything in life you want\nif you will just help enough other\npeople get what they want."
         ivTrophy.setImageResource(R.drawable.trophy_gold)
         startAnimations()
