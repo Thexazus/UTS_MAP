@@ -250,6 +250,21 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return false
     }
 
+    fun getUserTimes(email: String): Pair<String?, String?> {
+        val db = readableDatabase
+        val cursor = db.query("User", arrayOf("SleepingTime", "WakeUpTime"), "Email = ?", arrayOf(email), null, null, null)
+        var sleepingTime: String? = null
+        var wakeUpTime: String? = null
+
+        if (cursor.moveToFirst()) {
+            sleepingTime = cursor.getString(cursor.getColumnIndexOrThrow("SleepingTime"))
+            wakeUpTime = cursor.getString(cursor.getColumnIndexOrThrow("WakeUpTime"))
+        }
+        cursor.close()
+        return Pair(sleepingTime, wakeUpTime)
+    }
+
+
     fun isProfileComplete(email: String): Boolean {
         val db = this.readableDatabase
         val projection = arrayOf(

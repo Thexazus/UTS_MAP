@@ -6,8 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 
 class HomeFragment : Fragment() {
+
+    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var greetingTextView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -19,22 +23,30 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup click listener untuk icon notifikasi
+        // Initialize DatabaseHelper
+        dbHelper = DatabaseHelper(requireContext())
+
+        // Find and set the greeting TextView
+        greetingTextView = view.findViewById(R.id.textViewGreeting)
+        val firstName = dbHelper.getCurrentUserFirstName()
+        greetingTextView.text = "Hi, $firstName!"
+
+        // Setup click listener for the notification icon
         view.findViewById<ImageView>(R.id.imageViewBell).setOnClickListener {
-            // Navigasi ke ReminderFragment
+            // Navigate to ReminderFragment
             val reminderFragment = ReminderFragment.newInstance()
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, reminderFragment) // Pastikan ID container sesuai
-                .addToBackStack(null)  // Menambahkan ke back stack agar bisa kembali
+                .replace(R.id.nav_host_fragment, reminderFragment) // Ensure this container ID is correct
+                .addToBackStack(null)  // Add to back stack to enable back navigation
                 .commit()
         }
 
-        // Inisialisasi komponen UI lainnya di sini
+        // Initialize other UI components
         setupUI()
     }
 
     private fun setupUI() {
-        // Setup komponen UI lainnya di sini
+        // Setup other UI components here, if needed
     }
 
     companion object {
