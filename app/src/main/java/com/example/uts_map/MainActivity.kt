@@ -1,43 +1,45 @@
 package com.example.uts_map
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Cek apakah pengguna sudah login
-        if (!SessionManager.isLoggedIn(this)) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-            return
-        }
-
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        bottomNavigationView = findViewById(R.id.bottomNavigation)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
+        checkDailyGoalAchievement()
+    }
 
-        setupWithNavController(bottomNavigationView, navController)
+    private fun checkDailyGoalAchievement() {
+        val prefs = getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
+        val lastCheckDate = prefs.getString("lastCheckDate", "")
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // Contoh implementasi tombol logout
-//        val btnLogout = findViewById<Button>(R.id.btnLogout)
-//        btnLogout.setOnClickListener {
-//            SessionManager.logout(this)
-//            startActivity(Intent(this, LoginActivity::class.java))
-//            finish()
-//        }
+        // Check if it's a new day
+        if (currentDate != lastCheckDate) {
+            val currentAmount = prefs.getFloat("todayAmount", 0f)
+            val targetAmount = 2000f
+
+            val fragment = if (currentAmount >= targetAmount) {
+                // If the target is achieved, show AchieveDayGoalFragment
+                AchieveDayGoalFragment()
+            } else {
+                // If the target is not achieved, show NotAchieveFragment
+                NotAchieveFragment()
+            }
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, fragment) // Use nav_host_fragment as the container
+                .addToBackStack(null)
+                .commit()
+
+            // Update last check date
+            prefs.edit().putString("lastCheckDate", currentDate).apply()
+        }
     }
 }

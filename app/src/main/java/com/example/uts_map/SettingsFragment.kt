@@ -16,13 +16,14 @@ class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
+    private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        databaseHelper = DatabaseHelper(requireContext()) // Initialize DatabaseHelper
         setupUI()
         setupListeners()
         return binding.root
@@ -32,24 +33,26 @@ class SettingsFragment : Fragment() {
         binding.apply {
             titleText.text = "My Profile"
 
-            // Ambil data dari SharedPreferences yang diisi saat registrasi atau login
-            val context = requireContext()
-            userName.text = "${UserPreferences.getCurrentUserFirstName(context)} ${UserPreferences.getCurrentUserLastName(context)}"
-            userEmail.text = UserPreferences.getCurrentUserEmail(context)
-            heightValue.text = "${UserPreferences.getHeight(context)} cm"
-            weightValue.text = "${UserPreferences.getWeight(context)} kg"
-            ageValue.text = "${UserPreferences.getAge(context)} yo"
-            intakeValue.text = "${UserPreferences.getDailyIntakeGoal(context)} ml"
+            // Use DatabaseHelper to retrieve user data
+            userName.text = "${databaseHelper.getCurrentUserFirstName()} ${databaseHelper.getCurrentUserLastName()}"
+            userEmail.text = databaseHelper.getCurrentUserEmail() ?: "No email"
+            heightValue.text = "${databaseHelper.getSharedPreferences().getInt("height", 0)} cm"
+            weightValue.text = "${databaseHelper.getSharedPreferences().getInt("weight", 0)} kg"
+            ageValue.text = "${databaseHelper.getSharedPreferences().getInt("age", 0)} yo"
+            intakeValue.text = "${databaseHelper.getDailyWaterGoal()} ml"
 
-            when (UserPreferences.getGender(context)) {
+            // Gender selection based on shared preferences
+            when (databaseHelper.getSharedPreferences().getString("gender", "")) {
                 "Male" -> genderRadioGroup.check(R.id.radioMale)
                 "Female" -> genderRadioGroup.check(R.id.radioFemale)
                 else -> genderRadioGroup.check(R.id.radioOther)
             }
 
-            // Menampilkan waktu tidur dan waktu bangun
-            updateTimeDisplay(UserPreferences.getSleepingTime(context), sleepingTimeLayout)
-            updateTimeDisplay(UserPreferences.getWakeUpTime(context), wakeUpTimeLayout)
+            // Retrieve and display sleeping and wake-up times
+            val sleepingTime = databaseHelper.getSleepingTime()
+            val wakeUpTime = databaseHelper.getWakeUpTime()
+            updateTimeDisplay(sleepingTime, sleepingTimeLayout)
+            updateTimeDisplay(wakeUpTime, wakeUpTimeLayout)
         }
     }
 
@@ -66,7 +69,7 @@ class SettingsFragment : Fragment() {
                     R.id.radioFemale -> "Female"
                     else -> "Other"
                 }
-                UserPreferences.setGender(requireContext(), gender)
+                databaseHelper.getSharedPreferences().edit().putString("gender", gender).apply()
             }
 
             sleepingTimeLayout.setOnClickListener {
@@ -93,11 +96,11 @@ class SettingsFragment : Fragment() {
                 val time = String.format("%02d:%02d", hourOfDay, minute)
                 when (type) {
                     "sleeping" -> {
-                        UserPreferences.setSleepingTime(requireContext(), time)
+                        databaseHelper.setSleepingTime(time)
                         updateTimeDisplay(time, binding.sleepingTimeLayout)
                     }
                     "wakeup" -> {
-                        UserPreferences.setWakeUpTime(requireContext(), time)
+                        databaseHelper.setWakeUpTime(time)
                         updateTimeDisplay(time, binding.wakeUpTimeLayout)
                     }
                 }
