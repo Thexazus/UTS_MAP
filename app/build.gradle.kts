@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -54,6 +55,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.circleimageview)
     implementation(libs.circularprogressbar)
+    implementation ("androidx.work:work-runtime-ktx:2.8.0")
+    implementation ("com.google.android.gms:play-services-auth:21.2.0")
+    implementation ("com.google.android.gms:play-services-drive:17.0.0")
+    implementation("com.google.firebase:firebase-bom:33.5.1")
+    implementation("com.google.firebase:firebase-analytics")
 //    implementation (libs.mpandroidchart)
 }
 
