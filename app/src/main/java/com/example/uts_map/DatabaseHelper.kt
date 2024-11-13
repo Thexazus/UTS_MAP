@@ -44,6 +44,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         private const val KEY_CURRENT_USER_FULL_NAME = "current_user_full_name"
         private const val KEY_DAILY_WATER_GOAL = "daily_water_goal"
         private const val KEY_LAST_LOGIN = "last_login"
+        private const val KEY_SLEEPING_TIME = "sleeping_time"
+        private const val KEY_WAKE_UP_TIME = "wake_up_time"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
