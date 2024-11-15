@@ -36,13 +36,13 @@ class SettingsFragment : Fragment() {
             // Use DatabaseHelper to retrieve user data
             userName.text = "${databaseHelper.getCurrentUserFirstName()} ${databaseHelper.getCurrentUserLastName()}"
             userEmail.text = databaseHelper.getCurrentUserEmail() ?: "No email"
-            heightValue.text = "${databaseHelper.getSharedPreferences().getInt("height", 0)} cm"
-            weightValue.text = "${databaseHelper.getSharedPreferences().getInt("weight", 0)} kg"
-            ageValue.text = "${databaseHelper.getSharedPreferences().getInt("age", 0)} yo"
+            heightValue.text = "${databaseHelper.getHeight()} cm" // Access height through DatabaseHelper
+            weightValue.text = "${databaseHelper.getWeight()} kg" // Access weight through DatabaseHelper
+            ageValue.text = "${databaseHelper.getAge()} yo" // Access age through DatabaseHelper
             intakeValue.text = "${databaseHelper.getDailyWaterGoal()} ml"
 
             // Gender selection based on shared preferences
-            when (databaseHelper.getSharedPreferences().getString("gender", "")) {
+            when (databaseHelper.getGender()) { // Access gender through DatabaseHelper
                 "Male" -> genderRadioGroup.check(R.id.radioMale)
                 "Female" -> genderRadioGroup.check(R.id.radioFemale)
                 else -> genderRadioGroup.check(R.id.radioOther)
@@ -69,7 +69,7 @@ class SettingsFragment : Fragment() {
                     R.id.radioFemale -> "Female"
                     else -> "Other"
                 }
-                databaseHelper.getSharedPreferences().edit().putString("gender", gender).apply()
+                databaseHelper.setGender(gender) // Set gender through DatabaseHelper
             }
 
             sleepingTimeLayout.setOnClickListener {
@@ -96,11 +96,11 @@ class SettingsFragment : Fragment() {
                 val time = String.format("%02d:%02d", hourOfDay, minute)
                 when (type) {
                     "sleeping" -> {
-                        databaseHelper.setSleepingTime(time)
+                        databaseHelper.setSleepingTime(time) // Set sleeping time through DatabaseHelper
                         updateTimeDisplay(time, binding.sleepingTimeLayout)
                     }
                     "wakeup" -> {
-                        databaseHelper.setWakeUpTime(time)
+                        databaseHelper.setWakeUpTime(time) // Set wake-up time through DatabaseHelper
                         updateTimeDisplay(time, binding.wakeUpTimeLayout)
                     }
                 }
