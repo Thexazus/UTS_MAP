@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Izin yang diperlukan untuk aplikasi -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -19,6 +24,17 @@
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
 
+        <!-- Metadata untuk Google Play Services -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <!-- Metadata untuk Firebase -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="true" />
+
+        <!-- Splash Screen sebagai Main Activity -->
         <activity
             android:name=".SplashScreen1"
             android:exported="true"
@@ -28,6 +44,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Aktivitas tambahan -->
         <activity
             android:name=".ProfileDetailActivity"
             android:exported="false" />
@@ -44,9 +62,17 @@
             android:name=".OnboardingActivity"
             android:exported="false" />
 
+        <!-- Aktivitas untuk Google Sign-In -->
+        <activity
+            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+            android:exported="true"
+            tools:node="merge" />
+
+        <!-- Broadcast Receiver untuk Alarm -->
         <receiver
             android:name=".AlarmReceiver"
             android:enabled="true"
             android:exported="false" />
+
     </application>
 </manifest>

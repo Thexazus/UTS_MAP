@@ -63,6 +63,7 @@ dependencies {
     implementation ("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
     implementation("com.google.api-client:google-api-client-android:2.0.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.4.0")
+    implementation ("com.google.api-client:google-api-client-gson:1.32.1")
 
 //    implementation (libs.mpandroidchart)
 }
