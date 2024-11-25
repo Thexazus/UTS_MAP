@@ -211,89 +211,36 @@
 
         <!-- Sleeping time -->
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sleeping Time"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Sleeping TimePicker -->
+        <TimePicker
             android:id="@+id/tpSleepingTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sleeping time"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp">
+            android:timePickerMode="spinner"
+            android:layout_marginBottom="16dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10 : 41"
-                android:textSize="16sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PM"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                android:background="#2196F3"
-                android:textColor="#FFFFFF"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Off"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"/>
-        </LinearLayout>
-
-        <!-- Wake up time -->
         <TextView
-            android:id="@+id/tpWakeUpTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Wake up time"
+            android:text="Wake Up Time"
             android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp" />
 
-        <LinearLayout
+        <!-- Wake Up TimePicker -->
+        <TimePicker
+            android:id="@+id/tpWakeUpTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:layout_marginBottom="24dp">
+            android:timePickerMode="spinner"
+            android:layout_marginBottom="24dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="09 : 41"
-                android:textSize="16sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AM"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                android:background="#2196F3"
-                android:textColor="#FFFFFF"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Off"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"/>
-        </LinearLayout>
-
-        <!-- Update Button -->
+        <!-- Tombol Save -->
         <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
@@ -301,7 +248,7 @@
             android:text="Update"
             android:textColor="#FFFFFF"
             android:backgroundTint="#2196F3"
-            android:padding="16dp"/>
+            android:padding="16dp" />
 
     </LinearLayout>
 </ScrollView>
