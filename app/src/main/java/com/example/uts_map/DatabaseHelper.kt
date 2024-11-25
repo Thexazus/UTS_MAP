@@ -330,4 +330,115 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
         return waterIntakeList
     }
-}
+
+        fun height(): Int? {
+            val email = getCurrentUserEmail() ?: return null
+            val db = readableDatabase
+            val cursor = db.query(
+                TABLE_USERS,
+                arrayOf(COLUMN_HEIGHT),
+                "$COLUMN_EMAIL = ?",
+                arrayOf(email),
+                null,
+                null,
+                null
+            )
+            val height = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_HEIGHT)) else null
+            cursor.close()
+            db.close()
+            return height
+        }
+
+        fun getWeight(): Int? {
+            val email = getCurrentUserEmail() ?: return null
+            val db = readableDatabase
+            val cursor = db.query(
+                TABLE_USERS,
+                arrayOf(COLUMN_WEIGHT),
+                "$COLUMN_EMAIL = ?",
+                arrayOf(email),
+                null,
+                null,
+                null
+            )
+            val weight = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_WEIGHT)) else null
+            cursor.close()
+            db.close()
+            return weight
+        }
+
+        fun getAge(): Int? {
+            val email = getCurrentUserEmail() ?: return null
+            val db = readableDatabase
+            val cursor = db.query(
+                TABLE_USERS,
+                arrayOf(COLUMN_AGE),
+                "$COLUMN_EMAIL = ?",
+                arrayOf(email),
+                null,
+                null,
+                null
+            )
+            val age = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AGE)) else null
+            cursor.close()
+            db.close()
+            return age
+        }
+
+        fun getSleepingTime(): String? {
+            val email = getCurrentUserEmail() ?: return null
+            val db = readableDatabase
+            val cursor = db.query(
+                TABLE_USERS,
+                arrayOf(COLUMN_SLEEPING_TIME),
+                "$COLUMN_EMAIL = ?",
+                arrayOf(email),
+                null,
+                null,
+                null
+            )
+            val sleepingTime = if (cursor.moveToFirst()) cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SLEEPING_TIME)) else null
+            cursor.close()
+            db.close()
+            return sleepingTime
+        }
+
+        fun getWakeUpTime(): String? {
+            val email = getCurrentUserEmail() ?: return null
+            val db = readableDatabase
+            val cursor = db.query(
+                TABLE_USERS,
+                arrayOf(COLUMN_WAKE_UP_TIME),
+                "$COLUMN_EMAIL = ?",
+                arrayOf(email),
+                null,
+                null,
+                null
+            )
+            val wakeUpTime = if (cursor.moveToFirst()) cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WAKE_UP_TIME)) else null
+            cursor.close()
+            db.close()
+            return wakeUpTime
+        }
+
+        fun setSleepingTime(time: String) {
+            val email = getCurrentUserEmail() ?: return
+            val db = writableDatabase
+            val contentValues = ContentValues().apply {
+                put(COLUMN_SLEEPING_TIME, time)
+            }
+            db.update(TABLE_USERS, contentValues, "$COLUMN_EMAIL = ?", arrayOf(email))
+            db.close()
+        }
+
+        fun setWakeUpTime(time: String) {
+            val email = getCurrentUserEmail() ?: return
+            val db = writableDatabase
+            val contentValues = ContentValues().apply {
+                put(COLUMN_WAKE_UP_TIME, time)
+            }
+            db.update(TABLE_USERS, contentValues, "$COLUMN_EMAIL = ?", arrayOf(email))
+            db.close()
+        }
+
+    }

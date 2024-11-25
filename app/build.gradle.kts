@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -48,10 +49,20 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.jbcrypt)
     implementation(libs.circularprogressbar)
+    implementation(libs.androidx.fragment.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.circleimageview)
     implementation(libs.circularprogressbar)
+    implementation ("androidx.work:work-runtime-ktx:2.8.0")
+    implementation ("com.google.android.gms:play-services-auth:21.2.0")
+    implementation ("com.google.android.gms:play-services-drive:17.0.0")
+    implementation ("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
+    implementation("com.google.api-client:google-api-client-android:2.0.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.4.0")
+    implementation ("com.google.api-client:google-api-client-gson:1.32.1")
+
 //    implementation (libs.mpandroidchart)
 }
+

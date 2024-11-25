@@ -75,5 +75,6 @@
     <string name="remove_water_intake">Remove Water Intake</string>
     <string name="add_water_intake">Add Water Intake</string>
     <string name="syncing_to_drive">Syncing to Google Drive…</string>
+    <string name="drive_api_key"></string>
 
 </resources>

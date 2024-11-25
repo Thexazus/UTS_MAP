@@ -16,70 +16,77 @@ class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
+    private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        databaseHelper = DatabaseHelper(requireContext())
         setupUI()
         setupListeners()
         return binding.root
     }
 
-    private fun setupUI() {
-        binding.apply {
-            titleText.text = "My Profile"
-//            userName.text = UserPreferences.getName(requireContext())
-//            userEmail.text = UserPreferences.getEmail(requireContext())
-            heightValue.text = "${UserPreferences.getHeight(requireContext())} cm"
-            weightValue.text = "${UserPreferences.getWeight(requireContext())} kg"
-            ageValue.text = "${UserPreferences.getAge(requireContext())} yo"
-            intakeValue.text = "${UserPreferences.getDailyIntakeGoal(requireContext())} ml"
+    private fun setupUI() = binding.apply {
+        titleText.text = "My Profile"
 
-            when(UserPreferences.getGender(requireContext())) {
-                "Male" -> genderRadioGroup.check(R.id.radioMale)
-                "Female" -> genderRadioGroup.check(R.id.radioFemale)
-                else -> genderRadioGroup.check(R.id.radioOther)
-            }
+        // Set up user data from DatabaseHelper
+        val firstName = databaseHelper.getCurrentUserFirstName()
+        val lastName = databaseHelper.getCurrentUserLastName()
+        userName.text = "$firstName $lastName"
 
-            updateTimeDisplay(UserPreferences.getSleepingTime(requireContext()), sleepingTimeLayout)
-            updateTimeDisplay(UserPreferences.getWakeUpTime(requireContext()), wakeUpTimeLayout)
+        val email = databaseHelper.getCurrentUserEmail()
+        userEmail.text = email ?: "No email"
+
+        heightValue.text = "${databaseHelper.height() ?: 0} cm"
+        weightValue.text = "${databaseHelper.getWeight() ?: 0} kg"
+        ageValue.text = "${databaseHelper.getAge() ?: 0} yo"
+        intakeValue.text = "${databaseHelper.getDailyWaterGoal()} ml"
+
+        val gender = databaseHelper.gender() ?: "Other"
+        val genderId = when (gender) {
+            "Male" -> R.id.radioMale
+            "Female" -> R.id.radioFemale
+            else -> R.id.radioOther
         }
+        genderRadioGroup.check(genderId)
+
+        // Update sleep and wake-up times
+        updateTimeDisplay(databaseHelper.getSleepingTime() ?: "00:00", sleepingTimeLayout)
+        updateTimeDisplay(databaseHelper.getWakeUpTime() ?: "00:00", wakeUpTimeLayout)
     }
 
-    private fun setupListeners() {
-        binding.apply {
-            editButton.setOnClickListener {
-                val intent = Intent(requireContext(), ProfileDetailActivity::class.java)
-                startActivity(intent)
-            }
-
-            genderRadioGroup.setOnCheckedChangeListener{_, checkedId ->
-                val gender = when(checkedId) {
-                    R.id.radioMale -> "Male"
-                    R.id.radioFemale -> "Female"
-                    else -> "Other"
-                }
-                UserPreferences.setGender(requireContext(), gender)
-            }
-
-            sleepingTimeLayout.setOnClickListener{
-                showTimePickerDialog("sleeping")
-            }
-
-            wakeUpTimeLayout.setOnClickListener {
-                showTimePickerDialog("wakeup")
-            }
-                logoutButton.setOnClickListener {
-                    val intent = Intent(requireContext(), LoginActivity::class.java)
-                    startActivity(intent)
-                    requireActivity().finish()
-                }
-            }
-
+    private fun setupListeners() = binding.apply {
+        editButton.setOnClickListener {
+            val intent = Intent(requireContext(), ProfileDetailActivity::class.java)
+            startActivity(intent)
         }
+
+        genderRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val gender = when (checkedId) {
+                R.id.radioMale -> "Male"
+                R.id.radioFemale -> "Female"
+                else -> "Other"
+            }
+            databaseHelper.setGender(gender)
+        }
+
+        sleepingTimeLayout.setOnClickListener {
+            showTimePickerDialog("sleeping")
+        }
+
+        wakeUpTimeLayout.setOnClickListener {
+            showTimePickerDialog("wakeup")
+        }
+
+        logoutButton.setOnClickListener {
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            startActivity(intent)
+            requireActivity().finish()
+        }
+    }
 
     private fun showTimePickerDialog(type: String) {
         val calendar = Calendar.getInstance()
@@ -89,11 +96,11 @@ class SettingsFragment : Fragment() {
                 val time = String.format("%02d:%02d", hourOfDay, minute)
                 when (type) {
                     "sleeping" -> {
-                        UserPreferences.setSleepingTime(requireContext(), time)
+                        databaseHelper.setSleepingTime(time)
                         updateTimeDisplay(time, binding.sleepingTimeLayout)
                     }
                     "wakeup" -> {
-                        UserPreferences.setWakeUpTime(requireContext(), time)
+                        databaseHelper.setWakeUpTime(time)
                         updateTimeDisplay(time, binding.wakeUpTimeLayout)
                     }
                 }
@@ -104,7 +111,7 @@ class SettingsFragment : Fragment() {
         ).show()
     }
 
-    private fun updateTimeDisplay(time: String, layout: android.view.ViewGroup) {
+    private fun updateTimeDisplay(time: String, layout: ViewGroup) {
         val (hour, minute) = time.split(":").map { it.toInt() }
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
@@ -113,22 +120,12 @@ class SettingsFragment : Fragment() {
         val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
         val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
 
-        val timeValueView = when (layout.id) {
-            R.id.sleepingTimeLayout -> layout.findViewById<TextView>(R.id.sleepingTimeValue)
-            R.id.wakeUpTimeLayout -> layout.findViewById<TextView>(R.id.wakeUpTimeValue)
-            else -> null
-        }
-        val amPmValueView = when (layout.id) {
-            R.id.sleepingTimeLayout -> layout.findViewById<TextView>(R.id.sleepingTimeAmPm)
-            R.id.wakeUpTimeLayout -> layout.findViewById<TextView>(R.id.wakeUpTimeAmPm)
-            else -> null
-        }
-
-        timeValueView?.text = timeFormat.format(calendar.time)
-        amPmValueView?.text = amPmFormat.format(calendar.time)
+        layout.findViewById<TextView>(R.id.sleepingTimeValue)?.text = timeFormat.format(calendar.time)
+        layout.findViewById<TextView>(R.id.sleepingTimeAmPm)?.text = amPmFormat.format(calendar.time)
     }
 
-
-    companion object {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
