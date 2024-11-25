@@ -58,8 +58,6 @@ dependencies {
     implementation ("androidx.work:work-runtime-ktx:2.8.0")
     implementation ("com.google.android.gms:play-services-auth:21.2.0")
     implementation ("com.google.android.gms:play-services-drive:17.0.0")
-    implementation("com.google.firebase:firebase-bom:33.5.1")
-    implementation("com.google.firebase:firebase-analytics")
     implementation ("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
     implementation("com.google.api-client:google-api-client-android:2.0.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.4.0")
