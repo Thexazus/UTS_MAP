@@ -211,7 +211,7 @@
 
         <!-- Sleeping time -->
         <TextView
-            android:id="@+id/tpSleepingTime"
+            android:id="@+id/sleepingTimeLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sleeping time"
@@ -235,13 +235,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PM"
-                android:textSize="16sp"
                 android:layout_marginStart="8dp"
                 android:background="#2196F3"
-                android:textColor="#FFFFFF"
                 android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"/>
+                android:paddingVertical="4dp"
+                android:text="PM"
+                android:textColor="#212121"
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -253,7 +253,7 @@
 
         <!-- Wake up time -->
         <TextView
-            android:id="@+id/tpWakeUpTime"
+            android:id="@+id/wakeUpTimeLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Wake up time"
