@@ -23,8 +23,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
-
-        <!-- Metadata untuk Google Play Services -->
+        <activity
+            android:name=".YearlyReport"
+            android:exported="false"
+            android:label="@string/title_activity_yearly_report"
+            android:theme="@style/Theme.UTS_MAP" />
+        <activity
+            android:name=".WeeklyReport"
+            android:exported="false"
+            android:label="@string/title_activity_weekly_report"
+            android:theme="@style/Theme.UTS_MAP" /> <!-- Metadata untuk Google Play Services -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

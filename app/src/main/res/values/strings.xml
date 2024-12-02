@@ -75,6 +75,10 @@
     <string name="remove_water_intake">Remove Water Intake</string>
     <string name="add_water_intake">Add Water Intake</string>
     <string name="syncing_to_drive">Syncing to Google Drive…</string>
+    <string name="title_activity_weekly_report">WeeklyReport</string>
+    <string name="title_activity_report_fragment_preview">ReportFragmentPreviewActivity</string>
+    <string name="title_activity_yearly_report">YearlyReport</string>
+    <string name="title_activity_monthly_report">MonthlyReport</string>
     <string name="drive_api_key"></string>
 
 </resources>

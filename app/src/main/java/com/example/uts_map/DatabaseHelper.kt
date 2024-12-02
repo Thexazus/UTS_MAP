@@ -296,8 +296,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun removeLastWaterIntake(amount: Int) {
         val db = writableDatabase
-        val selection =
-            "$COLUMN_AMOUNT = ? AND $COLUMN_TIMESTAMP = (SELECT MAX($COLUMN_TIMESTAMP) FROM $TABLE_WATER_INTAKE WHERE $COLUMN_AMOUNT = ?)"
+        val selection = "$COLUMN_AMOUNT = ? AND $COLUMN_TIMESTAMP = (SELECT MAX($COLUMN_TIMESTAMP) FROM $TABLE_WATER_INTAKE WHERE $COLUMN_AMOUNT = ?)"
         db.delete(TABLE_WATER_INTAKE, selection, arrayOf(amount.toString(), amount.toString()))
         db.close()
     }
