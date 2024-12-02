@@ -180,46 +180,11 @@
         app:layout_constraintTop_toBottomOf="@id/calendarSection"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <LinearLayout
-        android:id="@+id/reportButtons"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/tvActivityProgress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/weeklyReportButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="@color/light_blue"
-            android:text="Weekly"
-            android:textSize="12dp" />
-
-        <Button
-            android:id="@+id/monthlyReportButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="@color/light_blue"
-            android:textSize="12dp"
-            android:text="Monthly" />
-
-        <Button
-            android:id="@+id/yearlyReportButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="@color/light_blue"
-            android:textSize="12dp"
-            android:text="Yearly" />
-    </LinearLayout>
-
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/composeView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tvActivityProgress"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingContentDescription" />

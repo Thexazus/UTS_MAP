@@ -44,14 +44,16 @@ class ReportFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentReportBinding.inflate(inflater, container, false)
-        binding.composeView.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                ReportScreen()
-            }
-        }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.composeView.setContent {
+            ReportScreen()
+        }
     }
 
     @Composable
