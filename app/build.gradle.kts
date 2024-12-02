@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.jbcrypt)
     implementation(libs.circularprogressbar)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
