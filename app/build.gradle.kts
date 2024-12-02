@@ -68,6 +68,8 @@ dependencies {
     implementation("com.google.api-client:google-api-client-android:2.0.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.4.0")
     implementation("com.google.api-client:google-api-client-gson:1.32.1")
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-analytics")
 
     // implementation(libs.mpandroidchart)
 }
