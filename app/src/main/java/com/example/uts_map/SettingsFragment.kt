@@ -3,6 +3,7 @@ package com.example.uts_map
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -112,17 +113,39 @@ class SettingsFragment : Fragment() {
     }
 
     private fun updateTimeDisplay(time: String, layout: ViewGroup) {
-        val (hour, minute) = time.split(":").map { it.toInt() }
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-        }
-        val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
-        val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
+        try {
+            // Validasi format input time
+            if (!time.matches(Regex("\\d{1,2}:\\d{2}"))) {
+                throw IllegalArgumentException("Invalid time format: $time")
+            }
 
-        layout.findViewById<TextView>(R.id.sleepingTimeValue)?.text = timeFormat.format(calendar.time)
-        layout.findViewById<TextView>(R.id.sleepingTimeAmPm)?.text = amPmFormat.format(calendar.time)
+            // Pisahkan jam dan menit
+            val (hour, minute) = time.split(":").map { it.toInt() }
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+            }
+
+            // Format waktu
+            val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault()) // 12-hour format
+            val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
+
+            // Cari TextView di layout
+            val timeValueTextView = layout.findViewById<TextView>(R.id.sleepingTimeValue)
+            val timeAmPmTextView = layout.findViewById<TextView>(R.id.sleepingTimeAmPm)
+
+            // Pastikan elemen UI ditemukan
+            if (timeValueTextView != null && timeAmPmTextView != null) {
+                timeValueTextView.text = timeFormat.format(calendar.time)
+                timeAmPmTextView.text = amPmFormat.format(calendar.time)
+            } else {
+                Log.e("updateTimeDisplay", "One or more views are missing in the layout")
+            }
+        } catch (e: Exception) {
+            Log.e("updateTimeDisplay", "Error updating time display", e)
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
