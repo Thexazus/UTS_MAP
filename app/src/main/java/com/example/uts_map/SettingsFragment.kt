@@ -45,7 +45,8 @@ class SettingsFragment : Fragment() {
         ageValue.text = "${databaseHelper.getAge() ?: 0} yo"
         intakeValue.text = "${databaseHelper.getDailyWaterGoal()} ml"
 
-        val gender = databaseHelper.getGender() ?: "Other"
+//        val gender = databaseHelper.getGender() ?: "Other"
+        val gender = "Male"
         val genderId = when (gender) {
             "Male" -> R.id.radioMale
             "Female" -> R.id.radioFemale
@@ -70,7 +71,7 @@ class SettingsFragment : Fragment() {
                 R.id.radioFemale -> "Female"
                 else -> "Other"
             }
-            databaseHelper.setGender(gender)
+//            databaseHelper.setGender(gender)
         }
 
         sleepingTimeLayout.setOnClickListener {
