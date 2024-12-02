@@ -79,5 +79,6 @@
     <string name="title_activity_report_fragment_preview">ReportFragmentPreviewActivity</string>
     <string name="title_activity_yearly_report">YearlyReport</string>
     <string name="title_activity_monthly_report">MonthlyReport</string>
+    <string name="drive_api_key"></string>
 
 </resources>

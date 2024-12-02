@@ -4,15 +4,10 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.util.*
 
 class ProfileDetailActivity : AppCompatActivity() {
 
@@ -35,8 +30,13 @@ class ProfileDetailActivity : AppCompatActivity() {
         val wakeUpTimeLayout = findViewById<ViewGroup>(R.id.wakeUpTimeLayout)
 
         val btnSave = findViewById<Button>(R.id.btnSave)
+        val btnBack = findViewById<ImageButton>(R.id.btnBack)
 
         val userEmail = SessionManager.getUserEmail(this)
+
+        btnBack.setOnClickListener {
+            onBackPressed()
+        }
 
         btnSave.setOnClickListener {
             val firstName = etFirstName.text.toString().trim()
@@ -113,10 +113,10 @@ class ProfileDetailActivity : AppCompatActivity() {
         val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
         val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
 
-        val timeValueView = layout.findViewById<TextView>(R.id.sleepingTimeValue) ?: layout.findViewById(R.id.wakeUpTimeValue)
-        val amPmValueView = layout.findViewById<TextView>(R.id.sleepingTimeAmPm) ?: layout.findViewById(R.id.wakeUpTimeAmPm)
+        val timeValueView = layout.findViewById<TextView>(R.id.sleepingTimeValue)
+        val amPmValueView = layout.findViewById<TextView>(R.id.sleepingTimeAmPm)
 
-        timeValueView?.text = timeFormat.format(calendar.time)
-        amPmValueView?.text = amPmFormat.format(calendar.time)
+        timeValueView.text = timeFormat.format(calendar.time)
+        amPmValueView.text = amPmFormat.format(calendar.time)
     }
 }

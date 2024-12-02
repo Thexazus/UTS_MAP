@@ -10,7 +10,8 @@ import org.mindrot.jbcrypt.BCrypt
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     private val editor: SharedPreferences.Editor = sharedPreferences.edit()
 
     companion object {
@@ -343,7 +344,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             null,
             null
         )
-        val height = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_HEIGHT)) else null
+        val height =
+            if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_HEIGHT)) else null
         cursor.close()
         db.close()
         return height
@@ -361,7 +363,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             null,
             null
         )
-        val weight = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_WEIGHT)) else null
+        val weight =
+            if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_WEIGHT)) else null
         cursor.close()
         db.close()
         return weight
@@ -379,7 +382,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             null,
             null
         )
-        val age = if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AGE)) else null
+        val age =
+            if (cursor.moveToFirst()) cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AGE)) else null
         cursor.close()
         db.close()
         return age
@@ -397,7 +401,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             null,
             null
         )
-        val sleepingTime = if (cursor.moveToFirst()) cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SLEEPING_TIME)) else null
+        val sleepingTime = if (cursor.moveToFirst()) cursor.getString(
+            cursor.getColumnIndexOrThrow(COLUMN_SLEEPING_TIME)
+        ) else null
         cursor.close()
         db.close()
         return sleepingTime
@@ -415,7 +421,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             null,
             null
         )
-        val wakeUpTime = if (cursor.moveToFirst()) cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WAKE_UP_TIME)) else null
+        val wakeUpTime = if (cursor.moveToFirst()) cursor.getString(
+            cursor.getColumnIndexOrThrow(COLUMN_WAKE_UP_TIME)
+        ) else null
         cursor.close()
         db.close()
         return wakeUpTime
@@ -441,4 +449,32 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
     }
 
+    fun setGender(gender: String) {
+        val email = getCurrentUserEmail() ?: return
+        val db = writableDatabase
+        val contentValues = ContentValues().apply {
+            put(COLUMN_GENDER, gender)
+        }
+        db.update(TABLE_USERS, contentValues, "$COLUMN_EMAIL = ?", arrayOf(email))
+        db.close()
+    }
+
+    fun getGender(): String? {
+        val email = getCurrentUserEmail() ?: return null
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            arrayOf(COLUMN_GENDER),
+            "$COLUMN_EMAIL = ?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
+        val gender =
+            if (cursor.moveToFirst()) cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_GENDER)) else null
+        cursor.close()
+        db.close()
+        return gender
+    }
 }
