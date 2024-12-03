@@ -1,4 +1,4 @@
-package com.example.umnstory
+package com.example.uts_map
 
 import android.content.Intent
 import android.os.Bundle
@@ -23,7 +23,19 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        // Inisialisasi Firebase Auth
         auth = FirebaseAuth.getInstance()
+
+        // Cek apakah pengguna sudah login sebelumnya
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // Pengguna sudah login, langsung alihkan ke MainActivity
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish() // Menutup LoginActivity
+            return
+        }
 
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
@@ -39,6 +51,7 @@ class LoginActivity : AppCompatActivity() {
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                            // Setelah login berhasil, arahkan ke MainActivity yang memuat HomeFragment
                             val intent = Intent(this, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)

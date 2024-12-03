@@ -1,4 +1,4 @@
-package com.example.umnstory
+package com.example.uts_map
 
 import android.content.Intent
 import android.os.Bundle

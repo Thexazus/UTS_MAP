@@ -1,16 +1,19 @@
 package com.example.uts_map.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.uts_map.WaterIntake
-import com.example.uts_map.DatabaseHelper
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.*
 
 class WaterViewModel : ViewModel() {
 
-    private lateinit var databaseHelper: DatabaseHelper
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val _currentIntake = MutableLiveData(0)
     val currentIntake: LiveData<Int> = _currentIntake
@@ -40,24 +43,46 @@ class WaterViewModel : ViewModel() {
         val newIntake = WaterIntake(
             id = System.currentTimeMillis(),
             amount = amount,
-            // Convert Date to String before saving to the database
+            // Convert Date to String before saving to Firestore
             timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
         )
 
-        // Update intake history and save to the database
+        // Save to Firebase Firestore
+        saveWaterIntakeToFirestore(newIntake)
+
+        // Update intake history locally
         _intakeHistory.value = (_intakeHistory.value ?: emptyList()) + newIntake
-        databaseHelper.insertWaterIntake(newIntake)
     }
 
     // Remove water intake (from Home)
     fun removeWater(amount: Int) {
-        databaseHelper.removeLastWaterIntake(amount)
-        loadWaterIntakeDataFromDatabase() // Refresh history after removing water intake
+        // You can implement logic here to remove the water intake from Firestore if needed
+        // For now, it is assumed we're just removing the last entry and updating the UI
+        _intakeHistory.value = (_intakeHistory.value ?: emptyList()).dropLast(1)
+        removeWaterIntakeFromFirestore(amount)
     }
 
-    // Load water intake history from the database
-    fun loadWaterIntakeDataFromDatabase() {
-        _intakeHistory.value = databaseHelper.getWaterIntakeData()
+    // Load water intake history from Firestore
+    fun loadWaterIntakeDataFromFirestore() {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("users")
+            .document(userId)
+            .collection("waterIntakes")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val intakeList = snapshot.documents.map { document ->
+                    WaterIntake(
+                        id = document.getLong("id") ?: 0L,
+                        amount = document.getLong("amount")?.toInt() ?: 0,
+                        timestamp = document.getString("timestamp") ?: ""
+                    )
+                }
+                _intakeHistory.value = intakeList
+            }
+            .addOnFailureListener { e ->
+                Log.e("WaterViewModel", "Error loading data from Firestore", e)
+            }
     }
 
     // Set daily goal for water intake
@@ -67,19 +92,57 @@ class WaterViewModel : ViewModel() {
         }
     }
 
-    // Set the DatabaseHelper instance
-    fun init(databaseHelper: DatabaseHelper) {
-        this.databaseHelper = databaseHelper
-        loadWaterIntakeDataFromDatabase() // Load initial data from the database
+    // Save water intake data to Firestore
+    private fun saveWaterIntakeToFirestore(waterIntake: WaterIntake) {
+        val userId = auth.currentUser?.uid ?: return
+        val waterIntakeData = hashMapOf(
+            "id" to waterIntake.id,
+            "amount" to waterIntake.amount,
+            "timestamp" to waterIntake.timestamp
+        )
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("waterIntakes")
+            .add(waterIntakeData)
+            .addOnSuccessListener {
+                Log.d("WaterViewModel", "Water intake added to Firestore")
+            }
+            .addOnFailureListener { e ->
+                Log.e("WaterViewModel", "Error saving water intake to Firestore", e)
+            }
     }
 
-    // Set water intake history manually (useful for setting from external sources like a database)
-    fun setIntakeHistory(history: List<WaterIntake>) {
-        _intakeHistory.value = history
+    // Remove water intake from Firestore (optional)
+    private fun removeWaterIntakeFromFirestore(amount: Int) {
+        // For demonstration purposes, we'll simply drop the last document
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("users")
+            .document(userId)
+            .collection("waterIntakes")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.documents.isNotEmpty()) {
+                    val docRef = snapshot.documents[0].reference
+                    docRef.delete()
+                        .addOnSuccessListener {
+                            Log.d("WaterViewModel", "Last water intake removed from Firestore")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("WaterViewModel", "Error removing water intake from Firestore", e)
+                        }
+                }
+            }
     }
 
     // Set current intake value manually (useful for initializing with today's intake)
     fun setCurrentIntake(intakeToday: Int) {
         _currentIntake.value = intakeToday
+    }
+
+    init {
+        loadWaterIntakeDataFromFirestore() // Load initial data from Firestore
     }
 }

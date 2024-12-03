@@ -17,9 +17,12 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 
 class HomeFragment : Fragment() {
-    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
     private lateinit var greetingTextView: TextView
     private lateinit var progressCircular: CircularProgressIndicator
     private lateinit var textViewProgress: TextView
@@ -38,8 +41,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize DatabaseHelper
-        dbHelper = DatabaseHelper(requireContext())
+        // Initialize Firebase Firestore and Authentication
+        firestore = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
 
         // Initialize views
         initializeViews(view)
@@ -50,7 +54,7 @@ class HomeFragment : Fragment() {
         loadCurrentAmount()
 
         // Set greeting
-        val firstName = dbHelper.getCurrentUserFirstName()
+        val firstName = getCurrentUserFirstName()
         greetingTextView.text = "Hi, $firstName!"
 
         // Set current date
@@ -102,7 +106,7 @@ class HomeFragment : Fragment() {
 
         // Sync button click listener
         view.findViewById<ImageView>(R.id.imageViewSync).setOnClickListener {
-            // Implement sync functionality
+            // Sync functionality can be added here
         }
 
         // Profile image click listener
@@ -151,13 +155,61 @@ class HomeFragment : Fragment() {
         prefs.edit().putFloat("todayAmount", newAmount).apply()
         updateWaterIntakeDisplay(newAmount.toInt())
 
-        // TODO: Save to database if needed
+        // Save data to Firestore
+        saveToFirestore(newAmount.toInt(), selectedAmount)
+    }
+
+    private fun saveToFirestore(amount: Int, volume: Int) {
+        val userId = auth.currentUser?.uid ?: return // Ensure user is logged in
+        val userData = mapOf(
+            "date" to SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            "waterIntake" to amount,
+            "selectedVolume" to volume,
+            "userId" to userId
+        )
+
+        // Reference to user's water intake data in Firestore
+        firestore.collection("users")
+            .document(userId)
+            .collection("waterIntakes")
+            .add(userData)
+            .addOnSuccessListener {
+                // Data successfully saved
+                println("Data saved to Firestore")
+            }
+            .addOnFailureListener { e ->
+                // Handle failure
+                println("Error saving data to Firestore: $e")
+            }
     }
 
     private fun loadCurrentAmount() {
         val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
         val currentAmount = prefs.getFloat("todayAmount", 0f)
         updateWaterIntakeDisplay(currentAmount.toInt())
+
+        // Optionally, load data from Firestore
+        loadFromFirestore()
+    }
+
+    private fun loadFromFirestore() {
+        val userId = auth.currentUser?.uid ?: return
+        firestore.collection("users")
+            .document(userId)
+            .collection("waterIntakes")
+            .orderBy("date")
+            .limit(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    val document = snapshot.documents[0]
+                    val waterIntake = document.getLong("waterIntake")?.toInt() ?: 0
+                    updateWaterIntakeDisplay(waterIntake)
+                }
+            }
+            .addOnFailureListener { e ->
+                println("Error loading data from Firestore: $e")
+            }
     }
 
     private fun updateWaterIntakeDisplay(amount: Int) {
@@ -165,10 +217,21 @@ class HomeFragment : Fragment() {
         textViewCurrentIntake.text = "$amount ml"
 
         // Update progress
-        val goalAmount = 2000 // 2 Liter
-        val progress = (amount.toFloat() / goalAmount * 100).toInt()
+        val goalAmount = 2000 // 2 Liters
+        var progress = (amount.toFloat() / goalAmount * 100).toInt()
+
+        // Ensure progress doesn't exceed 100%
+        if (progress > 100) {
+            progress = 100
+        }
+
         progressCircular.setProgress(progress, true)
         textViewProgress.text = "$progress%"
+    }
+
+    private fun getCurrentUserFirstName(): String {
+        val user = auth.currentUser
+        return user?.displayName ?: "User" // Default to "User" if no display name
     }
 
     companion object {
