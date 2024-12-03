@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -16,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -36,11 +40,16 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
     }
-
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
     packaging {
         resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/DEPENDENCIES"
+
         }
     }
 }
@@ -56,7 +65,14 @@ dependencies {
     implementation(libs.jbcrypt)
     implementation(libs.circularprogressbar)
     implementation(libs.androidx.fragment.ktx)
-    implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,9 +82,26 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.google.android.gms:play-services-drive:17.0.0")
     implementation("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
+    implementation ("androidx.work:work-runtime-ktx:2.8.0")
+    implementation ("com.google.android.gms:play-services-auth:21.2.0")
+    implementation ("com.google.android.gms:play-services-drive:17.0.0")
+    implementation("com.google.firebase:firebase-bom:33.5.1")
+    implementation("com.google.firebase:firebase-analytics:22.1.0")
     implementation("com.google.api-client:google-api-client-android:2.0.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.4.0")
     implementation("com.google.api-client:google-api-client-gson:1.32.1")
+    implementation ("com.google.api-client:google-api-client-gson:1.32.1")
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("com.patrykandpatrick.vico:compose:1.15.0")
+    implementation("com.patrykandpatrick.vico:compose-m3:1.15.0")
+    implementation("com.patrykandpatrick.vico:core:1.15.0")
+    implementation("com.patrykandpatrick.vico:views:1.15.0")
+    implementation("com.kizitonwose.calendar:view:2.6.0")
+    implementation("com.kizitonwose.calendar:compose:2.6.0")
 
-    // implementation(libs.mpandroidchart)
+
+//    implementation (libs.mpandroidchart)
 }
