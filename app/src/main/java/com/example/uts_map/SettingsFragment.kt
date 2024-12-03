@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.umnstory.LoginActivity
 import com.example.uts_map.databinding.FragmentSettingsBinding
 import java.text.SimpleDateFormat
 import java.util.*
@@ -62,8 +63,10 @@ class SettingsFragment : Fragment() {
 
     private fun setupListeners() = binding.apply {
         editButton.setOnClickListener {
-            val intent = Intent(requireContext(), ProfileDetailActivity::class.java)
+            val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
+            requireActivity().finish()
+
         }
 
         genderRadioGroup.setOnCheckedChangeListener { _, checkedId ->

@@ -57,7 +57,7 @@ class OnboardingActivity : AppCompatActivity() {
                 viewPager.currentItem = currentItem + 1
             } else {
                 // If on the last page, navigate to LoginActivity
-                startActivity(Intent(this, LoginActivity::class.java))
+                startActivity(Intent(this, com.example.umnstory.LoginActivity::class.java))
                 finish()  // Close OnboardingActivity
             }
         }

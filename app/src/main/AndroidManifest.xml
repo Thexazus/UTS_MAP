@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Izin yang diperlukan untuk aplikasi -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -24,6 +23,14 @@
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
         <activity
+            android:name="com.example.umnstory.LoginActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="com.example.umnstory.RegisterActivity"
+            android:exported="true" />
+
+        <activity
             android:name=".YearlyReport"
             android:exported="false"
             android:label="@string/title_activity_yearly_report"
@@ -35,53 +42,40 @@
             android:theme="@style/Theme.UTS_MAP" /> <!-- Metadata untuk Google Play Services -->
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-
-        <!-- Metadata untuk Firebase -->
+            android:value="@integer/google_play_services_version" /> <!-- Metadata untuk Firebase -->
         <meta-data
             android:name="firebase_analytics_collection_enabled"
-            android:value="true" />
-
-        <!-- Splash Screen sebagai Main Activity -->
+            android:value="true" /> <!-- Splash Screen sebagai Main Activity -->
         <activity
             android:name=".SplashScreen1"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Aktivitas tambahan -->
+        </activity> <!-- Aktivitas tambahan -->
         <activity
             android:name=".ProfileDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false" />
-
-        <!-- Aktivitas untuk Google Sign-In -->
+            android:exported="false" /> <!-- Aktivitas untuk Google Sign-In -->
         <activity
             android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
             android:exported="true"
-            tools:replace="android:exported"
-            tools:node="merge" />
-
-        <!-- Broadcast Receiver untuk Alarm -->
+            tools:node="merge"
+            tools:replace="android:exported" /> <!-- Broadcast Receiver untuk Alarm -->
         <receiver
             android:name=".AlarmReceiver"
             android:enabled="true"
             android:exported="false" />
-
     </application>
+
 </manifest>
+
+<!--a-->
