@@ -84,7 +84,7 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
     )
 
     val pagerState = rememberPagerState(
-        initialPage = 0,
+        initialPage = data.size - 1,
         pageCount = {data.size}
     )
     val coroutineScope = rememberCoroutineScope()
