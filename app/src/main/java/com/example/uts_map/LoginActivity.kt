@@ -1,11 +1,14 @@
-package com.example.uts_map
+package com.example.umnstory
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.uts_map.MainActivity
+import com.example.uts_map.R
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
@@ -14,6 +17,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
+    private lateinit var registerTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,10 +25,10 @@ class LoginActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val etEmail = findViewById<EditText>(R.id.etLoginEmail)
-        val etPassword = findViewById<EditText>(R.id.etLoginPassword)
-
-        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        emailEditText = findViewById(R.id.emailEditText)
+        passwordEditText = findViewById(R.id.passwordEditText)
+        loginButton = findViewById(R.id.loginButton)
+        registerTextView = findViewById(R.id.registerTextView)
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString()
@@ -38,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
                             val intent = Intent(this, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
-                            finish() // Agar tidak bisa kembali ke LoginActivity setelah login
+                            finish() // Prevent navigating back to LoginActivity
                         } else {
                             Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
                         }
@@ -47,7 +51,10 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
             }
         }
+
+        registerTextView.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
-
-
