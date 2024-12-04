@@ -5,24 +5,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class OnboardingAdapter(private val layouts: IntArray) : RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {
+class OnboardingAdapter(private val layouts: IntArray) :
+    RecyclerView.Adapter<OnboardingAdapter.OnboardingViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OnboardingViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(layouts[viewType], parent, false)
         return OnboardingViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: OnboardingViewHolder, position: Int) {
-        // Optionally, add a log to verify the position being loaded
-        android.util.Log.d("OnboardingAdapter", "Loading page: $position")
+        // Optional logging for debugging
+        android.util.Log.d("OnboardingAdapter", "Binding page: $position")
     }
 
     override fun getItemCount(): Int = layouts.size
 
-    override fun getItemViewType(position: Int): Int {
-        // Return the layout resource ID for the current position
-        return layouts[position]
-    }
+    override fun getItemViewType(position: Int): Int = position
 
     class OnboardingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }

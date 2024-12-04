@@ -7,12 +7,11 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.uts_map.MainActivity
-import com.example.uts_map.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
 class LoginActivity : AppCompatActivity() {
-
     private lateinit var auth: FirebaseAuth
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
@@ -23,17 +22,11 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Inisialisasi Firebase Auth
         auth = FirebaseAuth.getInstance()
 
-        // Cek apakah pengguna sudah login sebelumnya
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            // Pengguna sudah login, langsung alihkan ke MainActivity
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish() // Menutup LoginActivity
+        // Check if user is already logged in
+        auth.currentUser?.let {
+            startMainActivity()
             return
         }
 
@@ -42,32 +35,68 @@ class LoginActivity : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
         registerTextView = findViewById(R.id.registerTextView)
 
-        loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
+        setupClickListeners()
+    }
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                            // Setelah login berhasil, arahkan ke MainActivity yang memuat HomeFragment
-                            val intent = Intent(this, MainActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
-                            finish() // Prevent navigating back to LoginActivity
-                        } else {
-                            Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            } else {
-                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
+    private fun setupClickListeners() {
+        loginButton.setOnClickListener {
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
+
+            if (validateInputs(email, password)) {
+                performLogin(email, password)
             }
         }
 
         registerTextView.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    private fun validateInputs(email: String, password: String): Boolean {
+        if (email.isEmpty() || password.isEmpty()) {
+            showToast("Please enter email and password")
+            return false
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            showToast("Invalid email format")
+            return false
+        }
+
+        return true
+    }
+
+    private fun performLogin(email: String, password: String) {
+        try {
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        showToast("Login successful")
+                        startMainActivity()
+                    } else {
+                        val errorMessage = when (task.exception) {
+                            is FirebaseAuthInvalidUserException -> "User not found"
+                            is FirebaseAuthInvalidCredentialsException -> "Invalid password"
+                            else -> "Login failed: ${task.exception?.message}"
+                        }
+                        showToast(errorMessage)
+                    }
+                }
+        } catch (e: Exception) {
+            showToast("Login error: ${e.message}")
+        }
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
