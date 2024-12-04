@@ -14,11 +14,12 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.auth.FirebaseAuth
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -53,13 +54,12 @@ class HomeFragment : Fragment() {
         // Load initial data
         loadCurrentAmount()
 
-        // Set greeting
-        val firstName = getCurrentUserFirstName()
-        greetingTextView.text = "Hi, $firstName!"
+        // Set greeting with user name
+        setGreetingMessage()
 
         // Set current date
-        view.findViewById<TextView>(R.id.textViewToday).text =
-            "Today, ${SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date())}"
+        val currentDate = SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date())
+        view.findViewById<TextView>(R.id.textViewToday).text = "Today, $currentDate"
 
         // Setup RecyclerView
         setupRecyclerView(view)
@@ -116,7 +116,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupChipGroup() {
-        chipGroupVolumes.setOnCheckedStateChangeListener { group, checkedIds ->
+        chipGroupVolumes.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 when (checkedIds[0]) {
                     R.id.chip50ml -> selectChip(50)
@@ -229,12 +229,23 @@ class HomeFragment : Fragment() {
         textViewProgress.text = "$progress%"
     }
 
-    private fun getCurrentUserFirstName(): String {
-        val user = auth.currentUser
-        return user?.displayName ?: "User" // Default to "User" if no display name
-    }
-
-    companion object {
-        fun newInstance() = HomeFragment()
+    private fun setGreetingMessage() {
+        val userEmail = auth.currentUser?.email
+        if (userEmail != null) {
+            firestore.collection("users").document(userEmail).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val firstName = document.getString("firstName") ?: "User"
+                        greetingTextView.text = "Hi, $firstName!"
+                    } else {
+                        greetingTextView.text = "Hi, User!"
+                    }
+                }
+                .addOnFailureListener {
+                    greetingTextView.text = "Hi, User!"
+                }
+        } else {
+            greetingTextView.text = "Hi, User!"
+        }
     }
 }
