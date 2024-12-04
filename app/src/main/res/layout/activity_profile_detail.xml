@@ -11,297 +11,150 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Added RelativeLayout for back button positioning -->
+        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp">
 
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_back_arrow"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="My profile"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:layout_marginBottom="24dp"/>
-
-                <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/profile_placeholder"/>
-            </LinearLayout>
+                android:text="My Profile"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:layout_centerHorizontal="true" />
         </RelativeLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Daily intake goal"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Integer"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="First Name"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etFirstName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:text="String"
-            android:layout_marginBottom="16dp"/>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Last Name"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etLastName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:text="String"
-            android:layout_marginBottom="16dp"/>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email Address"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:text="inlemail@gmail.com"
-            android:layout_marginBottom="16dp"/>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Age"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etAge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:text="0"
-            android:inputType="number"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Weight -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Weight"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-
-        <EditText
-            android:id="@+id/etWeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:text="0"
-            android:inputType="numberDecimal"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Height"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-
-        <EditText
-            android:id="@+id/etHeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:text="0"
-            android:inputType="numberDecimal"
-            android:layout_marginBottom="16dp"/>
-
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gender"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <RadioGroup
-            android:id="@+id/rgGender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-
-            <RadioButton
-                android:id="@+id/rbMale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Male"
-                android:checked="true"
-                android:buttonTint="#2196F3"/>
-
-            <RadioButton
-                android:id="@+id/rbFemale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Female"
-                android:layout_marginStart="16dp"
-                android:buttonTint="#2196F3"/>
-
-            <RadioButton
-                android:id="@+id/rbOther"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Other"
-                android:layout_marginStart="16dp"
-                android:buttonTint="#2196F3"/>
-        </RadioGroup>
-
-        <!-- Sleeping time -->
-        <TextView
-            android:id="@+id/sleepingTimeLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sleeping time"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
+        <!-- Profile Picture -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10 : 41"
-                android:textSize="16sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="#2196F3"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="PM"
-                android:textColor="#212121"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Off"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"/>
-        </LinearLayout>
-
-        <!-- Wake up time -->
-        <TextView
-            android:id="@+id/wakeUpTimeLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wake up time"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/edittext_border"
-            android:padding="12dp"
+            android:orientation="vertical"
+            android:gravity="center"
             android:layout_marginBottom="24dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="09 : 41"
-                android:textSize="16sp"/>
+            <ImageView
+                android:id="@+id/imgProfile"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/profile_placeholder"
+                android:contentDescription="Profile Picture"
+                android:background="@drawable/profile_circle_border"
+                android:padding="8dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AM"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                android:background="#2196F3"
-                android:textColor="#FFFFFF"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Off"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"/>
         </LinearLayout>
 
-        <!-- Update Button -->
+        <!-- Input Fields -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFirstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="First Name"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etLastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Last Name"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Age"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Weight (kg)"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etHeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Height (cm)"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Sleeping Time -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSleepingTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Sleeping Time"
+                android:focusable="false"
+                android:clickable="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Wake Up Time -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etWakeUpTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Wake Up Time"
+                android:focusable="false"
+                android:clickable="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Update"
+            android:text="Save Changes"
             android:textColor="#FFFFFF"
             android:backgroundTint="#2196F3"
-            android:padding="16dp"/>
-
+            android:padding="16dp" />
     </LinearLayout>
 </ScrollView>

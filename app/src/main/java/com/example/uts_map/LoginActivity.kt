@@ -68,32 +68,26 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun performLogin(email: String, password: String) {
-        try {
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        showToast("Login successful")
-                        startMainActivity()
-                    } else {
-                        val errorMessage = when (task.exception) {
-                            is FirebaseAuthInvalidUserException -> "User not found"
-                            is FirebaseAuthInvalidCredentialsException -> "Invalid password"
-                            else -> "Login failed: ${task.exception?.message}"
-                        }
-                        showToast(errorMessage)
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    showToast("Login successful")
+                    startMainActivity()
+                } else {
+                    val errorMessage = when (task.exception) {
+                        is FirebaseAuthInvalidUserException -> "User not found"
+                        is FirebaseAuthInvalidCredentialsException -> "Invalid password"
+                        else -> "Login failed: ${task.exception?.message}"
                     }
+                    showToast(errorMessage)
                 }
-        } catch (e: Exception) {
-            showToast("Login error: ${e.message}")
-        }
+            }
     }
 
     private fun startMainActivity() {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish()
+        finish() // Ensure user cannot return to login screen
     }
 
     private fun showToast(message: String) {

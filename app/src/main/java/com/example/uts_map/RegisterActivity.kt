@@ -68,25 +68,26 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun performRegistration(email: String, password: String) {
-        try {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        showToast("Registration successful")
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    } else {
-                        val errorMessage = when (task.exception) {
-                            is FirebaseAuthWeakPasswordException -> "Password is too weak"
-                            is FirebaseAuthUserCollisionException -> "Email already exists"
-                            else -> "Registration failed: ${task.exception?.message}"
-                        }
-                        showToast(errorMessage)
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    showToast("Registration successful")
+                    startProfileDetailActivity()
+                } else {
+                    val errorMessage = when (task.exception) {
+                        is FirebaseAuthWeakPasswordException -> "Password is too weak"
+                        is FirebaseAuthUserCollisionException -> "Email already exists"
+                        else -> "Registration failed: ${task.exception?.message}"
                     }
+                    showToast(errorMessage)
                 }
-        } catch (e: Exception) {
-            showToast("Registration error: ${e.message}")
-        }
+            }
+    }
+
+    private fun startProfileDetailActivity() {
+        val intent = Intent(this, ProfileDetailActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun showToast(message: String) {

@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -102,7 +103,12 @@ dependencies {
     implementation("com.patrykandpatrick.vico:views:1.15.0")
     implementation("com.kizitonwose.calendar:view:2.6.0")
     implementation("com.kizitonwose.calendar:compose:2.6.0")
+    // Glide (for image loading)
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
+    // Material Design
+    implementation("com.google.android.material:material:1.9.0")
 
 //    implementation (libs.mpandroidchart)
 }

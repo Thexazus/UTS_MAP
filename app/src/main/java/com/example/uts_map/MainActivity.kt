@@ -1,41 +1,37 @@
 package com.example.uts_map
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Show a welcome message with user email
-        val userEmail = SessionManager.getUserEmail(this)
-        userEmail?.let {
-            Toast.makeText(this, "HALOOOOOOO, $userEmail", Toast.LENGTH_SHORT).show()
-        }
-
         // Check if user is logged in
-        if (!SessionManager.isLoggedIn(this)) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            navigateToLogin()
             return
         }
 
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // Check if the Topbar exists and set its title
+        // Set top bar title if exists
         val topBar = findViewById<Topbar?>(R.id.topbar)
         topBar?.setTitle("Dynamic Page Title")
 
@@ -52,35 +48,69 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNavigation.setupWithNavController(navController)
 
+        // Load user data from Firebase and display welcome message
+        loadUserData()
+
         // Check daily goal achievement
         checkDailyGoalAchievement()
     }
 
-    private fun checkDailyGoalAchievement() {
-        val prefs = getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
-        val lastCheckDate = prefs.getString("lastCheckDate", "")
-        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    private fun navigateToLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
 
-        // Check if it's a new day
-        if (currentDate != lastCheckDate) {
-            val currentAmount = prefs.getFloat("todayAmount", 0f)
-            val targetAmount = 2000f
+    private fun loadUserData() {
+        val currentUser = auth.currentUser ?: return
+        val userEmail = currentUser.email ?: return
 
-            val fragment = if (currentAmount >= targetAmount) {
-                // If the target is achieved, show AchieveDayGoalFragment
-                AchieveDayGoalFragment()
+        db.collection("users").document(userEmail).get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val firstName = document.getString("firstName") ?: "User"
+                Toast.makeText(this, "Welcome back, $firstName!", Toast.LENGTH_SHORT).show()
             } else {
-                // If the target is not achieved, show NotAchieveFragment
-                NotAchieveFragment()
+                Toast.makeText(this, "Failed to load user data.", Toast.LENGTH_SHORT).show()
             }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, fragment) // Use nav_host_fragment as the container
-                .addToBackStack(null)
-                .commit()
+    private fun checkDailyGoalAchievement() {
+        val currentUser = auth.currentUser ?: return
+        val userEmail = currentUser.email ?: return
 
-            // Update last check date
-            prefs.edit().putString("lastCheckDate", currentDate).apply()
+        db.collection("users").document(userEmail).get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                val currentAmount = document.getDouble("todayAmount") ?: 0.0
+                val targetAmount = document.getDouble("targetAmount") ?: 2000.0
+                val lastCheckDate = document.getString("lastCheckDate") ?: ""
+
+                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                if (currentDate != lastCheckDate) {
+                    val fragment = if (currentAmount >= targetAmount) {
+                        AchieveDayGoalFragment()
+                    } else {
+                        NotAchieveFragment()
+                    }
+
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.nav_host_fragment, fragment)
+                        .addToBackStack(null)
+                        .commit()
+
+                    // Update the last check date
+                    db.collection("users").document(userEmail)
+                        .update("lastCheckDate", currentDate)
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Failed to update daily check.", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            } else {
+                Toast.makeText(this, "Daily goal data not found.", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

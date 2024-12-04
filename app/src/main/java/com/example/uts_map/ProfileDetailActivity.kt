@@ -3,120 +3,124 @@ package com.example.uts_map
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ProfileDetailActivity : AppCompatActivity() {
-
-    private lateinit var databaseHelper: DatabaseHelper
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_detail)
-
-        databaseHelper = DatabaseHelper(this)
 
         val etFirstName = findViewById<EditText>(R.id.etFirstName)
         val etLastName = findViewById<EditText>(R.id.etLastName)
         val etAge = findViewById<EditText>(R.id.etAge)
         val etWeight = findViewById<EditText>(R.id.etWeight)
         val etHeight = findViewById<EditText>(R.id.etHeight)
-        val rgGender = findViewById<RadioGroup>(R.id.rgGender)
-
-        val sleepingTimeLayout = findViewById<ViewGroup>(R.id.sleepingTimeLayout)
-        val wakeUpTimeLayout = findViewById<ViewGroup>(R.id.wakeUpTimeLayout)
-
+        val etSleepingTime = findViewById<EditText>(R.id.etSleepingTime)
+        val etWakeUpTime = findViewById<EditText>(R.id.etWakeUpTime)
         val btnSave = findViewById<Button>(R.id.btnSave)
-        val btnBack = findViewById<ImageButton>(R.id.btnBack)
 
-        val userEmail = SessionManager.getUserEmail(this)
+        val userEmail = auth.currentUser?.email ?: return
+        loadData(userEmail, etFirstName, etLastName, etAge, etWeight, etHeight, etSleepingTime, etWakeUpTime)
 
-        btnBack.setOnClickListener {
-            onBackPressed()
-        }
+        // Time Pickers
+        etSleepingTime.setOnClickListener { showTimePicker(etSleepingTime) }
+        etWakeUpTime.setOnClickListener { showTimePicker(etWakeUpTime) }
 
         btnSave.setOnClickListener {
             val firstName = etFirstName.text.toString().trim()
             val lastName = etLastName.text.toString().trim()
-            val ageText = etAge.text.toString().trim()
-            val weightText = etWeight.text.toString().trim()
-            val heightText = etHeight.text.toString().trim()
+            val age = etAge.text.toString().toIntOrNull()
+            val weight = etWeight.text.toString().toDoubleOrNull()
+            val height = etHeight.text.toString().toDoubleOrNull()
+            val sleepingTime = etSleepingTime.text.toString()
+            val wakeUpTime = etWakeUpTime.text.toString()
 
-            val gender = when (rgGender.checkedRadioButtonId) {
-                R.id.rbMale -> "Male"
-                R.id.rbFemale -> "Female"
-                R.id.rbOther -> "Other"
-                else -> null
+            if (firstName.isEmpty() || lastName.isEmpty() || age == null || weight == null || height == null || sleepingTime.isEmpty() || wakeUpTime.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields correctly.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
-            val sleepingTime = sleepingTimeLayout.findViewById<TextView>(R.id.sleepingTimeValue).text.toString() +
-                    " " + sleepingTimeLayout.findViewById<TextView>(R.id.sleepingTimeAmPm).text.toString()
-            val wakeUpTime = wakeUpTimeLayout.findViewById<TextView>(R.id.wakeUpTimeValue).text.toString() +
-                    " " + wakeUpTimeLayout.findViewById<TextView>(R.id.wakeUpTimeAmPm).text.toString()
-
-            if (firstName.isEmpty() || lastName.isEmpty() || ageText.isEmpty() ||
-                weightText.isEmpty() || heightText.isEmpty() || gender == null) {
-
-                Toast.makeText(this, "Semua bidang harus diisi", Toast.LENGTH_SHORT).show()
-            } else {
-                val age = ageText.toIntOrNull()
-                val weight = weightText.toIntOrNull()
-                val height = heightText.toIntOrNull()
-
-                if (age == null || weight == null || height == null) {
-                    Toast.makeText(this, "Umur, berat, dan tinggi harus berupa angka yang valid", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if (userEmail != null) {
-                    databaseHelper.updateUserProfile(userEmail, firstName, lastName, age, weight, height, gender, sleepingTime, wakeUpTime)
-                    SessionManager.setProfileCompleted(this, true)
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
-                }
-            }
-        }
-
-        sleepingTimeLayout.setOnClickListener {
-            showTimePickerDialog { selectedTime ->
-                updateTimeDisplay(selectedTime, sleepingTimeLayout)
-            }
-        }
-
-        wakeUpTimeLayout.setOnClickListener {
-            showTimePickerDialog { selectedTime ->
-                updateTimeDisplay(selectedTime, wakeUpTimeLayout)
-            }
+            saveData(userEmail, firstName, lastName, age, weight, height, sleepingTime, wakeUpTime)
         }
     }
 
-    private fun showTimePickerDialog(onTimeSelected: (String) -> Unit) {
+    private fun showTimePicker(editText: EditText) {
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
-        val timePickerDialog = TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-            val time = String.format("%02d:%02d", selectedHour, selectedMinute)
-            onTimeSelected(time)
-        }, hour, minute, false)
-        timePickerDialog.show()
+
+        TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+            val formattedTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, selectedHour)
+                set(Calendar.MINUTE, selectedMinute)
+            }.time)
+            editText.setText(formattedTime)
+        }, hour, minute, false).show()
     }
 
-    private fun updateTimeDisplay(time: String, layout: ViewGroup) {
-        val (hour, minute) = time.split(":").map { it.toInt() }
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
+    private fun loadData(
+        email: String,
+        etFirstName: EditText,
+        etLastName: EditText,
+        etAge: EditText,
+        etWeight: EditText,
+        etHeight: EditText,
+        etSleepingTime: EditText,
+        etWakeUpTime: EditText
+    ) {
+        db.collection("users").document(email).get().addOnSuccessListener { document ->
+            if (document != null && document.exists()) {
+                etFirstName.setText(document.getString("firstName"))
+                etLastName.setText(document.getString("lastName"))
+                etAge.setText(document.getLong("age")?.toString())
+                etWeight.setText(document.getDouble("weight")?.toString())
+                etHeight.setText(document.getDouble("height")?.toString())
+                etSleepingTime.setText(document.getString("sleepingTime"))
+                etWakeUpTime.setText(document.getString("wakeUpTime"))
+            }
         }
-        val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
-        val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
+    }
 
-        val timeValueView = layout.findViewById<TextView>(R.id.sleepingTimeValue)
-        val amPmValueView = layout.findViewById<TextView>(R.id.sleepingTimeAmPm)
+    private fun saveData(
+        email: String,
+        firstName: String,
+        lastName: String,
+        age: Int,
+        weight: Double,
+        height: Double,
+        sleepingTime: String,
+        wakeUpTime: String
+    ) {
+        val userMap = hashMapOf(
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "age" to age,
+            "weight" to weight,
+            "height" to height,
+            "sleepingTime" to sleepingTime,
+            "wakeUpTime" to wakeUpTime
+        )
 
-        timeValueView.text = timeFormat.format(calendar.time)
-        amPmValueView.text = amPmFormat.format(calendar.time)
+        db.collection("users").document(email).set(userMap).addOnSuccessListener {
+            Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show()
+            navigateToMainActivity() // Navigate to MainActivity after saving
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to save profile.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }
