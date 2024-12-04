@@ -58,14 +58,17 @@
     android:text="@string/login_button_text"
     android:textColor="#FFFFFF" />
 
-    <Button
+    <ImageButton
         android:id="@+id/googleSignInButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign in with Google"
-        android:backgroundTint="@color/red"
-        android:textColor="@android:color/white"
+        android:background="@null"
+        android:src="@drawable/ic_google_logo"
+        android:contentDescription="@string/google_sign_in"
+        android:layout_gravity="center"
+        android:padding="8dp"
         android:layout_marginBottom="16dp" />
+
 
     <!-- Don't have an account? -->
     <TextView

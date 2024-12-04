@@ -10,6 +10,7 @@
     <string name="or_login_with">Or Login with</string>
     <string name="login_with_google">Login with Google</string>
     <string name="dont_have_account">Don\'t have an account? Register Now</string>
+    <string name="google_sign_in">Google Sign In</string>"
 
     <string name="register_title">Hello! Register to get started</string>
     <string name="register_hint_email">Enter Your Email</string>

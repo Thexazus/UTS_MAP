@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
-    private lateinit var googleSignInButton: Button
+    private lateinit var googleSignInButton: ImageButton
     private lateinit var registerTextView: TextView
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -57,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.default_web_client_id)) // Use your correct ID token from Firebase console
             .requestEmail()
             .build()
 
@@ -84,6 +85,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun performGoogleSignIn() {
+        Log.d(TAG, "Google Sign-In button clicked")
+        showToast("Starting Google Sign-In...")
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -99,7 +102,7 @@ class LoginActivity : AppCompatActivity() {
                     firebaseAuthWithGoogle(account)
                 }
             } catch (e: ApiException) {
-                Log.w(TAG, "Google sign-in failed", e)
+                Log.w(TAG, "Google sign-in failed with status code: ${e.statusCode}", e)
                 showToast("Google sign-in failed: ${e.localizedMessage}")
             }
         }
