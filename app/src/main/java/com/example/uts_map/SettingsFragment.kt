@@ -40,46 +40,49 @@ class SettingsFragment : Fragment() {
             return
         }
 
-        // Get user data from Firebase Firestore
-        db.collection("users").document(currentUser.email ?: "").get().addOnSuccessListener { document ->
-            if (document != null && document.exists()) {
-                val firstName = document.getString("firstName") ?: "Unknown"
-                val lastName = document.getString("lastName") ?: "User"
-                binding.userName.text = "$firstName $lastName"
+        // Pastikan binding tidak null sebelum digunakan
+        _binding?.let { binding ->
+            // Get user data from Firebase Firestore
+            db.collection("users").document(currentUser.email ?: "").get().addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val firstName = document.getString("firstName") ?: "Unknown"
+                    val lastName = document.getString("lastName") ?: "User"
+                    binding.userName.text = "$firstName $lastName"
 
-                val email = document.getString("email") ?: currentUser.email
-                binding.userEmail.text = email
+                    val email = document.getString("email") ?: currentUser.email
+                    binding.userEmail.text = email
 
-                val height = document.getDouble("height") ?: 0.0
-                binding.heightValue.text = "${height.toInt()} cm"
+                    val height = document.getDouble("height") ?: 0.0
+                    binding.heightValue.text = "${height.toInt()} cm"
 
-                val weight = document.getDouble("weight") ?: 0.0
-                binding.weightValue.text = "${weight.toInt()} kg"
+                    val weight = document.getDouble("weight") ?: 0.0
+                    binding.weightValue.text = "${weight.toInt()} kg"
 
-                val age = document.getLong("age") ?: 0
-                binding.ageValue.text = "$age yo"
+                    val age = document.getLong("age") ?: 0
+                    binding.ageValue.text = "$age yo"
 
-                val intake = document.getDouble("targetAmount") ?: 0.0
-                binding.intakeValue.text = "${intake.toInt()} ml"
+                    val intake = document.getDouble("targetAmount") ?: 0.0
+                    binding.intakeValue.text = "${intake.toInt()} ml"
 
-                val gender = document.getString("gender") ?: "Other"
-                val genderId = when (gender) {
-                    "Male" -> R.id.radioMale
-                    "Female" -> R.id.radioFemale
-                    else -> R.id.radioOther
+                    val gender = document.getString("gender") ?: "Other"
+                    val genderId = when (gender) {
+                        "Male" -> R.id.radioMale
+                        "Female" -> R.id.radioFemale
+                        else -> R.id.radioOther
+                    }
+                    binding.genderRadioGroup.check(genderId)
+
+                    val sleepingTime = document.getString("sleepingTime") ?: "00:00"
+                    updateTimeDisplay(sleepingTime, binding.sleepingTimeLayout)
+
+                    val wakeUpTime = document.getString("wakeUpTime") ?: "00:00"
+                    updateTimeDisplay(wakeUpTime, binding.wakeUpTimeLayout)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show()
                 }
-                binding.genderRadioGroup.check(genderId)
-
-                val sleepingTime = document.getString("sleepingTime") ?: "00:00"
-                updateTimeDisplay(sleepingTime, binding.sleepingTimeLayout)
-
-                val wakeUpTime = document.getString("wakeUpTime") ?: "00:00"
-                updateTimeDisplay(wakeUpTime, binding.wakeUpTimeLayout)
-            } else {
-                Toast.makeText(requireContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -162,17 +165,23 @@ class SettingsFragment : Fragment() {
     }
 
     private fun updateFieldInFirestore(field: String, value: Any) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
+        val currentUser = auth.currentUser ?: run {
             navigateToLogin()
             return
         }
 
-        db.collection("users").document(currentUser.email ?: "").update(field, value).addOnSuccessListener {
-            Log.d("SettingsFragment", "$field updated successfully")
-        }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Failed to update $field: ${it.message}", Toast.LENGTH_SHORT).show()
+        val userEmail = currentUser.email
+        if (userEmail.isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Invalid user email", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        db.collection("users").document(userEmail).update(field, value)
+            .addOnSuccessListener {
+                Log.d("SettingsFragment", "$field updated successfully")
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to update $field: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun navigateToLogin() {
