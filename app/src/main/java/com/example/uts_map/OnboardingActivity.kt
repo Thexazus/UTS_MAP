@@ -5,11 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import android.widget.Button
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 
 class OnboardingActivity : AppCompatActivity() {
-
     private lateinit var adapter: OnboardingAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var nextButton: Button
@@ -25,40 +22,36 @@ class OnboardingActivity : AppCompatActivity() {
             R.layout.onboarding3   // Halaman 3
         )
 
+        // Initialize ViewPager2 and adapter
         adapter = OnboardingAdapter(layouts)
         viewPager = findViewById(R.id.viewPager)
         viewPager.adapter = adapter
 
-
-
         // Initialize button
         nextButton = findViewById(R.id.nextButton)
 
-        // Set up a page change callback to handle button text change
+        // Set up ViewPager2 page change callback
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                // Log the current page
-                android.util.Log.d("OnboardingActivity", "Page selected: $position")
-
                 if (position == layouts.size - 1) {
-                    nextButton.text = "Get Started"
+                    nextButton.text = "GET STARTED"
                 } else {
-                    nextButton.text = "Next"
+                    nextButton.text = "NEXT"
                 }
             }
         })
 
-        // Set up the next button click event
+        // Set up next button click listener
         nextButton.setOnClickListener {
             val currentItem = viewPager.currentItem
             if (currentItem < layouts.size - 1) {
-                // Move to the next page
+                // Move to next page
                 viewPager.currentItem = currentItem + 1
             } else {
-                // If on the last page, navigate to LoginActivity
-                startActivity(Intent(this, com.example.umnstory.LoginActivity::class.java))
-                finish()  // Close OnboardingActivity
+                // Navigate to LoginActivity on the last page
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
             }
         }
     }

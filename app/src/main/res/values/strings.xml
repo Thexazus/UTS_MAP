@@ -80,5 +80,7 @@
     <string name="title_activity_yearly_report">YearlyReport</string>
     <string name="title_activity_monthly_report">MonthlyReport</string>
     <string name="drive_api_key"></string>
+    <string name="default_web_client_id">446578632922-kifd5tpjanevnt0vj18eotsnh7g6stqf.apps.googleusercontent.com</string>
+
 
 </resources>

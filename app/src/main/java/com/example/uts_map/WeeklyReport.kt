@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +30,7 @@ import com.patrykandpatrick.vico.core.component.marker.MarkerComponent
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.marker.MarkerLabelFormatter
+import kotlinx.coroutines.launch
 
 
 data class DrinkData(
@@ -50,14 +54,41 @@ class WeeklyReport : ComponentActivity() {
 @Composable
 fun WeeklyChartScreen(modifier: Modifier = Modifier) {
     val data = listOf(
-        DrinkData("Mon", 800f),
-        DrinkData("Tue", 1200f),
-        DrinkData("Wed", 1000f),
-        DrinkData("Thu", 1500f),
-        DrinkData("Fri", 900f),
-        DrinkData("Sat", 1300f),
-        DrinkData("Sun", 1100f)
+        listOf( // Week 1
+            DrinkData("Mon", 800f),
+            DrinkData("Tue", 1200f),
+            DrinkData("Wed", 1000f),
+            DrinkData("Thu", 1500f),
+            DrinkData("Fri", 900f),
+            DrinkData("Sat", 1300f),
+            DrinkData("Sun", 1100f)
+        ),
+        listOf( // Week 2
+            DrinkData("Mon", 900f),
+            DrinkData("Tue", 1000f),
+            DrinkData("Wed", 1100f),
+            DrinkData("Thu", 1400f),
+            DrinkData("Fri", 1200f),
+            DrinkData("Sat", 1500f),
+            DrinkData("Sun", 1300f)
+        ),
+        listOf( // Week 3
+            DrinkData("Mon", 700f),
+            DrinkData("Tue", 800f),
+            DrinkData("Wed", 900f),
+            DrinkData("Thu", 1200f),
+            DrinkData("Fri", 1000f),
+            DrinkData("Sat", 1100f),
+            DrinkData("Sun", 1000f)
+        )
     )
+
+    val pagerState = rememberPagerState(
+        initialPage = data.size - 1,
+        pageCount = {data.size}
+    )
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -69,8 +100,48 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
             text = "Weekly Water Intake Report",
             style = MaterialTheme.typography.titleMedium
         )
-        WeeklyBarChart(
-            data = data, // Sample data for 7 days
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
+            WeeklyBarChart(data = data[page])
+        }
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        androidx.compose.material3.Button(
+            onClick = {
+                coroutineScope.launch {
+                    if (pagerState.currentPage > 0) {
+                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    }
+                }
+            },
+            enabled = pagerState.currentPage > 0
+        ) {
+            Text("Previous Week")
+        }
+
+        // Next Week Button
+        androidx.compose.material3.Button(
+            onClick = {
+                coroutineScope.launch {
+                    if (pagerState.currentPage < data.size - 1) {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
+                }
+            },
+            enabled = pagerState.currentPage < data.size - 1
+        ) {
+            Text("Next Week")
+        }
+        Text(
+            text = "Week ${pagerState.currentPage + 1}",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
@@ -120,7 +191,6 @@ fun WeeklyBarChart(data: List<DrinkData>, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .height(300.dp)
-            .padding(16.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
