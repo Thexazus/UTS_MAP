@@ -212,6 +212,8 @@ class HomeFragment : Fragment() {
             }
     }
 
+
+
     private fun updateWaterIntakeDisplay(amount: Int) {
         // Update current intake display
         textViewCurrentIntake.text = "$amount ml"

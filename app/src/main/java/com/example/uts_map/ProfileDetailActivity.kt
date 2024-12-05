@@ -23,14 +23,14 @@ class ProfileDetailActivity : AppCompatActivity() {
         val etAge = findViewById<EditText>(R.id.etAge)
         val etWeight = findViewById<EditText>(R.id.etWeight)
         val etHeight = findViewById<EditText>(R.id.etHeight)
+        val genderGroup = findViewById<RadioGroup>(R.id.genderRadioGroup)
         val etSleepingTime = findViewById<EditText>(R.id.etSleepingTime)
         val etWakeUpTime = findViewById<EditText>(R.id.etWakeUpTime)
         val btnSave = findViewById<Button>(R.id.btnSave)
 
         val userEmail = auth.currentUser?.email ?: return
-        loadData(userEmail, etFirstName, etLastName, etAge, etWeight, etHeight, etSleepingTime, etWakeUpTime)
+        loadData(userEmail, etFirstName, etLastName, etAge, etWeight, etHeight, genderGroup, etSleepingTime, etWakeUpTime)
 
-        // Time Pickers
         etSleepingTime.setOnClickListener { showTimePicker(etSleepingTime) }
         etWakeUpTime.setOnClickListener { showTimePicker(etWakeUpTime) }
 
@@ -40,6 +40,11 @@ class ProfileDetailActivity : AppCompatActivity() {
             val age = etAge.text.toString().toIntOrNull()
             val weight = etWeight.text.toString().toDoubleOrNull()
             val height = etHeight.text.toString().toDoubleOrNull()
+            val gender = when (genderGroup.checkedRadioButtonId) {
+                R.id.radioMale -> "Male"
+                R.id.radioFemale -> "Female"
+                else -> "Other"
+            }
             val sleepingTime = etSleepingTime.text.toString()
             val wakeUpTime = etWakeUpTime.text.toString()
 
@@ -48,22 +53,16 @@ class ProfileDetailActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            saveData(userEmail, firstName, lastName, age, weight, height, sleepingTime, wakeUpTime)
+            saveData(userEmail, firstName, lastName, age, weight, height, gender, sleepingTime, wakeUpTime)
         }
     }
 
     private fun showTimePicker(editText: EditText) {
         val calendar = Calendar.getInstance()
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-
-        TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-            val formattedTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, selectedHour)
-                set(Calendar.MINUTE, selectedMinute)
-            }.time)
-            editText.setText(formattedTime)
-        }, hour, minute, false).show()
+        TimePickerDialog(this, { _, hourOfDay, minute ->
+            val time = String.format("%02d:%02d", hourOfDay, minute)
+            editText.setText(time)
+        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
     }
 
     private fun loadData(
@@ -73,6 +72,7 @@ class ProfileDetailActivity : AppCompatActivity() {
         etAge: EditText,
         etWeight: EditText,
         etHeight: EditText,
+        genderGroup: RadioGroup,
         etSleepingTime: EditText,
         etWakeUpTime: EditText
     ) {
@@ -83,6 +83,16 @@ class ProfileDetailActivity : AppCompatActivity() {
                 etAge.setText(document.getLong("age")?.toString())
                 etWeight.setText(document.getDouble("weight")?.toString())
                 etHeight.setText(document.getDouble("height")?.toString())
+
+                val gender = document.getString("gender")
+                genderGroup.check(
+                    when (gender) {
+                        "Male" -> R.id.radioMale
+                        "Female" -> R.id.radioFemale
+                        else -> R.id.radioOther
+                    }
+                )
+
                 etSleepingTime.setText(document.getString("sleepingTime"))
                 etWakeUpTime.setText(document.getString("wakeUpTime"))
             }
@@ -96,6 +106,7 @@ class ProfileDetailActivity : AppCompatActivity() {
         age: Int,
         weight: Double,
         height: Double,
+        gender: String,
         sleepingTime: String,
         wakeUpTime: String
     ) {
@@ -105,13 +116,14 @@ class ProfileDetailActivity : AppCompatActivity() {
             "age" to age,
             "weight" to weight,
             "height" to height,
+            "gender" to gender,
             "sleepingTime" to sleepingTime,
             "wakeUpTime" to wakeUpTime
         )
 
         db.collection("users").document(email).set(userMap).addOnSuccessListener {
             Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show()
-            navigateToMainActivity() // Navigate to MainActivity after saving
+            navigateToMainActivity()
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to save profile.", Toast.LENGTH_SHORT).show()
         }
@@ -119,7 +131,6 @@ class ProfileDetailActivity : AppCompatActivity() {
 
     private fun navigateToMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
     }
