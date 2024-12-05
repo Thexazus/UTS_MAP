@@ -32,11 +32,20 @@ import com.patrykandpatrick.vico.core.component.marker.MarkerComponent
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.marker.MarkerLabelFormatter
+import java.time.LocalDate
+import java.util.Locale
 
 
 data class DrinkData(
-    val timestamp: String,
-    val volume: Number
+    val dayOfWeek: String,
+    val date: String,
+    val amount: Float
+)
+
+data class WeeklyData(
+    val data: List<DrinkData>,
+    val week: String,
+    val totalAmount: Float
 )
 
 val auth = FirebaseAuth.getInstance()
@@ -56,48 +65,49 @@ class WeeklyReport : ComponentActivity() {
 
 @Composable
 fun WeeklyChartScreen(modifier: Modifier = Modifier) {
-//    val data = listOf(
-//        listOf( // Week 1
-//            DrinkData("Mon", 800f),
-//            DrinkData("Tue", 1200f),
-//            DrinkData("Wed", 1000f),
-//            DrinkData("Thu", 1500f),
-//            DrinkData("Fri", 900f),
-//            DrinkData("Sat", 1300f),
-//            DrinkData("Sun", 1100f)
-//        ),
-//        listOf( // Week 2
-//            DrinkData("Mon", 900f),
-//            DrinkData("Tue", 1000f),
-//            DrinkData("Wed", 1100f),
-//            DrinkData("Thu", 1400f),
-//            DrinkData("Fri", 1200f),
-//            DrinkData("Sat", 1500f),
-//            DrinkData("Sun", 1300f)
-//        ),
-//        listOf( // Week 3
-//            DrinkData("Mon", 700f),
-//            DrinkData("Tue", 800f),
-//            DrinkData("Wed", 900f),
-//            DrinkData("Thu", 1200f),
-//            DrinkData("Fri", 1000f),
-//            DrinkData("Sat", 1100f),
-//            DrinkData("Sun", 1000f)
-//        )
-//    )
+    val data = mutableListOf<WeeklyData>()
 
     val userId = auth.currentUser?.uid ?: return
-    val userRef = db.collection("users")
+    db.collection("users")
         .document(userId)
         .collection("waterIntakes")
+        .get()
+        .addOnSuccessListener { documents ->
+            val groupedByWeek = documents.groupBy { it.getString("week") ?: "" }
 
-    val data = mutableListOf<DrinkData>()
+            // Process each week's documents
+            val processedData = groupedByWeek.map { (week, weekDocuments) ->
+                // Convert each document to DrinkData
+                val drinkDataList = weekDocuments.map { document ->
+                    DrinkData(
+                        dayOfWeek = document.getString("date")?.let {
+                            LocalDate.parse(it).dayOfWeek.toString().take(3)
+                                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                        } ?: "",
+                        date = document.getString("date") ?: "",
+                        amount = document.getDouble("selectedVolume")?.toFloat() ?: 0f
+                    )
+                }
 
-    userRef.get().addOnSuccessListener { querySnapshot ->
-        for(document in querySnapshot.documents) {
-            val obj = document.
+                // Create WeeklyData for each week
+                WeeklyData(
+                    data = drinkDataList,
+                    week = week,
+                    totalAmount = drinkDataList.sumOf { it.amount.toDouble() }.toFloat()
+                )
+            }
+
+            // Update the data list
+            data.addAll(processedData)
         }
-    }
+
+
+//
+//    userRef.get().addOnSuccessListener { querySnapshot ->
+//        for(document in querySnapshot.documents) {
+//            val obj = document.
+//        }
+//    }
 
     val pagerState = rememberPagerState(
         initialPage = data.size - 1,
@@ -116,103 +126,103 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
             text = "Weekly Water Intake Report",
             style = MaterialTheme.typography.titleMedium
         )
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth()
-        ) { page ->
-            WeeklyBarChart(data = data[page])
-        }
+//        HorizontalPager(
+//            state = pagerState,
+//            modifier = Modifier.fillMaxWidth()
+//        ) { page ->
+//            WeeklyBarChart(data = data[page])
+//        }
     }
 }
 
-@Composable
-fun WeeklyBarChart(data: List<DrinkData>, modifier: Modifier = Modifier) {
-    val entries = data.mapIndexed { index, data ->
-        FloatEntry(
-            x = index.toFloat(),
-            y = data.amount
-        )
-    }
-
-    val chartEntryModel = entryModelOf(entries)
-
-    val daysFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-        data.getOrNull(value.toInt())?.dayOfWeek ?: ""
-    }
-
-    val chartColor = MaterialTheme.colorScheme.primary
-    val textColor = MaterialTheme.colorScheme.onSurface
-
-    val gradientColors = listOf(
-        chartColor.copy(alpha = 0.5f),
-        chartColor.copy(alpha = 0.1f)
-    )
-
-    val markerLabelFormatter = MarkerLabelFormatter { markedEntries, _ ->
-        markedEntries.firstOrNull()?.let {
-            "${it.entry.y.toInt()} ml"
-        } ?: ""
-    }
-
-    val markerComponent = MarkerComponent(
-        label = textComponent(
-            color = MaterialTheme.colorScheme.onBackground,
-            textSize = 12.sp,
-            background = null,
-        ),
-        guideline = null,
-        indicator = null,
-        ).apply {
-            this.labelFormatter = markerLabelFormatter
-    }
-    UTS_MAP_NEWTheme(dynamicColor = false) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(300.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                Chart(
-                    chart = columnChart(
-                        spacing = 4.dp,
-                        columns = listOf(
-                            lineComponent(
-                                thickness = 6.dp,
-                                color = chartColor,
-                                margins = dimensionsOf(horizontal = 2.dp),
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                        )
-                    ),
-                    model = chartEntryModel,
-                    bottomAxis = rememberBottomAxis(
-                        valueFormatter = daysFormatter,
-                        titleComponent = textComponent(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            textSize = 12.sp,
-                            background = null
-                        ),
-                        guideline = null
-                    ),
-                    marker = markerComponent,
-                )
-                Text(
-                    text = "Total Weekly Intake: ${data.sumOf { it.amount.toInt() }} ml",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 6.dp),
-
-                )
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun WeeklyChartPreview() {
-    UTS_MAP_NEWTheme(dynamicColor = false) {
-        WeeklyChartScreen()
-    }
-}
+//@Composable
+//fun WeeklyBarChart(data: WeeklyData, modifier: Modifier = Modifier) {
+//    val entries = data.mapIndexed { index, data ->
+//        FloatEntry(
+//            x = index.toFloat(),
+//            y = data.amount
+//        )
+//    }
+//
+//    val chartEntryModel = entryModelOf(entries)
+//
+//    val daysFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
+//        data.getOrNull(value.toInt())?.dayOfWeek ?: ""
+//    }
+//
+//    val chartColor = MaterialTheme.colorScheme.primary
+//    val textColor = MaterialTheme.colorScheme.onSurface
+//
+//    val gradientColors = listOf(
+//        chartColor.copy(alpha = 0.5f),
+//        chartColor.copy(alpha = 0.1f)
+//    )
+//
+//    val markerLabelFormatter = MarkerLabelFormatter { markedEntries, _ ->
+//        markedEntries.firstOrNull()?.let {
+//            "${it.entry.y.toInt()} ml"
+//        } ?: ""
+//    }
+//
+//    val markerComponent = MarkerComponent(
+//        label = textComponent(
+//            color = MaterialTheme.colorScheme.onBackground,
+//            textSize = 12.sp,
+//            background = null,
+//        ),
+//        guideline = null,
+//        indicator = null,
+//        ).apply {
+//            this.labelFormatter = markerLabelFormatter
+//    }
+//    UTS_MAP_NEWTheme(dynamicColor = false) {
+//        Box(
+//            modifier = modifier
+//                .fillMaxWidth()
+//                .height(300.dp)
+//        ) {
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                ) {
+//                Chart(
+//                    chart = columnChart(
+//                        spacing = 4.dp,
+//                        columns = listOf(
+//                            lineComponent(
+//                                thickness = 6.dp,
+//                                color = chartColor,
+//                                margins = dimensionsOf(horizontal = 2.dp),
+//                                shape = RoundedCornerShape(16.dp)
+//                            )
+//                        )
+//                    ),
+//                    model = chartEntryModel,
+//                    bottomAxis = rememberBottomAxis(
+//                        valueFormatter = daysFormatter,
+//                        titleComponent = textComponent(
+//                            color = MaterialTheme.colorScheme.onBackground,
+//                            textSize = 12.sp,
+//                            background = null
+//                        ),
+//                        guideline = null
+//                    ),
+//                    marker = markerComponent,
+//                )
+//                Text(
+//                    text = "Total Weekly Intake: ${data.sumOf { it.amount.toInt() }} ml",
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    modifier = Modifier.padding(top = 6.dp),
+//
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun WeeklyChartPreview() {
+//    UTS_MAP_NEWTheme(dynamicColor = false) {
+//        WeeklyChartScreen()
+//    }
+//}

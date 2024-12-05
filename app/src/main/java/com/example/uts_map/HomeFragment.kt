@@ -19,6 +19,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.temporal.WeekFields
 import java.util.Date
 import java.util.Locale
 
@@ -162,11 +164,14 @@ class HomeFragment : Fragment() {
 
     private fun saveToFirestore(volume: Int) {
         val userId = auth.currentUser?.uid ?: return // Ensure user is logged in
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val userData = mapOf(
-            "date" to SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            "date" to date,
             "timestamp" to FieldValue.serverTimestamp(),
             "selectedVolume" to volume,
-            "userId" to userId
+            "userId" to userId,
+            "week" to "${LocalDate.parse(date).year}-W${String.format("%02d", LocalDate.parse(date).get(
+                WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))}"
         )
 
         // Reference to user's water intake data in Firestore
