@@ -25,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
-    private lateinit var googleSignInButton: ImageButton
+    private lateinit var googleSignInImageButton: ImageButton
     private lateinit var registerTextView: TextView
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
-        googleSignInButton = findViewById(R.id.googleSignInButton)
+        googleSignInImageButton = findViewById(R.id.googleSignInButton)
         registerTextView = findViewById(R.id.registerTextView)
 
         setupGoogleSignIn()
@@ -58,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // Use your correct ID token from Firebase console
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
@@ -75,7 +75,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        googleSignInButton.setOnClickListener {
+        googleSignInImageButton.setOnClickListener {
             performGoogleSignIn()
         }
 
@@ -85,8 +85,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun performGoogleSignIn() {
-        Log.d(TAG, "Google Sign-In button clicked")
-        showToast("Starting Google Sign-In...")
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -102,7 +100,7 @@ class LoginActivity : AppCompatActivity() {
                     firebaseAuthWithGoogle(account)
                 }
             } catch (e: ApiException) {
-                Log.w(TAG, "Google sign-in failed with status code: ${e.statusCode}", e)
+                Log.w(TAG, "Google sign-in failed", e)
                 showToast("Google sign-in failed: ${e.localizedMessage}")
             }
         }
