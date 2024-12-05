@@ -182,6 +182,8 @@ class HomeFragment : Fragment() {
         updateWaterIntakeDisplay(currentAmount.toInt())
     }
 
+
+
     private fun updateWaterIntakeDisplay(amount: Int) {
         textViewCurrentIntake.text = "$amount ml"
 

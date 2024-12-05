@@ -19,9 +19,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
@@ -39,10 +41,11 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         // Check if user is already logged in
         auth.currentUser?.let {
-            startMainActivity()
+            startMainActivityOrProfileDetail()
             return
         }
 
@@ -113,20 +116,12 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Log.d(TAG, "signInWithCredential:success")
                     val user = auth.currentUser
-                    updateUI(user)
+                    startMainActivityOrProfileDetail()
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                     showToast("Authentication Failed.")
-                    updateUI(null)
                 }
             }
-    }
-
-    private fun updateUI(user: FirebaseUser?) {
-        if (user != null) {
-            showToast("Welcome, ${user.displayName}")
-            startMainActivity()
-        }
     }
 
     private fun performLogin(email: String, password: String) {
@@ -134,7 +129,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     showToast("Login successful")
-                    startMainActivity()
+                    startMainActivityOrProfileDetail()
                 } else {
                     val errorMessage = when (task.exception) {
                         is FirebaseAuthInvalidUserException -> "User not found"
@@ -160,10 +155,24 @@ class LoginActivity : AppCompatActivity() {
         return true
     }
 
-    private fun startMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish() // Ensure user cannot return to login screen
+    private fun startMainActivityOrProfileDetail() {
+        val user = auth.currentUser ?: return
+        val userEmail = user.email ?: return
+
+        db.collection("users").document(userEmail).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists() && document.data?.isNotEmpty() == true) {
+                    // Jika data profil lengkap, ke MainActivity
+                    startActivity(Intent(this, MainActivity::class.java))
+                } else {
+                    // Jika data profil belum lengkap, ke ProfileDetailActivity
+                    startActivity(Intent(this, ProfileDetailActivity::class.java))
+                }
+                finish()
+            }
+            .addOnFailureListener {
+                showToast("Error loading user data: ${it.message}")
+            }
     }
 
     private fun showToast(message: String) {
