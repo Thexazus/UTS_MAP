@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="24dp"
-    app:cardCornerRadius="28dp"
-    app:cardElevation="0dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
     android:background="@android:color/transparent">
 
     <LinearLayout
@@ -15,29 +15,31 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Header -->
+        <!-- Dialog Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="16dp">
 
             <TextView
+                android:id="@+id/dialogTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:text="Set Reminder"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"/>
+                android:textColor="@color/black" />
 
             <ImageButton
                 android:id="@+id/btnClose"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_close"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/close"
-                android:contentDescription="Close"/>
+                android:contentDescription="Close Button"
+                app:tint="@color/black" />
         </RelativeLayout>
 
         <!-- Time Picker -->
@@ -46,73 +48,72 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="08 : 30"
-            android:textSize="48sp"
+            android:text="08:30"
+            android:textSize="36sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:layout_marginBottom="32dp"/>
+            android:layout_marginBottom="16dp" />
 
-        <!-- Days of Week -->
+        <!-- Day Selector -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="32dp">
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:id="@+id/tvSunday"
                 style="@style/DayOfWeekButton"
-                android:text="S"/>
+                android:text="S" />
 
             <TextView
                 android:id="@+id/tvMonday"
                 style="@style/DayOfWeekButton"
                 android:layout_marginStart="8dp"
-                android:text="M"/>
+                android:text="M" />
 
             <TextView
                 android:id="@+id/tvTuesday"
                 style="@style/DayOfWeekButton"
                 android:layout_marginStart="8dp"
-                android:text="T"/>
+                android:text="T" />
 
             <TextView
                 android:id="@+id/tvWednesday"
                 style="@style/DayOfWeekButton"
                 android:layout_marginStart="8dp"
-                android:text="W"/>
+                android:text="W" />
 
             <TextView
                 android:id="@+id/tvThursday"
                 style="@style/DayOfWeekButton"
                 android:layout_marginStart="8dp"
-                android:text="Th"/>
+                android:text="Th" />
 
             <TextView
                 android:id="@+id/tvFriday"
                 style="@style/DayOfWeekButton"
                 android:layout_marginStart="8dp"
-                android:text="F"/>
+                android:text="F" />
 
             <TextView
                 android:id="@+id/tvSaturday"
                 style="@style/DayOfWeekButton"
                 android:layout_marginStart="8dp"
-                android:text="St"/>
+                android:text="St" />
         </LinearLayout>
 
         <!-- Save Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="48dp"
             android:text="Save"
             android:textSize="16sp"
-            android:textAllCaps="false"
+            android:backgroundTint="@color/blue"
             android:textColor="@color/white"
-            app:cornerRadius="16dp"
-            android:backgroundTint="@color/primary_blue"/>
+            app:cornerRadius="8dp" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

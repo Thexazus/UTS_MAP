@@ -129,36 +129,33 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Switch Container -->
+        <!-- Right Content Container -->
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:gravity="center">
 
+            <!-- Switch -->
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/reminderSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                app:thumbTint="@android:color/white"/>
+                android:layout_marginEnd="16dp"
+                app:thumbTint="@android:color/white" />
 
-        <ImageButton
-            android:id="@+id/deleteButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/close"
-            android:contentDescription="@string/delete"
-            android:layout_gravity="end|top"
-            android:tint="@color/black"/>
-
-
+            <!-- Delete Button -->
+            <ImageButton
+                android:id="@+id/deleteButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="Delete Reminder"
+                app:tint="@color/red" />
+        </LinearLayout>
     </LinearLayout>
-    </LinearLayout>
-
 </androidx.cardview.widget.CardView>
