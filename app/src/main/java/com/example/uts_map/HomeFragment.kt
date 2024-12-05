@@ -16,6 +16,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -156,14 +157,14 @@ class HomeFragment : Fragment() {
         updateWaterIntakeDisplay(newAmount.toInt())
 
         // Save data to Firestore
-        saveToFirestore(newAmount.toInt(), selectedAmount)
+        saveToFirestore(selectedAmount)
     }
 
-    private fun saveToFirestore(amount: Int, volume: Int) {
+    private fun saveToFirestore(volume: Int) {
         val userId = auth.currentUser?.uid ?: return // Ensure user is logged in
         val userData = mapOf(
             "date" to SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-            "waterIntake" to amount,
+            "timestamp" to FieldValue.serverTimestamp(),
             "selectedVolume" to volume,
             "userId" to userId
         )
