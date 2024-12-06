@@ -2,20 +2,28 @@ package com.example.uts_map
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uts_map.ui.theme.UTS_MAP_NEWTheme
+import com.google.firebase.firestore.FirebaseFirestore
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
@@ -30,10 +38,19 @@ import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.MarkerLabelFormatter
+import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
+import java.time.Month
+import java.util.Locale
 
 data class MonthlyData(
     val month: String,
     val amount: Float
+)
+
+data class YearlyData(
+    val monthList: List<MonthlyData>,
+    val year: Int
 )
 
 class YearlyReport : ComponentActivity() {
@@ -49,22 +66,75 @@ class YearlyReport : ComponentActivity() {
     }
 }
 
+suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
+    val db = FirebaseFirestore.getInstance()
+    return try {
+        val documents = db.collection("users")
+            .document(userId)
+            .collection("waterIntakes")
+            .orderBy("date")
+            .get()
+            .await()
+
+        // Group data by year
+        val yearlyData = documents.groupBy { document ->
+            val date = document.getString("date") ?: ""
+            try {
+                LocalDate.parse(date).year // Extract the year
+            } catch (e: Exception) {
+                Log.e("YearlyDataProcessing", "Error parsing date: $date", e)
+                null
+            }
+        }
+            .filterKeys { it != null } // Exclude null years (invalid dates)
+            .mapKeys { it.key!! } // Safe unwrap since nulls are filtered
+            .mapValues { (_, yearDocuments) ->
+                // Group by month and calculate totals
+                val monthlyTotals = yearDocuments.groupBy { document ->
+                    try {
+                        LocalDate.parse(document.getString("date") ?: "").month
+                    } catch (e: Exception) {
+                        Log.e("YearlyDataProcessing", "Error parsing date", e)
+                        null
+                    }
+                }
+                    .filterKeys { it != null }
+                    .mapKeys { it.key!! }
+                    .mapValues { (_, monthDocuments) ->
+                        monthDocuments.sumOf { it.getDouble("selectedVolume") ?: 0.0 }.toFloat()
+                    }
+
+                // Initialize all months with zero intake
+                val allMonths = Month.values().associateWith { 0f }.toMutableMap()
+                monthlyTotals.forEach { (month, total) ->
+                    allMonths[month] = total
+                }
+
+                // Convert to a sorted list of MonthlyData
+                allMonths.entries
+                    .sortedBy { it.key.value }
+                    .map { (month, totalAmount) ->
+                        MonthlyData(
+                            month = month.name.lowercase().replaceFirstChar { it.uppercase() },
+                            amount = totalAmount
+                        )
+                    }
+            }
+        yearlyData
+    } catch (e: Exception) {
+        Log.e("YearlyDataProcessing", "Error fetching yearly data", e)
+        emptyMap()
+    }
+
+}
+
 @Composable
 fun YearlyChartScreen(modifier: Modifier = Modifier) {
-    val data = listOf(
-        MonthlyData("Jan", 9500f),
-        MonthlyData("Feb", 10200f),
-        MonthlyData("Mar", 8800f),
-        MonthlyData("Apr", 11000f),
-        MonthlyData("May", 9700f),
-        MonthlyData("Jun", 10500f),
-        MonthlyData("Jul", 9900f),
-        MonthlyData("Aug", 10300f),
-        MonthlyData("Sep", 9600f),
-        MonthlyData("Oct", 10000f),
-        MonthlyData("Nov", 9800f),
-        MonthlyData("Dec", 10100f)
-    )
+    var yearlyData by remember { mutableStateOf<Map<Int, List<MonthlyData>>>(emptyMap()) }
+    LaunchedEffect(Unit) {
+        val userId = auth.currentUser?.uid ?: return@LaunchedEffect
+        yearlyData = fetchYearlyData(userId)
+    }
 
     Column(
         modifier = modifier
@@ -73,13 +143,38 @@ fun YearlyChartScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(
-            text = "Yearly Water Intake Report",
-            style = MaterialTheme.typography.titleMedium
-        )
-        YearlyLineChart(
-            data = data,
-        )
+        if(yearlyData.isNotEmpty()) {
+            val sortedYears = yearlyData.keys.sorted()
+            val pagerState = rememberPagerState(initialPage = sortedYears.size -1,
+                pageCount = { sortedYears.size })
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxWidth()) { page ->
+                    val year = sortedYears[page]
+                    val monthlyData = yearlyData[year] ?: emptyList()
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "$year",
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        if (monthlyData.isNotEmpty()) {
+                            YearlyLineChart(
+                                data = monthlyData,
+                            )
+                        } else {
+                            Text("No data available for this year.")
+                        }
+                    }
+                }
+
+        }
     }
 }
 
@@ -95,7 +190,10 @@ fun YearlyLineChart(data: List<MonthlyData>, modifier: Modifier = Modifier) {
     val chartEntryModel = entryModelOf(entries)
 
     val monthFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, _ ->
-        data.getOrNull(value.toInt())?.month ?: ""
+        val monthIndex = value.toInt()
+        Month.values().getOrNull(monthIndex)?.name?.take(3)
+            ?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            ?: ""
     }
 
     val chartColor = MaterialTheme.colorScheme.surfaceTint
@@ -145,7 +243,7 @@ fun YearlyLineChart(data: List<MonthlyData>, modifier: Modifier = Modifier) {
                     valueFormatter = monthFormatter,
                     titleComponent = textComponent(
                         color = MaterialTheme.colorScheme.onBackground,
-                        textSize = 12.sp,
+                        textSize = 8.sp,
                         background = null
                     ),
                     guideline = null
