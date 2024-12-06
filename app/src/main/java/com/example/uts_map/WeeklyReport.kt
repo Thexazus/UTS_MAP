@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-//import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -136,10 +135,6 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Text(
-            text = "Weekly Water Intake Report",
-            style = MaterialTheme.typography.titleMedium
-        )
         if (weeklyDataList.isNotEmpty()) {
             val pagerState = rememberPagerState(
                 initialPage = weeklyDataList.size - 1,
@@ -186,7 +181,7 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
                     verticalArrangement = Arrangement.Top
                 ) {
                     Text(
-                        text = "Week: $weekStartDate",
+                        text = "$weekStartDate",
                         style = MaterialTheme.typography.labelSmall
                     )
                     WeeklyBarChart(
@@ -199,6 +194,9 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
             // Show loading or empty state
             Text("Loading water intake data...")
         }
+
+//        progress this week
+
 
     }
 }
@@ -317,12 +315,12 @@ fun WeeklyBarChart(weeklyData: WeeklyData, modifier: Modifier = Modifier) {
                 Text("No chart data available")
             }
 
-            Text(
-                text = "Total Weekly Intake: ${weeklyData.data.sumOf { it.dailyAmount.toInt() }} ml",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 6.dp),
-
-                )
+//            Text(
+//                text = "Total Weekly Intake: ${weeklyData.data.sumOf { it.dailyAmount.toInt() }} ml",
+//                style = MaterialTheme.typography.bodyMedium,
+//                modifier = Modifier.padding(top = 6.dp),
+//
+//                )
         }
     }
 }
