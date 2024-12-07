@@ -91,21 +91,17 @@ class HomeFragment : Fragment() {
                 .commit()
         }
 
-        // Plus button click listener
         view.findViewById<MaterialButton>(R.id.buttonPlus).setOnClickListener {
-            when (selectedAmount) {
-                50 -> selectChip(200)
-                200 -> selectChip(550)
-            }
+            showAddWaterDialog()
         }
+
 
         // Minus button click listener
         view.findViewById<MaterialButton>(R.id.buttonMinus).setOnClickListener {
-            when (selectedAmount) {
-                550 -> selectChip(200)
-                200 -> selectChip(50)
-            }
+            showDeleteConfirmationDialog(amount = 100) //
         }
+
+
 
         // Drink now button click listener
         view.findViewById<MaterialButton>(R.id.buttonDrinkNow).setOnClickListener {
@@ -206,23 +202,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun showAddWaterDialog() {
-        val editTextAmount = EditText(requireContext()).apply {
-            hint = "Enter amount (ml)"
-            inputType = InputType.TYPE_CLASS_NUMBER
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_water, null)
+        val editTextAmount = dialogView.findViewById<EditText>(R.id.editTextAmount)
 
+        // Buat dialog menggunakan AlertDialog.Builder
         AlertDialog.Builder(requireContext())
             .setTitle("Add Water")
-            .setView(editTextAmount)
+            .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
                 val input = editTextAmount.text.toString()
                 val amount = input.toIntOrNull()
                 if (amount != null && amount > 0) {
-                    addWaterIntake(amount)
+                    addWaterIntake(amount, saveToFirestore = true)
                 } else {
                     showToast("Invalid input. Please enter a positive number.")
                 }
@@ -230,6 +221,7 @@ class HomeFragment : Fragment() {
             .setNegativeButton("Cancel", null)
             .show()
     }
+
 
     private fun showDeleteConfirmationDialog(amount: Int) {
         AlertDialog.Builder(requireContext())
