@@ -96,10 +96,11 @@ class HomeFragment : Fragment() {
         }
 
 
-        // Minus button click listener
         view.findViewById<MaterialButton>(R.id.buttonMinus).setOnClickListener {
-            showDeleteConfirmationDialog(amount = 100) //
+            val amountToDelete = selectedAmount // Jumlah air yang dipilih
+            showDeleteConfirmationDialog(amountToDelete)
         }
+
 
 
 
@@ -226,9 +227,9 @@ class HomeFragment : Fragment() {
     private fun showDeleteConfirmationDialog(amount: Int) {
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Water")
-            .setMessage("Are you sure you want to delete $amount ml?")
+            .setMessage("Are you sure you want to delete this amount?")
             .setPositiveButton("Yes") { _, _ ->
-                removeWaterIntake(amount)
+                removeWaterIntake(amount) // Menggunakan jumlah yang diteruskan ke fungsi
             }
             .setNegativeButton("Cancel", null)
             .show()
