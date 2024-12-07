@@ -1,5 +1,8 @@
 package com.example.uts_map
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -55,6 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         // Check daily goal achievement
         checkDailyGoalAchievement()
+
+        // Example: Schedule an alarm for 1 hour from now
+        setReminderAlarm(1)
     }
 
     private fun navigateToLogin() {
@@ -114,5 +120,29 @@ class MainActivity : AppCompatActivity() {
         }.addOnFailureListener {
             Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Function to schedule an alarm reminder
+    private fun setReminderAlarm(hoursFromNow: Int) {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.HOUR_OF_DAY, hoursFromNow) // Set alarm for 'hoursFromNow' hours from current time
+        val alarmTimeInMillis = calendar.timeInMillis
+
+        val alarmIntent = Intent(this, AlarmReceiver::class.java).apply {
+            putExtra("reminder_message", "Time to drink water!")
+        }
+
+        // Add FLAG_IMMUTABLE to PendingIntent
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            alarmIntent,
+            PendingIntent.FLAG_IMMUTABLE // Adding the FLAG_IMMUTABLE flag
+        )
+
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTimeInMillis, pendingIntent)
+
+        Toast.makeText(this, "Reminder set for ${calendar.time}", Toast.LENGTH_SHORT).show()
     }
 }

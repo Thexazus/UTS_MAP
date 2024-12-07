@@ -29,8 +29,9 @@
 
         <TextView
             android:id="@+id/titleTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginStart="16dp"
             android:text="Reminders"
             android:textSize="24sp"
@@ -41,10 +42,9 @@
             android:id="@+id/addReminderButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginStart="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_add"
             android:contentDescription="Add Reminder Button"
+            android:src="@drawable/ic_add"
             app:tint="@color/black" />
     </LinearLayout>
 

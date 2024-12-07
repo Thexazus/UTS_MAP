@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 
 class ReminderFragment : Fragment() {
 
@@ -29,6 +30,14 @@ class ReminderFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Toast.makeText(requireContext(), "Please log in to access reminders", Toast.LENGTH_SHORT).show()
+            requireActivity().supportFragmentManager.popBackStack()
+            return
+        }
+
         initializeViews(view)
         setupRecyclerView()
         setupClickListeners()
@@ -44,7 +53,8 @@ class ReminderFragment : Fragment() {
     private fun setupRecyclerView() {
         reminderAdapter = ReminderAdapter(reminderList,
             onUpdate = { reminder -> updateReminderInFirestore(reminder) },
-            onDelete = { reminder -> deleteReminderFromFirestore(reminder) }
+            onDelete = { reminder -> deleteReminderFromFirestore(reminder) },
+            onEdit = { reminder -> showEditReminderDialog(reminder) } // Menambahkan onEdit untuk edit pengingat
         )
         recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -71,6 +81,18 @@ class ReminderFragment : Fragment() {
             addReminderToFirestore(newReminder)
         }
         dialogFragment.show(parentFragmentManager, "reminder_dialog")
+    }
+
+    private fun showEditReminderDialog(reminder: Reminder) {
+        val dialogFragment = ReminderDialogFragment.newInstance()
+        // Mengirim data pengingat yang sudah ada ke dialog untuk diubah
+        dialogFragment.setOnTimeSetListener { hour, minute, daysOfWeek ->
+            val updatedTimeString = String.format("%02d:%02d", hour, minute)
+            val updatedReminder = reminder.copy(time = updatedTimeString, daysOfWeek = daysOfWeek)
+
+            updateReminderInFirestore(updatedReminder)
+        }
+        dialogFragment.show(parentFragmentManager, "edit_reminder_dialog")
     }
 
     private fun fetchReminders() {
