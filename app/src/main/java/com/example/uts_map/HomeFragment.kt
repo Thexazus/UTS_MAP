@@ -2,11 +2,14 @@ package com.example.uts_map
 
 import android.content.Context
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +26,8 @@ import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Date
 import java.util.Locale
+import androidx.appcompat.app.AlertDialog
+
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -150,17 +155,24 @@ class HomeFragment : Fragment() {
         // TODO: Implement RecyclerView adapter and data loading
     }
 
-    private fun addWaterIntake(amount: Int) {
+    private fun addWaterIntake(amount: Int, saveToFirestore: Boolean = false) {
         val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
         val currentAmount = prefs.getFloat("todayAmount", 0f)
         val newAmount = currentAmount + amount
 
+        // Simpan data ke SharedPreferences
         prefs.edit().putFloat("todayAmount", newAmount).apply()
         updateWaterIntakeDisplay(newAmount.toInt())
 
-        // Save data to Firestore
-        saveToFirestore(selectedAmount)
+        // Tampilkan pesan ke pengguna
+        showToast("Added $amount ml")
+
+        // Simpan data ke Firestore jika diperlukan
+        if (saveToFirestore) {
+            saveToFirestore(amount)
+        }
     }
+
 
     private fun saveToFirestore(volume: Int) {
         val userId = auth.currentUser?.uid ?: return // Ensure user is logged in
@@ -188,6 +200,59 @@ class HomeFragment : Fragment() {
                 println("Error saving data to Firestore: $e")
             }
     }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showAddWaterDialog() {
+        val editTextAmount = EditText(requireContext()).apply {
+            hint = "Enter amount (ml)"
+            inputType = InputType.TYPE_CLASS_NUMBER
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Water")
+            .setView(editTextAmount)
+            .setPositiveButton("Add") { _, _ ->
+                val input = editTextAmount.text.toString()
+                val amount = input.toIntOrNull()
+                if (amount != null && amount > 0) {
+                    addWaterIntake(amount)
+                } else {
+                    showToast("Invalid input. Please enter a positive number.")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showDeleteConfirmationDialog(amount: Int) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Water")
+            .setMessage("Are you sure you want to delete $amount ml?")
+            .setPositiveButton("Yes") { _, _ ->
+                removeWaterIntake(amount)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun removeWaterIntake(amount: Int) {
+        val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
+        val currentAmount = prefs.getFloat("todayAmount", 0f)
+        val newAmount = (currentAmount - amount).coerceAtLeast(0f)
+
+        prefs.edit().putFloat("todayAmount", newAmount).apply()
+        updateWaterIntakeDisplay(newAmount.toInt())
+
+        showToast("Removed $amount ml")
+    }
+
 
     private fun loadCurrentAmount() {
         val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
