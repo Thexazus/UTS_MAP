@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
+    private lateinit var profileImageView: ShapeableImageView
     private lateinit var greetingTextView: TextView
     private lateinit var progressCircular: CircularProgressIndicator
     private lateinit var textViewProgress: TextView
@@ -63,6 +64,7 @@ class HomeFragment : Fragment() {
 
         // Load initial data
         loadCurrentAmount()
+        loadUserProfile()
 
         // Set greeting with user name
         setGreetingMessage()
@@ -78,6 +80,7 @@ class HomeFragment : Fragment() {
     private fun initializeViews(view: View) {
         greetingTextView = view.findViewById(R.id.textViewGreeting)
         progressCircular = view.findViewById(R.id.progressCircular)
+        profileImageView = view.findViewById(R.id.imageViewProfile)
         textViewProgress = view.findViewById(R.id.textViewProgress)
         textViewCurrentIntake = view.findViewById(R.id.textViewCurrentIntake)
         textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
@@ -285,6 +288,50 @@ class HomeFragment : Fragment() {
         }
         progressCircular.setIndicatorColor(progressColor)
     }
+
+    private fun loadUserProfile() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Log.w("HomeFragment", "No authenticated user found.")
+            return
+        }
+
+        firestore.collection("users")
+            .document(currentUser.email ?: "")
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val firstName = document.getString("firstName") ?: "User"
+                    greetingTextView.text = "Hi, $firstName!"
+
+                    // Update profile picture based on gender
+                    val gender = document.getString("gender") ?: "Other"
+                    updateProfilePicture(gender)
+                } else {
+                    Log.w("HomeFragment", "User document does not exist.")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("HomeFragment", "Failed to fetch user data: ${exception.message}")
+                Toast.makeText(requireContext(), "Failed to load user profile.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateProfilePicture(gender: String) {
+        when (gender) {
+            "Male" -> {
+                profileImageView.setImageResource(R.drawable.male_profile)
+            }
+            "Female" -> {
+                profileImageView.setImageResource(R.drawable.female_profile)
+            }
+            else -> {
+                profileImageView.setImageResource(R.drawable.profile_default)
+            }
+        }
+    }
+
+
 
     private fun setGreetingMessage() {
         val user = auth.currentUser
