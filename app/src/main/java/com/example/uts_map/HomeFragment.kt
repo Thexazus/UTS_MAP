@@ -3,6 +3,7 @@ package com.example.uts_map
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +28,7 @@ import java.time.temporal.WeekFields
 import java.util.Date
 import java.util.Locale
 import androidx.appcompat.app.AlertDialog
-
+import androidx.core.content.ContextCompat
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -39,6 +40,7 @@ class HomeFragment : Fragment() {
     private lateinit var textViewSelectedVolume: TextView
     private lateinit var chipGroupVolumes: ChipGroup
     private var selectedAmount = 50
+    private val DAILY_WATER_GOAL = 2000 // 2 Liters standard goal
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,14 +97,10 @@ class HomeFragment : Fragment() {
             showAddWaterDialog()
         }
 
-
         view.findViewById<MaterialButton>(R.id.buttonMinus).setOnClickListener {
-            val amountToDelete = selectedAmount // Jumlah air yang dipilih
+            val amountToDelete = selectedAmount
             showDeleteConfirmationDialog(amountToDelete)
         }
-
-
-
 
         // Drink now button click listener
         view.findViewById<MaterialButton>(R.id.buttonDrinkNow).setOnClickListener {
@@ -111,7 +109,7 @@ class HomeFragment : Fragment() {
 
         // Sync button click listener
         view.findViewById<ImageView>(R.id.imageViewSync).setOnClickListener {
-            // Sync functionality can be added here
+            loadCurrentAmount() // Reload current amount
         }
 
         // Profile image click listener
@@ -149,130 +147,123 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView(view: View) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewHistory)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        // TODO: Implement RecyclerView adapter and data loading
+        loadWaterIntakeHistory(recyclerView)
     }
 
-    private fun addWaterIntake(amount: Int, saveToFirestore: Boolean = false) {
-        val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
-        val currentAmount = prefs.getFloat("todayAmount", 0f)
-        val newAmount = currentAmount + amount
+    private fun addWaterIntake(amount: Int) {
+        val userId = auth.currentUser?.uid ?: return
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // Simpan data ke SharedPreferences
-        prefs.edit().putFloat("todayAmount", newAmount).apply()
-        updateWaterIntakeDisplay(newAmount.toInt())
+        // Reference dokumen harian untuk pengguna
+        val dailyIntakeRef = firestore.collection("users")
+            .document(userId)
+            .collection("daily_water_intake")
+            .document(date)
 
-        // Tampilkan pesan ke pengguna
-        showToast("Added $amount ml")
+        // Tambahkan entri ke subkoleksi intake
+        val intakeEntry = mapOf(
+            "amount" to amount,
+            "timestamp" to FieldValue.serverTimestamp()
+        )
 
-        // Simpan data ke Firestore jika diperlukan
-        if (saveToFirestore) {
-            saveToFirestore(amount)
+        // Transaction untuk update total dan tambah entri
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(dailyIntakeRef)
+
+            val currentAmount = snapshot.getLong("totalAmount") ?: 0
+            val newAmount = currentAmount + amount
+
+            // Update dokumen utama
+            transaction.set(dailyIntakeRef, mapOf(
+                "totalAmount" to newAmount,
+                "date" to date,
+                "userId" to userId,
+                "timestamp" to FieldValue.serverTimestamp()
+            ))
+
+            // Tambah entri ke subkoleksi
+            dailyIntakeRef.collection("intakes").add(intakeEntry)
+
+            newAmount
+        }.addOnSuccessListener { newTotal ->
+            updateWaterIntakeDisplay(newTotal.toInt())
+            showToast("Added $amount ml")
+        }.addOnFailureListener { e ->
+            showToast("Failed to add water intake: ${e.message}")
         }
     }
 
-
-    private fun saveToFirestore(volume: Int) {
-        val userId = auth.currentUser?.uid ?: return // Ensure user is logged in
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val userData = mapOf(
-            "date" to date,
-            "timestamp" to FieldValue.serverTimestamp(),
-            "selectedVolume" to volume,
-            "userId" to userId,
-            "week" to "${LocalDate.parse(date).year}-W${String.format("%02d", LocalDate.parse(date).get(
-                WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))}"
-        )
-
-        // Reference to user's water intake data in Firestore
-        firestore.collection("users")
-            .document(userId)
-            .collection("waterIntakes")
-            .add(userData)
-            .addOnSuccessListener {
-                // Data successfully saved
-                println("Data saved to Firestore")
-            }
-            .addOnFailureListener { e ->
-                // Handle failure
-                println("Error saving data to Firestore: $e")
-            }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showAddWaterDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_water, null)
-        val editTextAmount = dialogView.findViewById<EditText>(R.id.editTextAmount)
-
-        // Buat dialog menggunakan AlertDialog.Builder
-        AlertDialog.Builder(requireContext())
-            .setTitle("Add Water")
-            .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                val input = editTextAmount.text.toString()
-                val amount = input.toIntOrNull()
-                if (amount != null && amount > 0) {
-                    addWaterIntake(amount, saveToFirestore = true)
-                } else {
-                    showToast("Invalid input. Please enter a positive number.")
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-
-    private fun showDeleteConfirmationDialog(amount: Int) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Delete Water")
-            .setMessage("Are you sure you want to delete this amount?")
-            .setPositiveButton("Yes") { _, _ ->
-                removeWaterIntake(amount) // Menggunakan jumlah yang diteruskan ke fungsi
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
     private fun removeWaterIntake(amount: Int) {
-        val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
-        val currentAmount = prefs.getFloat("todayAmount", 0f)
-        val newAmount = (currentAmount - amount).coerceAtLeast(0f)
+        val userId = auth.currentUser?.uid ?: return
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        prefs.edit().putFloat("todayAmount", newAmount).apply()
-        updateWaterIntakeDisplay(newAmount.toInt())
+        val dailyIntakeRef = firestore.collection("users")
+            .document(userId)
+            .collection("daily_water_intake")
+            .document(date)
 
-        showToast("Removed $amount ml")
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(dailyIntakeRef)
+
+            val currentAmount = snapshot.getLong("totalAmount") ?: 0
+            val newAmount = (currentAmount - amount).coerceAtLeast(0)
+
+            transaction.set(dailyIntakeRef, mapOf(
+                "totalAmount" to newAmount,
+                "date" to date,
+                "userId" to userId,
+                "timestamp" to FieldValue.serverTimestamp()
+            ))
+
+            newAmount
+        }.addOnSuccessListener { newTotal ->
+            updateWaterIntakeDisplay(newTotal.toInt())
+            showToast("Removed $amount ml")
+        }.addOnFailureListener { e ->
+            showToast("Failed to remove water intake: ${e.message}")
+        }
     }
-
 
     private fun loadCurrentAmount() {
-        val prefs = requireContext().getSharedPreferences("WaterTracker", Context.MODE_PRIVATE)
-        val currentAmount = prefs.getFloat("todayAmount", 0f)
-        updateWaterIntakeDisplay(currentAmount.toInt())
-
-        // Optionally, load data from Firestore
-        loadFromFirestore()
-    }
-
-    private fun loadFromFirestore() {
         val userId = auth.currentUser?.uid ?: return
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
         firestore.collection("users")
             .document(userId)
-            .collection("waterIntakes")
-            .orderBy("date")
-            .limit(1)
+            .collection("daily_water_intake")
+            .document(date)
             .get()
-            .addOnSuccessListener { snapshot ->
-                if (!snapshot.isEmpty) {
-                    val document = snapshot.documents[0]
-                    val waterIntake = document.getLong("waterIntake")?.toInt() ?: 0
-                    updateWaterIntakeDisplay(waterIntake)
-                }
+            .addOnSuccessListener { document ->
+                val currentAmount = document.getLong("totalAmount") ?: 0
+                updateWaterIntakeDisplay(currentAmount.toInt())
             }
             .addOnFailureListener { e ->
-                println("Error loading data from Firestore: $e")
+                showToast("Error loading water intake: ${e.message}")
+            }
+    }
+
+    private fun loadWaterIntakeHistory(recyclerView: RecyclerView) {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("daily_water_intake")
+            .orderBy("timestamp")
+            .limit(7) // Ambil 7 hari terakhir
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val historyList = querySnapshot.documents.map { doc ->
+                    WaterIntakeHistoryItem(
+                        date = doc.getString("date") ?: "",
+                        amount = doc.getLong("totalAmount")?.toInt() ?: 0
+                    )
+                }
+
+                // TODO: Buat adapter untuk RecyclerView
+                // recyclerView.adapter = WaterIntakeHistoryAdapter(historyList)
+            }
+            .addOnFailureListener { e ->
+                showToast("Error loading water intake history: ${e.message}")
             }
     }
 
@@ -281,8 +272,7 @@ class HomeFragment : Fragment() {
         textViewCurrentIntake.text = "$amount ml"
 
         // Update progress
-        val goalAmount = 2000 // 2 Liters
-        var progress = (amount.toFloat() / goalAmount * 100).toInt()
+        var progress = (amount.toFloat() / DAILY_WATER_GOAL * 100).toInt()
 
         // Ensure progress doesn't exceed 100%
         if (progress > 100) {
@@ -291,25 +281,85 @@ class HomeFragment : Fragment() {
 
         progressCircular.setProgress(progress, true)
         textViewProgress.text = "$progress%"
+
+        // Optional: Change progress color based on progress
+        val progressColor = when {
+            progress < 50 -> ContextCompat.getColor(requireContext(), R.color.progress_low)
+            progress < 75 -> ContextCompat.getColor(requireContext(), R.color.progress_medium)
+            else -> ContextCompat.getColor(requireContext(), R.color.progress_high)
+        }
+        progressCircular.setIndicatorColor(progressColor)
     }
 
     private fun setGreetingMessage() {
-        val userEmail = auth.currentUser?.email
-        if (userEmail != null) {
-            firestore.collection("users").document(userEmail).get()
+        val user = auth.currentUser
+        if (user != null) {
+            firestore.collection("users")
+                .document(user.email ?: "") // Gunakan email sebagai document ID
+                .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
                         val firstName = document.getString("firstName") ?: "User"
                         greetingTextView.text = "Hi, $firstName!"
                     } else {
                         greetingTextView.text = "Hi, User!"
+                        Log.w("Firestore", "Document for user ${user.email} does not exist.")
                     }
                 }
-                .addOnFailureListener {
+                .addOnFailureListener { exception ->
                     greetingTextView.text = "Hi, User!"
+                    Log.e("Firestore", "Failed to fetch user data: ${exception.message}")
                 }
         } else {
             greetingTextView.text = "Hi, User!"
+            Log.w("Auth", "No authenticated user found.")
         }
+    }
+
+
+    private fun showAddWaterDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_water, null)
+        val editTextAmount = dialogView.findViewById<EditText>(R.id.editTextAmount)
+        editTextAmount.inputType = InputType.TYPE_CLASS_NUMBER
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Water")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                val input = editTextAmount.text.toString()
+                val amount = input.toIntOrNull()
+                if (amount != null && amount > 0) {
+                    addWaterIntake(amount)
+                } else {
+                    showToast("Invalid input. Please enter a positive number.")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showDeleteConfirmationDialog(amount: Int) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Water")
+            .setMessage("Are you sure you want to delete $amount ml?")
+            .setPositiveButton("Yes") { _, _ ->
+                removeWaterIntake(amount)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    // Data class untuk history
+    data class WaterIntakeHistoryItem(
+        val date: String,
+        val amount: Int
+    )
+
+    companion object {
+        fun newInstance() = HomeFragment()
     }
 }
