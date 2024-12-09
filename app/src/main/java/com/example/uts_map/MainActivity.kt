@@ -51,6 +51,9 @@ class MainActivity : AppCompatActivity() {
 
         // Schedule daily goal check
         scheduleDailyGoalCheck()
+
+        // Initialize push notifications
+        schedulePushNotifications()
     }
 
     private fun navigateToLogin() {
@@ -78,5 +81,38 @@ class MainActivity : AppCompatActivity() {
             AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
+    }
+
+    private fun schedulePushNotifications() {
+        val notificationTimes = listOf(9, 12, 15, 18) // Jam: 9 pagi, 12 siang, 3 sore, 6 malam
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        for (hour in notificationTimes) {
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+
+                if (timeInMillis <= System.currentTimeMillis()) {
+                    add(Calendar.DAY_OF_MONTH, 1) // Pastikan jadwal berikutnya
+                }
+            }
+
+            val intent = Intent(this, PushNotificationReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                this,
+                hour, // Gunakan `hour` sebagai requestCode agar unik
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
+        }
     }
 }
