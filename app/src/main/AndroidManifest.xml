@@ -71,10 +71,5 @@
             android:exported="true"
             tools:node="merge"
             tools:replace="android:exported" />
-        <!-- Broadcast Receiver untuk Alarm -->
-        <receiver
-            android:name=".MainActivity$DailyGoalReceiver"
-            android:enabled="true"
-            android:exported="false" />
     </application>
 </manifest>
