@@ -1,6 +1,5 @@
 package com.example.uts_map
 
-import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -53,7 +52,11 @@ class SettingsFragment : Fragment() {
                     intakeValue.text = "${document.getDouble("targetAmount")?.toInt() ?: 0} ml"
 
                     // Display gender
-                    displayGender(document.getString("gender") ?: "Other")
+                    val gender = document.getString("gender") ?: "Other"
+                    displayGender(gender)
+
+                    // Display profile picture based on gender
+                    updateProfilePicture(gender)
 
                     // Display sleeping and wake-up times
                     updateTimeDisplay(document.getString("sleepingTime") ?: "00:00", sleepingTimeDisplay)
@@ -84,6 +87,24 @@ class SettingsFragment : Fragment() {
                 else -> {
                     genderImageView.setImageResource(R.drawable.other_icon)
                     genderTextView.text = "Other"
+                }
+            }
+        }
+    }
+
+    private fun updateProfilePicture(gender: String) {
+        binding.apply {
+            val profilePictureImageView = profileCard.findViewById<ImageView>(R.id.profilePicture)
+
+            when (gender) {
+                "Male" -> {
+                    profilePictureImageView.setImageResource(R.drawable.profile_placeholder)
+                }
+                "Female" -> {
+                    profilePictureImageView.setImageResource(R.drawable.female_profile)
+                }
+                else -> {
+                    profilePictureImageView.setImageResource(R.drawable.profile_default)
                 }
             }
         }
