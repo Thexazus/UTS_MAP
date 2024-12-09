@@ -107,11 +107,6 @@ class HomeFragment : Fragment() {
             addWaterIntake(selectedAmount)
         }
 
-        // Sync button click listener
-        view.findViewById<ImageView>(R.id.imageViewSync).setOnClickListener {
-            loadCurrentAmount() // Reload current amount
-        }
-
         // Profile image click listener
         view.findViewById<ShapeableImageView>(R.id.imageViewProfile).setOnClickListener {
             // Navigate to profile or implement profile functionality
