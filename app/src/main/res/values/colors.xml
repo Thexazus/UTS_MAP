@@ -17,6 +17,9 @@
     <color name="gray_600">#FF757575</color>
     <color name="orange">#FF9800</color>
     <color name="red">#F44336</color>
+    <color name="progress_low">#FFDD00</color>
+    <color name="progress_medium">#D9FF00</color>
+    <color name="progress_high">#26FF00</color>
 
 
 </resources>
