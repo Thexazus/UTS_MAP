@@ -264,116 +264,75 @@
             app:layout_constraintTop_toBottomOf="@id/dailyIntakeLayout"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <RadioGroup
-            android:id="@+id/genderRadioGroup"
+        <LinearLayout
+            android:id="@+id/genderDisplayLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/genderTitle">
 
-            <RadioButton
-                android:id="@+id/radioMale"
+            <ImageView
+                android:id="@+id/genderImage"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/male_icon"
+                android:contentDescription="Gender Icon" />
+
+            <TextView
+                android:id="@+id/genderDisplayText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Male"/>
+                android:layout_marginStart="16dp"
+                android:text="Gender Text"
+                android:textSize="18sp"
+                android:textColor="#757575"/>
+        </LinearLayout>
 
-            <RadioButton
-                android:id="@+id/radioFemale"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Female"/>
-
-            <RadioButton
-                android:id="@+id/radioOther"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Other"/>
-        </RadioGroup>
-
-        <!-- Time Settings Section -->
+        <!-- Sleeping Time Section -->
         <TextView
             android:id="@+id/sleepingTimeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sleeping time"
+            android:text="Sleeping Time"
             android:layout_marginTop="16dp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/genderRadioGroup"
+            app:layout_constraintTop_toBottomOf="@id/genderDisplayLayout"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <LinearLayout
-            android:id="@+id/sleepingTimeLayout"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/sleepingTimeDisplay"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            app:layout_constraintTop_toBottomOf="@id/sleepingTimeTitle">
+            app:layout_constraintTop_toBottomOf="@id/sleepingTimeTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="10:00 PM"
+            android:textSize="18sp"
+            android:textColor="#757575"/>
 
-            <TextView
-                android:id="@+id/sleepingTimeValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10 : 41"
-                android:textSize="24sp"
-                android:textColor="#000000"
-                android:background="#E6E6FA"
-                android:padding="8dp"/>
-
-            <TextView
-                android:id="@+id/sleepingTimeAmPm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="#87CEEB"
-                android:padding="8dp"
-                android:text="PM"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-        </LinearLayout>
-
+        <!-- Wake Up Time Section -->
         <TextView
             android:id="@+id/wakeUpTimeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Wake up time"
+            android:text="Wake Up Time"
             android:layout_marginTop="16dp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/sleepingTimeLayout"
+            app:layout_constraintTop_toBottomOf="@id/sleepingTimeDisplay"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <LinearLayout
-            android:id="@+id/wakeUpTimeLayout"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/wakeUpTimeDisplay"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/wakeUpTimeTitle"
-            tools:layout_editor_absoluteX="16dp">
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="7:00 AM"
+            android:textSize="18sp"
+            android:textColor="#757575"/>
 
-            <TextView
-                android:id="@+id/wakeUpTimeValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#E6E6FA"
-                android:padding="8dp"
-                android:text="09 : 41"
-                android:textColor="#000000"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/wakeUpTimeAmPm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="#87CEEB"
-                android:padding="8dp"
-                android:text="AM"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-        </LinearLayout>
 
         <!-- Logout Button -->
         <LinearLayout
@@ -388,15 +347,14 @@
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginTop="16dp"
             android:backgroundTint="@color/blue"
             android:text="Logout"
             android:textColor="#FFFFFF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wakeUpTimeLayout" />
+            app:layout_constraintEnd_toEndOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

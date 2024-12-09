@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -40,48 +41,50 @@ class SettingsFragment : Fragment() {
             return
         }
 
-        // Pastikan binding tidak null sebelum digunakan
-        _binding?.let { binding ->
-            // Get user data from Firebase Firestore
+        binding.apply {
             db.collection("users").document(currentUser.email ?: "").get().addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    val firstName = document.getString("firstName") ?: "Unknown"
-                    val lastName = document.getString("lastName") ?: "User"
-                    binding.userName.text = "$firstName $lastName"
+                    // Load user data
+                    userName.text = "${document.getString("firstName") ?: "Unknown"} ${document.getString("lastName") ?: "User"}"
+                    userEmail.text = document.getString("email") ?: currentUser.email
+                    heightValue.text = "${document.getDouble("height")?.toInt() ?: 0} cm"
+                    weightValue.text = "${document.getDouble("weight")?.toInt() ?: 0} kg"
+                    ageValue.text = "${document.getLong("age") ?: 0} yo"
+                    intakeValue.text = "${document.getDouble("targetAmount")?.toInt() ?: 0} ml"
 
-                    val email = document.getString("email") ?: currentUser.email
-                    binding.userEmail.text = email
+                    // Display gender
+                    displayGender(document.getString("gender") ?: "Other")
 
-                    val height = document.getDouble("height") ?: 0.0
-                    binding.heightValue.text = "${height.toInt()} cm"
-
-                    val weight = document.getDouble("weight") ?: 0.0
-                    binding.weightValue.text = "${weight.toInt()} kg"
-
-                    val age = document.getLong("age") ?: 0
-                    binding.ageValue.text = "$age yo"
-
-                    val intake = document.getDouble("targetAmount") ?: 0.0
-                    binding.intakeValue.text = "${intake.toInt()} ml"
-
-                    val gender = document.getString("gender") ?: "Other"
-                    val genderId = when (gender) {
-                        "Male" -> R.id.radioMale
-                        "Female" -> R.id.radioFemale
-                        else -> R.id.radioOther
-                    }
-                    binding.genderRadioGroup.check(genderId)
-
-                    val sleepingTime = document.getString("sleepingTime") ?: "00:00"
-                    updateTimeDisplay(sleepingTime, binding.sleepingTimeLayout)
-
-                    val wakeUpTime = document.getString("wakeUpTime") ?: "00:00"
-                    updateTimeDisplay(wakeUpTime, binding.wakeUpTimeLayout)
+                    // Display sleeping and wake-up times
+                    updateTimeDisplay(document.getString("sleepingTime") ?: "00:00", sleepingTimeDisplay)
+                    updateTimeDisplay(document.getString("wakeUpTime") ?: "00:00", wakeUpTimeDisplay)
                 } else {
                     Toast.makeText(requireContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show()
                 }
             }.addOnFailureListener {
                 Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun displayGender(gender: String) {
+        binding.apply {
+            val genderImageView = genderImage
+            val genderTextView = genderDisplayText
+
+            when (gender) {
+                "Male" -> {
+                    genderImageView.setImageResource(R.drawable.male_icon)
+                    genderTextView.text = "Male"
+                }
+                "Female" -> {
+                    genderImageView.setImageResource(R.drawable.female_icon)
+                    genderTextView.text = "Female"
+                }
+                else -> {
+                    genderImageView.setImageResource(R.drawable.other_icon)
+                    genderTextView.text = "Other"
+                }
             }
         }
     }
@@ -92,55 +95,14 @@ class SettingsFragment : Fragment() {
             startActivity(intent)
         }
 
-        genderRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val gender = when (checkedId) {
-                R.id.radioMale -> "Male"
-                R.id.radioFemale -> "Female"
-                else -> "Other"
-            }
-            updateFieldInFirestore("gender", gender)
-        }
-
-        sleepingTimeLayout.setOnClickListener {
-            showTimePickerDialog("sleeping")
-        }
-
-        wakeUpTimeLayout.setOnClickListener {
-            showTimePickerDialog("wakeup")
-        }
-
         logoutButton.setOnClickListener {
             auth.signOut()
             navigateToLogin()
         }
     }
 
-    private fun showTimePickerDialog(type: String) {
-        val calendar = Calendar.getInstance()
-        TimePickerDialog(
-            requireContext(),
-            { _, hourOfDay, minute ->
-                val time = String.format("%02d:%02d", hourOfDay, minute)
-                when (type) {
-                    "sleeping" -> {
-                        updateFieldInFirestore("sleepingTime", time)
-                        updateTimeDisplay(time, binding.sleepingTimeLayout)
-                    }
-                    "wakeup" -> {
-                        updateFieldInFirestore("wakeUpTime", time)
-                        updateTimeDisplay(time, binding.wakeUpTimeLayout)
-                    }
-                }
-            },
-            calendar.get(Calendar.HOUR_OF_DAY),
-            calendar.get(Calendar.MINUTE),
-            false
-        ).show()
-    }
-
-    private fun updateTimeDisplay(time: String, layout: ViewGroup) {
+    private fun updateTimeDisplay(time: String, textView: TextView) {
         try {
-            // Validate input time format
             if (!time.matches(Regex("\\d{1,2}:\\d{2}"))) {
                 throw IllegalArgumentException("Invalid time format: $time")
             }
@@ -151,37 +113,11 @@ class SettingsFragment : Fragment() {
                 set(Calendar.MINUTE, minute)
             }
 
-            val timeFormat = SimpleDateFormat("hh:mm", Locale.getDefault())
-            val amPmFormat = SimpleDateFormat("a", Locale.getDefault())
-
-            val timeValueTextView = layout.findViewById<TextView>(R.id.sleepingTimeValue)
-            val timeAmPmTextView = layout.findViewById<TextView>(R.id.sleepingTimeAmPm)
-
-            timeValueTextView?.text = timeFormat.format(calendar.time)
-            timeAmPmTextView?.text = amPmFormat.format(calendar.time)
+            val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            textView.text = timeFormat.format(calendar.time)
         } catch (e: Exception) {
             Log.e("updateTimeDisplay", "Error updating time display", e)
         }
-    }
-
-    private fun updateFieldInFirestore(field: String, value: Any) {
-        val currentUser = auth.currentUser ?: run {
-            navigateToLogin()
-            return
-        }
-
-        val userEmail = currentUser.email
-        if (userEmail.isNullOrBlank()) {
-            Toast.makeText(requireContext(), "Invalid user email", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        db.collection("users").document(userEmail).update(field, value)
-            .addOnSuccessListener {
-                Log.d("SettingsFragment", "$field updated successfully")
-            }.addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update $field: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
     }
 
     private fun navigateToLogin() {
