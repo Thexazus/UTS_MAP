@@ -5,10 +5,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,6 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +45,7 @@ import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.marker.MarkerComponent
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.entry.entryModelOf
+import com.patrykandpatrick.vico.core.extension.sumOf
 import com.patrykandpatrick.vico.core.marker.MarkerLabelFormatter
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
@@ -46,7 +55,8 @@ import java.util.Locale
 data class DrinkData(
     val dayOfWeek: String,
     val date: String,
-    val dailyAmount: Float
+    val dailyAmount: Float,
+    val dailyGoal: Float
 )
 
 data class WeeklyData(
@@ -83,20 +93,32 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
         try {
             val documents = db.collection("users")
                 .document(userId)
-                .collection("waterIntakes")
+                .collection("daily_water_intake")
                 .orderBy("week")
+                .orderBy("date")
                 .get()
                 .await()
 
             val processedData = documents.groupBy { it.getString("week") ?: "" }
                 .map{ (week, weekDocuments) ->
-                    val dailyTotals = weekDocuments
-                        .groupBy { it.getString("date") ?: "" }
-                        .mapValues { (_, dayDocuments) ->
-                            dayDocuments.sumOf { it.getDouble("selectedVolume") ?: 0.0 }.toFloat()
+                    val drinkDataList = weekDocuments.mapNotNull { dayDoc ->
+                        val date = dayDoc.getString("date") ?: return@mapNotNull null
+                        val goal = dayDoc.getDouble("goal")?.toFloat() ?: 2000f
+                        val dailyTotal = try {
+                            val intakes = db.collection("users")
+                                .document(userId)
+                                .collection("daily_water_intake")
+                                .document(date)
+                                .collection("intakes")
+                                .get()
+                                .await()
+
+                            intakes.sumOf { (it.getDouble("amount") ?: 0.0).toFloat() }
+                        } catch( e: Exception) {
+                            Log.e("DataProcessing", "Error calculating daily total for $date", e)
+                            0f
                         }
 
-                    val drinkDataList = dailyTotals.map { (date, totalAmount) ->
                         DrinkData(
                             dayOfWeek = try {
                                 LocalDate.parse(date).dayOfWeek.toString().take(3)
@@ -104,18 +126,20 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
                                         if (it.isLowerCase()) it.titlecase(Locale.getDefault())
                                         else it.toString()
                                     }
-                            } catch(e:Exception) {
+                            } catch(e: Exception) {
                                 Log.e("DataProcessing", "Error parsing date: $date", e)
-                                "" // Fallback to empty string if parsing fails
-                            },
+                                ""
+                            }
+                            ,
                             date = date,
-                            dailyAmount = totalAmount
+                            dailyAmount = dailyTotal,
+                            dailyGoal = goal
                         )
                     }.sortedBy { it.date }
 
                     WeeklyData(data=drinkDataList,
                         week=week,
-                        weeklyAmount = drinkDataList.sumOf { it.dailyAmount.toDouble() }.toFloat()
+                        weeklyAmount = drinkDataList.sumOf { it.dailyAmount.toDouble().toFloat() }
                     )
                 }
 
@@ -123,15 +147,15 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
             Log.d(TAG, "Processed data size: ${processedData.size}")
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching water intake data", e)
+            Log.e(TAG, "Error fetching water intake data: ${e.message}")
+            e.printStackTrace()
         }
     }
     Log.d(TAG, "WeeklyDataList size: ${weeklyDataList.size}")
 
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -176,7 +200,8 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .height(256.dp)
+                        .padding(horizontal = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -196,6 +221,18 @@ fun WeeklyChartScreen(modifier: Modifier = Modifier) {
         }
 
 //        progress this week
+        val latestWeeklyData = weeklyDataList.getOrNull(weeklyDataList.size - 1)
+        latestWeeklyData?.let { calculateFullWeekGoal(it, 2000) }?.let {
+            WeeklyProgressReport(
+                weeklyConsumption = latestWeeklyData.weeklyAmount.toInt() ?: 0, // Default to 0 if null
+                weeklyGoal = it
+            )
+            WeeklyChecklistComponent(
+                currentWeekData = latestWeeklyData,
+                defaultGoal = 2000
+            )
+        }
+
 
 
     }
@@ -232,7 +269,8 @@ fun WeeklyBarChart(weeklyData: WeeklyData, modifier: Modifier = Modifier) {
                 dayOfWeek = date.dayOfWeek.toString().take(3)
                     .replaceFirstChar { it.uppercaseChar() },
                 date = date.toString(),
-                dailyAmount = 0f
+                dailyAmount = 0f,
+                dailyGoal = 2000f
             )
     }
 
@@ -258,7 +296,7 @@ fun WeeklyBarChart(weeklyData: WeeklyData, modifier: Modifier = Modifier) {
         daysOfWeek.getOrNull(value.toInt()) ?: ""
     }
 
-    val chartColor = MaterialTheme.colorScheme.primary
+    val chartColor = Color(0xFF5DCCFC)
 
     val markerLabelFormatter = MarkerLabelFormatter { markedEntries, _ ->
         markedEntries.firstOrNull()?.let {
@@ -279,11 +317,16 @@ fun WeeklyBarChart(weeklyData: WeeklyData, modifier: Modifier = Modifier) {
     }
     Box(
         modifier = modifier
-            .fillMaxWidth()
-            .height(300.dp)
+            .padding(16.dp)
+            .fillMaxWidth(),
+
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(color= Color(0xFFFFFFFF),
+                    shape = RoundedCornerShape(16.dp))
+                .padding(16.dp, 8.dp),
         ) {
             chartEntryModel?.let { model ->
                 Chart(
@@ -314,16 +357,217 @@ fun WeeklyBarChart(weeklyData: WeeklyData, modifier: Modifier = Modifier) {
                 // Fallback if model is null
                 Text("No chart data available")
             }
-
-//            Text(
-//                text = "Total Weekly Intake: ${weeklyData.data.sumOf { it.dailyAmount.toInt() }} ml",
-//                style = MaterialTheme.typography.bodyMedium,
-//                modifier = Modifier.padding(top = 6.dp),
-//
-//                )
         }
     }
 }
+
+fun calculateFullWeekGoal(currentWeekData:WeeklyData, defaultGoal: Int): Int {
+    var totalIntake = 0
+    var totalGoal = 0
+    var lastKnownGoal = defaultGoal // Start with the default goal for the first day
+
+    // Get the days of the current week (Monday to Sunday)
+    val daysOfWeek = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+
+    // Loop through each day of the current week (Monday to Sunday)
+    for (day in daysOfWeek) {
+        // Find the data for the current day from the current week's data
+        val dayData = currentWeekData.data.filter { it.dayOfWeek == day }
+
+        val dailyIntake = dayData.sumOf { it.dailyAmount }
+        // If data exists for this day, use the goal from that day, otherwise use the last known goal
+        val dailyGoal = if (dayData.isNotEmpty()) {
+            dayData.firstOrNull()?.dailyGoal?.toInt() ?: lastKnownGoal
+        } else {
+            lastKnownGoal // Use the last known goal if the current day does not have a goal
+        }
+        // Add intake and goal to total for progress calculation
+        totalIntake += dailyIntake.toInt()
+        totalGoal += dailyGoal
+
+        // Update the last known goal for the next days
+        lastKnownGoal = dailyGoal as Int
+    }
+
+    // Calculate the progress percentage
+    Log.d(TAG, "$totalGoal")
+    return totalGoal
+}
+
+@Composable
+fun WeeklyProgressReport(
+    weeklyConsumption: Int, // Total water consumption for the week
+    weeklyGoal: Int // Goal for the week
+) {
+    val progress = (weeklyConsumption.toFloat() / weeklyGoal).coerceIn(0f, 1f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)
+            .background(
+                color = Color(0xFF323232),
+                shape = RoundedCornerShape(32.dp)
+            )
+            .padding(24.dp, 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Left Side - Text Content
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "Progress this week",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "$weeklyConsumption ml",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+
+                )
+            }
+
+            // Right Side - Circular Progress Bar
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(80.dp)
+            ) {
+                CircularProgressIndicator(
+                    progress = progress,
+                    color = Color.Cyan,
+                    strokeWidth = 6.dp,
+                    modifier = Modifier.size(60.dp)
+                )
+                Text(
+                    text = "${(progress * 100).toInt()}%",
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WeeklyChecklistComponent(
+    currentWeekData: WeeklyData, // The WeeklyData object representing the current week
+    defaultGoal: Int // Default daily goal for days without set goals
+) {
+    // Calculate daily completion status and streak
+    val dailyCompletion = mutableListOf<Boolean>()
+    var isStreak = true // Assume user is on a streak initially
+    var lastKnownGoal = defaultGoal
+
+    val daysOfWeek = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+
+    for (day in daysOfWeek) {
+        val dayData = currentWeekData.data.filter { it.dayOfWeek == day }
+
+        // Calculate total intake and goal for the day
+        val dailyIntake = dayData.sumOf { it.dailyAmount }
+        val dailyGoal = if (dayData.isNotEmpty()) {
+            dayData.firstOrNull()?.dailyGoal?.toInt() ?: lastKnownGoal
+        } else {
+            lastKnownGoal // Use the last known goal if the current day does not have a goal
+        }
+        // Check if the day's goal is achieved
+        val isCompleted = dailyIntake >= dailyGoal
+        dailyCompletion.add(isCompleted)
+
+        // Update the streak status
+        if (!isCompleted) isStreak = false
+
+        // Update the last known goal
+        lastKnownGoal = dailyGoal
+    }
+
+    // Conditional supportive text
+    val supportiveText = if (dailyCompletion.all { it }) {
+        "Congratulations!!"
+    } else {
+        "Keep Going" // Or "You're doing great"
+    }
+
+    val streakText = if (isStreak) {
+        "You're on a streak! 🔥"
+    } else {
+        "Start a new streak today!"
+    }
+
+    // UI Layout
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFFFBAC)) // Golden yellow background
+            .padding(8.dp)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Supportive Text
+            Text(
+                text = supportiveText,
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color(0xFF1F4529),
+                fontWeight = FontWeight.Bold,
+            )
+
+            // Trophy Icon and Streak Text
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.trophy_achievement), // Replace with your trophy drawable
+                    contentDescription = "Trophy",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(96.dp)
+                )
+
+                Spacer(modifier = Modifier.width(2.dp))
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = streakText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        daysOfWeek.forEachIndexed { index, day ->
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = day,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Black
+                                )
+
+                                Checkbox(
+                                    checked = dailyCompletion.getOrNull(index) == true,
+                                    onCheckedChange = null // Checkboxes are read-only
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Daily Checklist
+
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable

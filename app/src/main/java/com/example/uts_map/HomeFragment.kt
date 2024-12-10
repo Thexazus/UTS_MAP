@@ -1,5 +1,6 @@
 package com.example.uts_map
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
@@ -145,6 +146,7 @@ class HomeFragment : Fragment() {
         loadWaterIntakeHistory(recyclerView)
     }
 
+    @SuppressLint("DefaultLocale")
     private fun addWaterIntake(amount: Int) {
         val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -173,7 +175,9 @@ class HomeFragment : Fragment() {
                 "totalAmount" to newAmount,
                 "date" to date,
                 "userId" to userId,
-                "timestamp" to FieldValue.serverTimestamp()
+                "timestamp" to FieldValue.serverTimestamp(),
+                "week" to "${LocalDate.parse(date).year}-W${String.format("%02d", LocalDate.parse(date).get(
+                    WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))}"
             ))
 
             // Tambah entri ke subkoleksi
