@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- Izin yang diperlukan untuk aplikasi -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -11,7 +12,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -23,11 +24,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
+
+        <!-- Aktivitas utama aplikasi -->
         <activity
-            android:name="com.example.uts_map.LoginActivity"
+            android:name=".LoginActivity"
             android:exported="true" />
         <activity
-            android:name="com.example.uts_map.RegisterActivity"
+            android:name=".RegisterActivity"
             android:exported="true" />
         <activity
             android:name=".YearlyReport"
@@ -38,12 +41,6 @@
             android:name=".WeeklyReport"
             android:exported="false"
             android:label="@string/title_activity_weekly_report" />
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <meta-data
-            android:name="firebase_analytics_collection_enabled"
-            android:value="true" />
         <activity
             android:name=".SplashScreen1"
             android:exported="true"
@@ -56,7 +53,8 @@
         <activity
             android:name=".ProfileDetailActivity"
             android:exported="false" />
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -71,5 +69,21 @@
             android:exported="true"
             tools:node="merge"
             tools:replace="android:exported" />
+
+        <!-- Meta-data untuk Firebase -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="true" />
+
+        <!-- Daftarkan BroadcastReceiver untuk notifikasi -->
+        <receiver
+            android:name=".PushNotificationReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver" />
+
     </application>
+
 </manifest>
