@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,12 +26,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
 
-        // Create notification channel for reminders
         NotificationUtils.createNotificationChannel(this)
+        schedulePushNotifications()
 
-        NotificationScheduler.scheduleNotifications(this)
-
-        // Check if user is logged in
         val currentUser = auth.currentUser
         if (currentUser == null) {
             navigateToLogin()
@@ -41,22 +37,17 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // Apply window insets for padding adjustments
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Setup navigation controller and bottom navigation
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNavigation.setupWithNavController(navController)
-
-        // Schedule daily notifications
-        schedulePushNotifications()
     }
 
     private fun navigateToLogin() {
@@ -65,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun schedulePushNotifications() {
-        val notificationTimes = listOf(9, 12, 15, 18) // Hours for notifications: 9 AM, 12 PM, 3 PM, 6 PM
+        val notificationTimes = listOf(9, 12, 15, 18) // Jam notifikasi
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         for (hour in notificationTimes) {
@@ -75,22 +66,21 @@ class MainActivity : AppCompatActivity() {
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 if (timeInMillis <= System.currentTimeMillis()) {
-                    add(Calendar.DAY_OF_MONTH, 1) // Ensure the time is in the future
+                    add(Calendar.DAY_OF_MONTH, 1)
                 }
             }
 
             val intent = Intent(this, PushNotificationReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(
                 this,
-                hour, // Unique requestCode per hour
+                hour,
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            alarmManager.setRepeating(
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 calendar.timeInMillis,
-                AlarmManager.INTERVAL_DAY,
                 pendingIntent
             )
         }
