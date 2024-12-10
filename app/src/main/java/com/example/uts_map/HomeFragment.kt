@@ -1,7 +1,6 @@
 package com.example.uts_map
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -20,7 +19,6 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -147,13 +145,13 @@ class HomeFragment : Fragment() {
 
     private fun setupRecyclerView(view: View) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewHistory)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = LinearLayoutManager(context) // Mendukung scrolling
         loadWaterIntakeHistory(recyclerView)
     }
 
     @SuppressLint("DefaultLocale")
     private fun addWaterIntake(amount: Int) {
-        val userId = auth.currentUser?.uid ?: return
+        val userId = auth.currentUser ?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         // Reference dokumen harian untuk pengguna
@@ -191,6 +189,15 @@ class HomeFragment : Fragment() {
             newAmount
         }.addOnSuccessListener { newTotal ->
             updateWaterIntakeDisplay(newTotal.toInt())
+
+            // Tambahkan entri baru ke historyList dan perbarui adapter
+            val newHistoryItem = WaterIntakeHistoryItem(
+                date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()), // Waktu saat ini
+                amount = amount
+            )
+
+            // Tambahkan item baru ke adapter
+            (requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).adapter as? WaterIntakeHistoryAdapter)?.addItem(newHistoryItem)
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
@@ -221,6 +228,8 @@ class HomeFragment : Fragment() {
             newAmount
         }.addOnSuccessListener { newTotal ->
             updateWaterIntakeDisplay(newTotal.toInt())
+            // After success listener
+            loadWaterIntakeHistory(requireView().findViewById(R.id.recyclerViewHistory))
         }.addOnFailureListener { e ->
             showToast("Failed to remove water intake: ${e.message}")
         }
@@ -245,29 +254,74 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadWaterIntakeHistory(recyclerView: RecyclerView) {
-        val userId = auth.currentUser?.uid ?: return
+        val userId = auth.currentUser ?.uid ?: return
 
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
-            .orderBy("timestamp")
-            .limit(7) // Ambil 7 hari terakhir
+            .document(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
+            .collection("intakes")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING) // Urutkan berdasarkan waktu terbaru
             .get()
             .addOnSuccessListener { querySnapshot ->
-                val historyList = querySnapshot.documents.map { doc ->
-                    WaterIntakeHistoryItem(
-                        date = doc.getString("date") ?: "",
-                        amount = doc.getLong("totalAmount")?.toInt() ?: 0
-                    )
+                val historyList = querySnapshot.documents.mapNotNull { doc ->
+                    val amount = doc.getLong("amount")?.toInt()
+                    val timestamp = doc.getTimestamp("timestamp")?.toDate()
+                    if (amount != null && timestamp != null) {
+                        WaterIntakeHistoryItem(
+                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp), // Format waktu
+                            amount = amount
+                        )
+                    } else null
                 }
 
-                // TODO: Buat adapter untuk RecyclerView
-                // recyclerView.adapter = WaterIntakeHistoryAdapter(historyList)
+                val adapter = WaterIntakeHistoryAdapter(historyList.toMutableList()) { item ->
+                    // Handle delete action
+                    showDeleteConfirmationDialog(item.amount)
+                }
+
+                recyclerView.adapter = adapter
             }
             .addOnFailureListener { e ->
                 showToast("Error loading water intake history: ${e.message}")
             }
     }
+
+    private fun deleteWaterIntake(item: WaterIntakeHistoryItem) {
+        val userId = auth.currentUser?.uid ?: return
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("daily_water_intake")
+            .document(date)
+            .collection("intakes")
+            .whereEqualTo("amount", item.amount) // Filter by amount
+            .whereEqualTo("timestamp", item.date) // Filter by timestamp
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot) {
+                    firestore.collection("users")
+                        .document(userId)
+                        .collection("daily_water_intake")
+                        .document(date)
+                        .collection("intakes")
+                        .document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            showToast("${item.amount} ml intake removed.")
+                            loadWaterIntakeHistory(requireView().findViewById(R.id.recyclerViewHistory))
+                        }
+                        .addOnFailureListener { e ->
+                            showToast("Error deleting intake: ${e.message}")
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                showToast("Error finding intake to delete: ${e.message}")
+            }
+    }
+
 
     private fun updateWaterIntakeDisplay(amount: Int) {
         // Update current intake display
