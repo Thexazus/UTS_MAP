@@ -154,6 +154,33 @@ class HomeFragment : Fragment() {
     private fun addWaterIntake(amount: Int) {
         val userId = auth.currentUser ?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val user = auth.currentUser?.email
+
+        var goal = 0
+
+        if (user != null) {
+            val userDocRef = firestore.collection("users").document(user)
+
+            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val userData = documentSnapshot.data
+                    val height = documentSnapshot.getDouble("height") ?: 170.0
+                    val weight = documentSnapshot.getDouble("weight") ?: 60.0
+                    val age = documentSnapshot.getDouble("age") ?: 20.0
+                    val sleepingTime = documentSnapshot.getString("sleepingTime") ?: "00:00"
+                    val wakeUpTime = documentSnapshot.getString("wakeUpTime") ?: "00:00"
+                    val gender = documentSnapshot.getString("gender") ?: "Male"
+
+                    goal = calculatePersonalizedWaterGoal(height = height,
+                        weight = weight,
+                        age = age.toLong(),
+                        gender = gender,
+                        sleepingTime = sleepingTime,
+                        wakeUpTime = wakeUpTime
+                        )
+                }
+            }
+        }
 
         // Reference dokumen harian untuk pengguna
         val dailyIntakeRef = firestore.collection("users")
@@ -182,7 +209,7 @@ class HomeFragment : Fragment() {
                 "timestamp" to FieldValue.serverTimestamp(),
                 "week" to "${LocalDate.parse(date).year}-W${String.format("%02d", LocalDate.parse(date).get(
                     WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))}",
-                "goal" to 2000
+                "goal" to goal
             ))
 
             // Tambah entri ke subkoleksi
