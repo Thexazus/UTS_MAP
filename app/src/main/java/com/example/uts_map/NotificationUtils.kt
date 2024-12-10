@@ -32,7 +32,7 @@ object NotificationUtils {
 
     fun showNotification(context: Context, title: String, message: String) {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.baseline_water_drop_24) // Ganti dengan ikon Anda
+            .setSmallIcon(R.drawable.baseline_water_drop_24) // Pastikan ikon ini ada di drawable
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -44,13 +44,7 @@ object NotificationUtils {
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            // Minta izin jika belum diberikan
             return
         }
         NotificationManagerCompat.from(context).notify(System.currentTimeMillis().toInt(), notification)
