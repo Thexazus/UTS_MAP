@@ -5,9 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#F9F9F9"
     tools:context=".ReportFragment"
-    tools:ignore="HardcodedText">
+    tools:ignore="HardcodedText"
+    android:paddingBottom="64dp">
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -81,34 +82,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Today"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp"/>
-
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/progressToday"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                app:cpb_background_progressbar_color="#EAEAEA"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_progress_direction="to_left"
-                app:cpb_progressbar_color="@color/primary_blue"
-                app:cpb_progressbar_width="8dp"
-                app:cpb_round_border="false"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginHorizontal="4dp"
+            android:paddingVertical="8dp"
+            android:background="@drawable/rounded_gradient_background">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -118,16 +95,35 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"/>
 
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/progressYesterday"
+            <FrameLayout
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                app:cpb_background_progressbar_color="#EAEAEA"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_progress_direction="to_left"
-                app:cpb_progressbar_color="@color/primary_blue"
-                app:cpb_progressbar_width="8dp"
-                app:cpb_round_border="false"/>
+                android:layout_marginBottom="8dp">
+
+                <!-- CircularProgressBar -->
+                <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                    android:id="@+id/progressYesterday"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    app:cpb_background_progressbar_color="#EAEAEA"
+                    app:cpb_background_progressbar_width="8dp"
+                    app:cpb_progress_direction="to_left"
+                    app:cpb_progressbar_color="@color/primary_blue"
+                    app:cpb_progressbar_width="10dp"
+                    app:cpb_round_border="false"/>
+
+                <!-- TextView in the center of CircularProgressBar -->
+                <TextView
+                    android:id="@+id/progressYesterdayText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/black"
+                    android:layout_gravity="center"
+                    android:textStyle="bold"/>
+
+            </FrameLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -135,7 +131,60 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginHorizontal="4dp"
+            android:paddingVertical="8dp"
+            android:background="@drawable/rounded_gradient_background">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Today"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"/>
+
+            <FrameLayout
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginBottom="8dp">
+
+                <!-- CircularProgressBar -->
+                <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                    android:id="@+id/progressToday"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    app:cpb_background_progressbar_color="#EAEAEA"
+                    app:cpb_background_progressbar_width="8dp"
+                    app:cpb_progress_direction="to_left"
+                    app:cpb_progressbar_color="@color/primary_blue"
+                    app:cpb_progressbar_width="10dp"
+                    app:cpb_round_border="false"/>
+
+                <!-- TextView in the center of CircularProgressBar -->
+                <TextView
+                    android:id="@+id/progressTodayText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/black"
+                    android:layout_gravity="center"
+                    android:textStyle="bold"/>
+
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginHorizontal="4dp"
+
+            android:paddingVertical="8dp"
+            android:background="@drawable/rounded_gradient_background">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -145,16 +194,35 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="8dp"/>
 
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/progress2DaysAgo"
+            <FrameLayout
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                app:cpb_background_progressbar_color="#EAEAEA"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_progress_direction="to_left"
-                app:cpb_progressbar_color="@color/primary_blue"
-                app:cpb_progressbar_width="8dp"
-                app:cpb_round_border="false"/>
+                android:layout_marginBottom="8dp">
+
+                <!-- CircularProgressBar -->
+                <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                    android:id="@+id/progress2DaysAgo"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    app:cpb_background_progressbar_color="#EAEAEA"
+                    app:cpb_background_progressbar_width="8dp"
+                    app:cpb_progress_direction="to_left"
+                    app:cpb_progressbar_color="@color/primary_blue"
+                    app:cpb_progressbar_width="10dp"
+                    app:cpb_round_border="false"/>
+
+                <!-- TextView in the center of CircularProgressBar -->
+                <TextView
+                    android:id="@+id/progress2DaysAgoText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/black"
+                    android:layout_gravity="center"
+                    android:textStyle="bold"/>
+
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

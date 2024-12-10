@@ -69,16 +69,16 @@ class YearlyReport : ComponentActivity() {
 suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
     val db = FirebaseFirestore.getInstance()
     return try {
-        val documents = db.collection("users")
+        // Fetch all date documents under daily_water_intake
+        val dateDocuments = db.collection("users")
             .document(userId)
-            .collection("waterIntakes")
-            .orderBy("date")
+            .collection("daily_water_intake")
             .get()
             .await()
 
         // Group data by year
-        val yearlyData = documents.groupBy { document ->
-            val date = document.getString("date") ?: ""
+        val yearlyData = dateDocuments.groupBy { dateDoc ->
+            val date = dateDoc.getString("date") ?: ""
             try {
                 LocalDate.parse(date).year // Extract the year
             } catch (e: Exception) {
@@ -88,11 +88,11 @@ suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
         }
             .filterKeys { it != null } // Exclude null years (invalid dates)
             .mapKeys { it.key!! } // Safe unwrap since nulls are filtered
-            .mapValues { (_, yearDocuments) ->
+            .mapValues { (_, yearDateDocuments) ->
                 // Group by month and calculate totals
-                val monthlyTotals = yearDocuments.groupBy { document ->
+                val monthlyTotals = yearDateDocuments.groupBy { dateDoc ->
                     try {
-                        LocalDate.parse(document.getString("date") ?: "").month
+                        LocalDate.parse(dateDoc.getString("date") ?: "").month
                     } catch (e: Exception) {
                         Log.e("YearlyDataProcessing", "Error parsing date", e)
                         null
@@ -100,8 +100,27 @@ suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
                 }
                     .filterKeys { it != null }
                     .mapKeys { it.key!! }
-                    .mapValues { (_, monthDocuments) ->
-                        monthDocuments.sumOf { it.getDouble("selectedVolume") ?: 0.0 }.toFloat()
+                    .mapValues { (month, monthDateDocs) ->
+                        // Fetch and sum intakes for each date in the month
+                        monthDateDocs.sumOf { dateDoc ->
+                            val date = dateDoc.getString("date") ?: return@sumOf 0.0
+                            try {
+                                val intakes = db.collection("users")
+                                    .document(userId)
+                                    .collection("daily_water_intake")
+                                    .document(date)
+                                    .collection("intakes")
+                                    .get()
+                                    .await()
+
+                                intakes.sumOf { intakeDoc ->
+                                    intakeDoc.getDouble("amount") ?: 0.0
+                                }
+                            } catch (e: Exception) {
+                                Log.e("YearlyDataProcessing", "Error fetching intakes for date: $date", e)
+                                0.0
+                            }
+                        }.toFloat()
                     }
 
                 // Initialize all months with zero intake
@@ -115,7 +134,7 @@ suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
                     .sortedBy { it.key.value }
                     .map { (month, totalAmount) ->
                         MonthlyData(
-                            month = month.name.lowercase().replaceFirstChar { it.uppercase() },
+                            month = month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3),
                             amount = totalAmount
                         )
                     }
@@ -125,7 +144,6 @@ suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
         Log.e("YearlyDataProcessing", "Error fetching yearly data", e)
         emptyMap()
     }
-
 }
 
 @Composable
