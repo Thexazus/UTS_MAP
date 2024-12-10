@@ -53,9 +53,11 @@
         android:id="@+id/reminderRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="8dp"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/headerLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/reminder_item" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

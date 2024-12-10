@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
+
+        // Create notification channel for reminders
+        NotificationUtils.createNotificationChannel(this)
+
+        NotificationScheduler.scheduleNotifications(this)
 
         // Check if user is logged in
         val currentUser = auth.currentUser
@@ -49,8 +55,8 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNavigation.setupWithNavController(navController)
 
-        // Schedule daily goal check
-        scheduleDailyGoalCheck()
+        // Schedule daily notifications
+        schedulePushNotifications()
     }
 
     private fun navigateToLogin() {
@@ -58,25 +64,35 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun scheduleDailyGoalCheck() {
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-        }
-
-        val intent = Intent(this, DailyGoalReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            this, 1, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
+    private fun schedulePushNotifications() {
+        val notificationTimes = listOf(9, 12, 15, 18) // Hours for notifications: 9 AM, 12 PM, 3 PM, 6 PM
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
+
+        for (hour in notificationTimes) {
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                if (timeInMillis <= System.currentTimeMillis()) {
+                    add(Calendar.DAY_OF_MONTH, 1) // Ensure the time is in the future
+                }
+            }
+
+            val intent = Intent(this, PushNotificationReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                this,
+                hour, // Unique requestCode per hour
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
+        }
     }
 }
