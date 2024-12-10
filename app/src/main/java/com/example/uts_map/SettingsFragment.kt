@@ -34,22 +34,22 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupUI() {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
+        val currentUser  = auth.currentUser
+        if (currentUser  == null) {
             navigateToLogin()
             return
         }
 
         binding.apply {
-            db.collection("users").document(currentUser.email ?: "").get().addOnSuccessListener { document ->
+            db.collection("users").document(currentUser .email ?: "").get().addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     // Load user data
-                    userName.text = "${document.getString("firstName") ?: "Unknown"} ${document.getString("lastName") ?: "User"}"
-                    userEmail.text = document.getString("email") ?: currentUser.email
+                    userName.text = "${document.getString("firstName") ?: "Unknown"} ${document.getString("lastName") ?: "User "}"
+                    userEmail.text = document.getString("email") ?: currentUser .email
                     heightValue.text = "${document.getDouble("height")?.toInt() ?: 0} cm"
                     weightValue.text = "${document.getDouble("weight")?.toInt() ?: 0} kg"
                     ageValue.text = "${document.getLong("age") ?: 0} yo"
-                    intakeValue.text = "${document.getDouble("targetAmount")?.toInt() ?: 0} ml"
+                    intakeValue.text = "${document.getDouble("targetAmount")?.toInt() ?: 0} ml" // Display target amount
 
                     // Display gender
                     val gender = document.getString("gender") ?: "Other"

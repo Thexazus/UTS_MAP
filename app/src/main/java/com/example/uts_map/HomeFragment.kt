@@ -366,18 +366,18 @@ class HomeFragment : Fragment() {
 
     // Modifikasi loadUserProfile untuk logging
     private fun loadUserProfile() {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
+        val currentUser  = auth.currentUser
+        if (currentUser  == null) {
             Log.w("HomeFragment", "No authenticated user found.")
             return
         }
 
         firestore.collection("users")
-            .document(currentUser.email ?: "")
+            .document(currentUser .email ?: "")
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val firstName = document.getString("firstName") ?: "User"
+                    val firstName = document.getString("firstName") ?: "User "
                     greetingTextView.text = "Hi, $firstName!"
 
                     // Ambil data profil untuk kalkulasi
@@ -400,6 +400,17 @@ class HomeFragment : Fragment() {
                     view?.findViewById<TextView>(R.id.textViewGoal)?.text =
                         "${personalizedWaterGoal / 1000.0} Liter"
 
+                    // Store the goal in Firestore
+                    firestore.collection("users")
+                        .document(currentUser .email ?: "")
+                        .update("targetAmount", personalizedWaterGoal)
+                        .addOnSuccessListener {
+                            Log.d("HomeFragment", "Daily water goal updated in Firestore.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("HomeFragment", "Error updating daily water goal: ${e.message}")
+                        }
+
                     // Log untuk debug
                     Log.d("WaterGoal", "Personalized Goal: $personalizedWaterGoal ml " +
                             "for $gender, Age: $age, Weight: $weight, Height: $height")
@@ -411,7 +422,7 @@ class HomeFragment : Fragment() {
                     // Reload current amount with new goal
                     loadCurrentAmount()
                 } else {
-                    Log.w("HomeFragment", "User document does not exist.")
+                    Log.w("HomeFragment", "User  document does not exist.")
                 }
             }
             .addOnFailureListener { exception ->
