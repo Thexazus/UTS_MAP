@@ -30,6 +30,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import kotlin.math.roundToInt
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -42,7 +43,8 @@ class HomeFragment : Fragment() {
     private lateinit var textViewSelectedVolume: TextView
     private lateinit var chipGroupVolumes: ChipGroup
     private var selectedAmount = 50
-    private val DAILY_WATER_GOAL = 2000 // 2 Liters standard goal
+    // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
+    private var DAILY_WATER_GOAL = 1000 // Default goal, will be overridden by personalized calculation
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -189,7 +191,6 @@ class HomeFragment : Fragment() {
             newAmount
         }.addOnSuccessListener { newTotal ->
             updateWaterIntakeDisplay(newTotal.toInt())
-            showToast("Added $amount ml")
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
@@ -220,7 +221,6 @@ class HomeFragment : Fragment() {
             newAmount
         }.addOnSuccessListener { newTotal ->
             updateWaterIntakeDisplay(newTotal.toInt())
-            showToast("Removed $amount ml")
         }.addOnFailureListener { e ->
             showToast("Failed to remove water intake: ${e.message}")
         }
@@ -293,6 +293,78 @@ class HomeFragment : Fragment() {
         progressCircular.setIndicatorColor(progressColor)
     }
 
+    private fun calculatePersonalizedWaterGoal(
+        height: Double,
+        weight: Double,
+        age: Long,
+        gender: String,
+        sleepingTime: String,
+        wakeUpTime: String
+    ): Int {
+        // Perhitungan berbasis berat badan dengan faktor koreksi yang lebih detail
+        val baseGoalMl = when {
+            gender == "Male" -> {
+                when {
+                    age < 20 -> weight * 40.0  // Remaja laki-laki butuh lebih banyak
+                    age in 20..30 -> weight * 35.0  // Dewasa muda
+                    age in 31..50 -> weight * 33.0  // Dewasa tengah
+                    else -> weight * 30.0  // Lansia
+                }
+            }
+            gender == "Female" -> {
+                when {
+                    age < 20 -> weight * 38.0  // Remaja perempuan
+                    age in 20..30 -> weight * 33.0  // Dewasa muda
+                    age in 31..50 -> weight * 31.0  // Dewasa tengah
+                    else -> weight * 28.0  // Lansia
+                }
+            }
+            else -> weight * 32.0  // Netral
+        }
+
+        // Faktor penyesuaian berdasarkan aktivitas dan waktu bangun
+        val sleepHours = calculateSleepDuration(sleepingTime, wakeUpTime)
+        val activeHours = 24 - sleepHours
+
+        val activityMultiplier = when {
+            activeHours > 16 -> 1.4  // Sangat aktif (kerja lapangan, olahraga)
+            activeHours > 14 -> 1.3  // Aktif (kerja kantoran dengan aktivitas tambahan)
+            activeHours > 12 -> 1.2  // Cukup aktif (kerja kantoran)
+            activeHours > 8 -> 1.1   // Kurang aktif
+            else -> 1.0               // Minimal aktivitas
+        }
+
+        // Faktor musim dan iklim (Indonesia tropis)
+        val climateMultiplier = 1.2  // Tambahan untuk iklim panas
+
+        // Faktor tinggi badan
+        val heightFactor = 1.0 + ((height - 170.0) / 100.0 * 0.15)
+
+        // Perhitungan final dengan pembulatan
+        val personalizedGoal = baseGoalMl *
+                activityMultiplier *
+                climateMultiplier *
+                heightFactor
+
+        // Pembulatan ke 50 ml terdekat dengan batas minimal 1000 ml
+        return maxOf(1000, (personalizedGoal / 50.0).roundToInt() * 50)
+    }
+
+    // Fungsi perhitungan durasi tidur tetap sama
+    private fun calculateSleepDuration(sleepingTime: String, wakeUpTime: String): Double {
+        val (sleepHour, sleepMinute) = sleepingTime.split(":").map { it.toInt() }
+        val (wakeHour, wakeMinute) = wakeUpTime.split(":").map { it.toInt() }
+
+        var sleepDuration = if (wakeHour > sleepHour) {
+            wakeHour - sleepHour + (wakeMinute - sleepMinute) / 60.0
+        } else {
+            (24 - sleepHour + wakeHour) + (wakeMinute - sleepMinute) / 60.0
+        }
+
+        return sleepDuration.coerceIn(4.0, 12.0)
+    }
+
+    // Modifikasi loadUserProfile untuk logging
     private fun loadUserProfile() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -308,9 +380,36 @@ class HomeFragment : Fragment() {
                     val firstName = document.getString("firstName") ?: "User"
                     greetingTextView.text = "Hi, $firstName!"
 
-                    // Update profile picture based on gender
+                    // Ambil data profil untuk kalkulasi
+                    val height = document.getDouble("height") ?: 170.0
+                    val weight = document.getDouble("weight") ?: 70.0
+                    val age = document.getLong("age") ?: 30
                     val gender = document.getString("gender") ?: "Other"
-                    updateProfilePicture(gender)
+                    val sleepingTime = document.getString("sleepingTime") ?: "22:00"
+                    val wakeUpTime = document.getString("wakeUpTime") ?: "06:00"
+
+                    // Hitung goal air minum personal
+                    val personalizedWaterGoal = calculatePersonalizedWaterGoal(
+                        height, weight, age, gender, sleepingTime, wakeUpTime
+                    )
+
+                    // Update DAILY_WATER_GOAL dengan kalkulasi personal
+                    DAILY_WATER_GOAL = personalizedWaterGoal
+
+                    // Update TextView Goal dengan goal dalam Liter
+                    view?.findViewById<TextView>(R.id.textViewGoal)?.text =
+                        "${personalizedWaterGoal / 1000.0} Liter"
+
+                    // Log untuk debug
+                    Log.d("WaterGoal", "Personalized Goal: $personalizedWaterGoal ml " +
+                            "for $gender, Age: $age, Weight: $weight, Height: $height")
+
+                    // Update profile picture based on gender
+                    val genderStored = document.getString("gender") ?: "Other"
+                    updateProfilePicture(genderStored)
+
+                    // Reload current amount with new goal
+                    loadCurrentAmount()
                 } else {
                     Log.w("HomeFragment", "User document does not exist.")
                 }
