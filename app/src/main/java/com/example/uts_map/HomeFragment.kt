@@ -28,6 +28,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.google.firebase.firestore.Query
 import kotlin.math.roundToInt
 
 class HomeFragment : Fragment() {
@@ -190,10 +191,10 @@ class HomeFragment : Fragment() {
         }.addOnSuccessListener { newTotal ->
             updateWaterIntakeDisplay(newTotal.toInt())
 
-            // Tambahkan entri baru ke historyList dan perbarui adapter
             val newHistoryItem = WaterIntakeHistoryItem(
                 date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()), // Waktu saat ini
-                amount = amount
+                amount = amount,
+                timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
             )
 
             // Tambahkan item baru ke adapter
@@ -254,14 +255,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadWaterIntakeHistory(recyclerView: RecyclerView) {
-        val userId = auth.currentUser ?.uid ?: return
+        val userId = auth.currentUser?.uid ?: return
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
-            .document(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
+            .document(date)
             .collection("intakes")
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING) // Urutkan berdasarkan waktu terbaru
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val historyList = querySnapshot.documents.mapNotNull { doc ->
@@ -269,15 +271,23 @@ class HomeFragment : Fragment() {
                     val timestamp = doc.getTimestamp("timestamp")?.toDate()
                     if (amount != null && timestamp != null) {
                         WaterIntakeHistoryItem(
-                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp), // Format waktu
-                            amount = amount
+                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp),
+                            amount = amount,
+                            timestamp = timestamp // Pass the timestamp here
                         )
                     } else null
                 }
 
                 val adapter = WaterIntakeHistoryAdapter(historyList.toMutableList()) { item ->
-                    // Handle delete action
-                    showDeleteConfirmationDialog(item.amount)
+                    // Show confirmation dialog before deleting
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Delete Water Intake")
+                        .setMessage("Are you sure you want to delete ${item.amount} ml intake at ${item.date}?")
+                        .setPositiveButton("Delete") { _, _ ->
+                            deleteWaterIntake(item)
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
                 }
 
                 recyclerView.adapter = adapter
@@ -288,33 +298,57 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteWaterIntake(item: WaterIntakeHistoryItem) {
-        val userId = auth.currentUser?.uid ?: return
+        val userId = auth.currentUser ?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
+        // First, find the specific intake document to delete
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
             .document(date)
             .collection("intakes")
-            .whereEqualTo("amount", item.amount) // Filter by amount
-            .whereEqualTo("timestamp", item.date) // Filter by timestamp
+            .whereEqualTo("amount", item.amount)
+            .whereEqualTo("timestamp", item.timestamp) // Pastikan ini sesuai dengan format yang disimpan
             .get()
             .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot) {
-                    firestore.collection("users")
-                        .document(userId)
-                        .collection("daily_water_intake")
-                        .document(date)
-                        .collection("intakes")
-                        .document(document.id)
-                        .delete()
-                        .addOnSuccessListener {
-                            showToast("${item.amount} ml intake removed.")
-                            loadWaterIntakeHistory(requireView().findViewById(R.id.recyclerViewHistory))
-                        }
-                        .addOnFailureListener { e ->
-                            showToast("Error deleting intake: ${e.message}")
-                        }
+                if (querySnapshot.isEmpty) {
+                    showToast("No matching intake found.")
+                    return@addOnSuccessListener
+                }
+
+                // Get the first (and should be only) matching document
+                val intakeDocumentId = querySnapshot.documents[0]. id
+
+                // Reference to the daily intake document
+                val dailyIntakeRef = firestore.collection("users")
+                    .document(userId)
+                    .collection("daily_water_intake")
+                    .document(date)
+
+                // Start a transaction to safely update the total amount
+                firestore.runTransaction { transaction ->
+                    val snapshot = transaction.get(dailyIntakeRef)
+
+                    // Get current total amount
+                    val currentAmount = snapshot.getLong("totalAmount") ?: 0
+                    val newAmount = (currentAmount - item.amount).coerceAtLeast(0)
+
+                    // Update the total amount
+                    transaction.update(dailyIntakeRef, "totalAmount", newAmount)
+
+                    // Delete the specific intake document
+                    dailyIntakeRef.collection("intakes").document(intakeDocumentId).delete()
+
+                    newAmount
+                }.addOnSuccessListener { newTotal ->
+                    // Update the display with the new total
+                    updateWaterIntakeDisplay(newTotal.toInt())
+
+                    // Reload the water intake history
+                    loadWaterIntakeHistory(requireView().findViewById(R.id.recyclerViewHistory))
+
+                }.addOnFailureListener { e ->
+                    showToast("Error deleting intake: ${e.message}")
                 }
             }
             .addOnFailureListener { e ->
@@ -563,10 +597,10 @@ class HomeFragment : Fragment() {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-    // Data class untuk history
     data class WaterIntakeHistoryItem(
         val date: String,
-        val amount: Int
+        val amount: Int,
+        val timestamp: Any // Make it non-nullable
     )
 
     companion object {
