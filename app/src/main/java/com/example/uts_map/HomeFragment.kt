@@ -177,7 +177,8 @@ class HomeFragment : Fragment() {
                 "userId" to userId,
                 "timestamp" to FieldValue.serverTimestamp(),
                 "week" to "${LocalDate.parse(date).year}-W${String.format("%02d", LocalDate.parse(date).get(
-                    WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))}"
+                    WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear()))}",
+                "goal" to 2000
             ))
 
             // Tambah entri ke subkoleksi
