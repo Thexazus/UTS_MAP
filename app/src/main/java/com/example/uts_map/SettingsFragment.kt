@@ -81,7 +81,7 @@ class SettingsFragment : Fragment() {
                     genderTextView.text = "Male"
                 }
                 "Female" -> {
-                    genderImageView.setImageResource(R.drawable.female_icon)
+                    genderImageView.setImageResource(R.drawable.female_profile)
                     genderTextView.text = "Female"
                 }
                 else -> {
@@ -104,7 +104,7 @@ class SettingsFragment : Fragment() {
                     profilePictureImageView.setImageResource(R.drawable.female_profile)
                 }
                 else -> {
-                    profilePictureImageView.setImageResource(R.drawable.profile_default)
+                    profilePictureImageView.setImageResource(R.drawable.male_profile)
                 }
             }
         }
