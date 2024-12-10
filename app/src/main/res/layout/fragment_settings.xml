@@ -277,19 +277,19 @@
 
             <ImageView
                 android:id="@+id/genderImage"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:src="@drawable/male_icon"
-                android:contentDescription="Gender Icon" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Gender Icon"
+                android:src="@drawable/male_icon" />
 
             <TextView
                 android:id="@+id/genderDisplayText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="5sp"
                 android:text="Gender Text"
-                android:textSize="18sp"
-                android:textColor="#757575"/>
+                android:textColor="#757575"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <!-- Sleeping Time Section -->
@@ -350,13 +350,14 @@
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="60sp"
             android:backgroundTint="@color/blue"
             android:text="Logout"
             android:textColor="#FFFFFF"
-            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
