@@ -40,7 +40,7 @@ object NotificationUtils {
             .build()
 
         if (ActivityCompat.checkSelfPermission(
-                this,
+                context,
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {

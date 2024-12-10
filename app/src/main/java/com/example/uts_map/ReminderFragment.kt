@@ -39,7 +39,6 @@ class ReminderFragment : Fragment() {
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "Please log in to access reminders", Toast.LENGTH_SHORT).show()
             requireActivity().supportFragmentManager.popBackStack()
             return
         }
@@ -136,7 +135,6 @@ class ReminderFragment : Fragment() {
         reminderRepository.addReminder(
             reminder,
             onSuccess = {
-                Toast.makeText(requireContext(), "Reminder added successfully!", Toast.LENGTH_SHORT).show()
                 setAlarm(reminder) // Set alarm for new reminder
                 fetchReminders()
             },
@@ -151,7 +149,6 @@ class ReminderFragment : Fragment() {
             reminder.id,
             reminder,
             onSuccess = {
-                Toast.makeText(requireContext(), "Reminder updated successfully!", Toast.LENGTH_SHORT).show()
                 setAlarm(reminder) // Update alarm for the reminder
                 fetchReminders()
             },
@@ -165,7 +162,6 @@ class ReminderFragment : Fragment() {
         reminderRepository.deleteReminder(
             reminder.id,
             onSuccess = {
-                Toast.makeText(requireContext(), "Reminder deleted successfully!", Toast.LENGTH_SHORT).show()
                 cancelAlarm(reminder) // Cancel alarm for deleted reminder
                 fetchReminders()
             },
@@ -203,8 +199,6 @@ class ReminderFragment : Fragment() {
             calendar.timeInMillis,
             pendingIntent
         )
-
-        Toast.makeText(requireContext(), "Alarm set for ${reminder.time}", Toast.LENGTH_SHORT).show()
     }
 
     private fun cancelAlarm(reminder: Reminder) {
@@ -217,8 +211,6 @@ class ReminderFragment : Fragment() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
-
-        Toast.makeText(requireContext(), "Alarm canceled for ${reminder.time}", Toast.LENGTH_SHORT).show()
     }
 
     companion object {
