@@ -1,13 +1,15 @@
 package com.example.uts_map
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,6 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +41,7 @@ import com.patrykandpatrick.vico.core.component.shape.ShapeComponent
 import com.patrykandpatrick.vico.core.component.shape.Shapes
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import com.patrykandpatrick.vico.core.entry.entryModelOf
-import com.patrykandpatrick.vico.core.extension.copyColor
+import com.patrykandpatrick.vico.core.extension.sumOf
 import com.patrykandpatrick.vico.core.marker.MarkerLabelFormatter
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
@@ -103,7 +108,7 @@ suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
                     .mapValues { (month, monthDateDocs) ->
                         // Fetch and sum intakes for each date in the month
                         monthDateDocs.sumOf { dateDoc ->
-                            val date = dateDoc.getString("date") ?: return@sumOf 0.0
+                            val date = dateDoc.getString("date") ?: return@sumOf 0.0F
                             try {
                                 val intakes = db.collection("users")
                                     .document(userId)
@@ -114,12 +119,12 @@ suspend fun fetchYearlyData(userId: String): Map<Int, List<MonthlyData>> {
                                     .await()
 
                                 intakes.sumOf { intakeDoc ->
-                                    intakeDoc.getDouble("amount") ?: 0.0
+                                    (intakeDoc.getDouble("amount") ?: 0.0).toFloat()
                                 }
                             } catch (e: Exception) {
                                 Log.e("YearlyDataProcessing", "Error fetching intakes for date: $date", e)
                                 0.0
-                            }
+                            }.toFloat()
                         }.toFloat()
                     }
 
@@ -189,6 +194,10 @@ fun YearlyChartScreen(modifier: Modifier = Modifier) {
                         } else {
                             Text("No data available for this year.")
                         }
+                        YearlyProgressReport(
+                            yearlyConsumption = monthlyData.sumOf { it.amount.toInt().toFloat() },
+                            yearlyGoal = 730000
+                        )
                     }
                 }
 
@@ -231,11 +240,11 @@ fun YearlyLineChart(data: List<MonthlyData>, modifier: Modifier = Modifier) {
         ),
         guideline = null,
         indicator = OverlayingComponent(
-            outer = ShapeComponent(Shapes.pillShape, Color.BLACK.copyColor(alpha = .32f)),
+            outer = ShapeComponent(Shapes.pillShape, Color(0xFF047EB6).toArgb()),
             innerPaddingAllDp = 10f,
             inner = OverlayingComponent(
-                outer = ShapeComponent(Shapes.pillShape, Color.BLACK),
-                inner = ShapeComponent(Shapes.pillShape, Color.LTGRAY),
+                outer = ShapeComponent(Shapes.pillShape, Color(0xFF45B4FA).toArgb()),
+                inner = ShapeComponent(Shapes.pillShape, Color(0xFFB2E7FF).toArgb()),
                 innerPaddingAllDp = 5f,
             ),
         ),
@@ -246,7 +255,7 @@ fun YearlyLineChart(data: List<MonthlyData>, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(256.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -268,11 +277,71 @@ fun YearlyLineChart(data: List<MonthlyData>, modifier: Modifier = Modifier) {
                 ),
                 marker = markerComponent,
             )
-            Text(
-                text = "Total Yearly Intake: ${data.sumOf { it.amount.toInt() }} ml",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 6.dp),
+//            Text(
+//                text = "Total Yearly Intake: ${data.sumOf { it.amount.toInt() }} ml",
+//                style = MaterialTheme.typography.bodyMedium,
+//                modifier = Modifier.padding(top = 6.dp),
+//            )
+        }
+    }
+}
+
+@Composable
+fun YearlyProgressReport(
+    yearlyConsumption: Float, // Total water consumption for the year
+    yearlyGoal: Int // Goal for the year
+) {
+    val progress = (yearlyConsumption.toFloat() / yearlyGoal).coerceIn(0f, 1f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)
+            .background(
+                color = Color(0xFF323232),
+                shape = RoundedCornerShape(32.dp)
             )
+            .padding(24.dp, 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Left Side - Text Content
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "Progress this year",
+                    color = Color(0xFFF6F6F6),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "$yearlyConsumption ml",
+                    color = Color(0xFFF6F6F6),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            // Right Side - Circular Progress Bar
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(80.dp)
+            ) {
+                CircularProgressIndicator(
+                    progress = progress,
+                    color = Color(0xFF5DCCFC),
+                    strokeWidth = 6.dp,
+                    modifier = Modifier.size(60.dp)
+                )
+                Text(
+                    text = "${(progress * 100).toInt()}%",
+                    color = Color(0xFFF6F6F6),
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         }
     }
 }

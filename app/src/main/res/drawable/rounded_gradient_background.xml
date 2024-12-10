@@ -6,6 +6,11 @@
     <gradient
         android:angle="90"
     android:startColor="#24C4F8"
-    android:endColor="#C4F4FF"
-    android:type="linear" />
+    android:endColor="#DFFFFA"
+    android:type="linear">
+        <item android:color="#24C4F8" android:offset="0.0"/>  <!-- Start color at 0% -->
+        <item android:color="#66C8F9" android:offset="0.4"/>  <!-- Mid color at 40% -->
+        <item android:color="#A0DFFF" android:offset="0.7"/>  <!-- Transition color at 70% -->
+        <item android:color="#DFFFFA" android:offset="1.0"/>
+    </gradient>
 </shape>
