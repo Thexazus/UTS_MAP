@@ -372,12 +372,13 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { querySnapshot ->
                 val historyList = querySnapshot.documents.mapNotNull { doc ->
                     val amount = doc.getLong("amount")?.toInt()
-                    val timestamp = doc.getTimestamp("timestamp")?.toDate()
+                    val timestamp = doc.getTimestamp("timestamp")
+
                     if (amount != null && timestamp != null) {
                         WaterIntakeHistoryItem(
-                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp),
+                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp.toDate()),
                             amount = amount,
-                            timestamp = timestamp // Pass the timestamp here
+                            timestamp = timestamp.toDate() // Simpan sebagai Date
                         )
                     } else null
                 }
@@ -402,17 +403,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteWaterIntake(item: WaterIntakeHistoryItem) {
-        val userId = auth.currentUser ?.uid ?: return
+        val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // First, find the specific intake document to delete
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
             .document(date)
             .collection("intakes")
             .whereEqualTo("amount", item.amount)
-            .whereEqualTo("timestamp", item.timestamp) // Pastikan ini sesuai dengan format yang disimpan
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (querySnapshot.isEmpty) {
@@ -420,35 +419,35 @@ class HomeFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                // Get the first (and should be only) matching document
-                val intakeDocumentId = querySnapshot.documents[0]. id
+                // Pilih dokumen pertama yang cocok
+                val intakeDocumentId = querySnapshot.documents[0].id
 
-                // Reference to the daily intake document
+                // Referensi ke dokumen intake harian
                 val dailyIntakeRef = firestore.collection("users")
                     .document(userId)
                     .collection("daily_water_intake")
                     .document(date)
 
-                // Start a transaction to safely update the total amount
+                // Jalankan transaksi untuk update total amount
                 firestore.runTransaction { transaction ->
                     val snapshot = transaction.get(dailyIntakeRef)
 
-                    // Get current total amount
+                    // Dapatkan total amount saat ini
                     val currentAmount = snapshot.getLong("totalAmount") ?: 0
                     val newAmount = (currentAmount - item.amount).coerceAtLeast(0)
 
-                    // Update the total amount
+                    // Update total amount
                     transaction.update(dailyIntakeRef, "totalAmount", newAmount)
 
-                    // Delete the specific intake document
+                    // Hapus dokumen intake spesifik
                     dailyIntakeRef.collection("intakes").document(intakeDocumentId).delete()
 
                     newAmount
                 }.addOnSuccessListener { newTotal ->
-                    // Update the display with the new total
+                    // Update tampilan dengan total baru
                     updateWaterIntakeDisplay(newTotal.toInt())
 
-                    // Reload the water intake history
+                    // Muat ulang riwayat air minum
                     loadWaterIntakeHistory(requireView().findViewById(R.id.recyclerViewHistory))
 
                 }.addOnFailureListener { e ->
