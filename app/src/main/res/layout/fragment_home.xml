@@ -26,9 +26,11 @@
         android:layout_height="wrap_content"
         android:text="Hi, User!"
         android:textSize="24sp"
-        android:textColor="@color/black"
+        android:textColor="@color/deep_blue"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewProfile"
