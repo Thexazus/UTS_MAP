@@ -31,7 +31,10 @@ import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.Query
 import kotlin.math.roundToInt
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Build
 
 class HomeFragment : Fragment() {
@@ -83,8 +86,10 @@ class HomeFragment : Fragment() {
         // Setup RecyclerView
         setupRecyclerView(view)
 
+        // Initialize ActivityDetector
+        activityDetector = ActivityDetector(requireContext())
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Untuk Android 10 (Q) ke atas
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.ACTIVITY_RECOGNITION
@@ -94,11 +99,44 @@ class HomeFragment : Fragment() {
                     arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
                     STEP_COUNTER_PERMISSION_REQUEST_CODE
                 )
+            } else {
+                // Permission already granted, start tracking
+                if (activityDetector.isSensorAvailable()) {
+                    Log.d("HomeFragment", "Step sensor is available")
+                    activityDetector.start()
+                } else {
+                    Log.e("HomeFragment", "Step sensor is NOT available on this device")
+                    // Provide more detailed error information
+                    val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                    val stepDetectorSensors = sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)
+
+                    if (stepDetectorSensors.isEmpty()) {
+                        Log.e("HomeFragment", "No step detector sensors found on this device")
+                    } else {
+                        Log.e("HomeFragment", "Step detector sensors found but not accessible")
+                    }
+                }
+            }
+        } else {
+            // For older Android versions, start tracking directly
+            if (activityDetector.isSensorAvailable()) {
+                Log.d("HomeFragment", "Step sensor is available")
+                activityDetector.start()
+            } else {
+                Log.e("HomeFragment", "Step sensor is NOT available on this device")
+                // Provide more detailed error information
+                val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                val stepDetectorSensors = sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)
+
+                if (stepDetectorSensors.isEmpty()) {
+                    Log.e("HomeFragment", "No step detector sensors found on this device")
+                } else {
+                    Log.e("HomeFragment", "Step detector sensors found but not accessible")
+                }
             }
         }
 
-        // Initialize ActivityDetector
-        activityDetector = ActivityDetector(requireContext())
+
         // Check if step detector is available
         if (activityDetector.isSensorAvailable()) {
             activityDetector.setOnWaterGoalIncreasedListener(object : ActivityDetector.OnWaterGoalIncreasedListener {
@@ -108,9 +146,6 @@ class HomeFragment : Fragment() {
                 }
             })
             activityDetector.start()
-        } else {
-            // Optional: Show a message to the user that step tracking is not available
-            Toast.makeText(requireContext(), "Step tracking not available on this device", Toast.LENGTH_SHORT).show()
         }
     }
 
