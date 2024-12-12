@@ -41,6 +41,8 @@
                 android:src="@drawable/profile_default"
                 android:contentDescription="Profile Picture"
                 android:background="@drawable/profile_circle_border"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/circleImageView"
                 android:padding="8dp" />
 
         </LinearLayout>
