@@ -81,15 +81,6 @@
                     app:layout_constraintBottom_toBottomOf="parent" />
 
                 <!-- Confetti Icon -->
-                <ImageView
-                    android:id="@+id/ivConfetti"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/confetti"
-                    android:layout_marginStart="-8dp"
-                    android:layout_marginTop="-24dp"
-                    app:layout_constraintStart_toEndOf="@id/tvStatus"
-                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -130,6 +121,14 @@
                 app:layout_constraintTop_toBottomOf="@id/tvMotivationalMsg"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
+
+            <ImageView
+                android:id="@+id/ivConfetti"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/confetti"
+                tools:layout_editor_absoluteX="251dp"
+                tools:layout_editor_absoluteY="-16dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
