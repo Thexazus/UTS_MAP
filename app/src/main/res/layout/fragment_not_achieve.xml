@@ -105,7 +105,7 @@
                 android:id="@+id/ivEncouragement"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:src="@drawable/trophy_gold"
+                android:src="@drawable/icon_piala"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/tvMotivationalMsg"
             app:layout_constraintStart_toStartOf="parent"
