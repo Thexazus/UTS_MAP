@@ -30,6 +30,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.Query
 import kotlin.math.roundToInt
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -44,6 +47,8 @@ class HomeFragment : Fragment() {
     private var selectedAmount = 50
     // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
     private var DAILY_WATER_GOAL = 1000 // Default goal, will be overridden by personalized calculation
+
+    private lateinit var activityDetector: ActivityDetector
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,6 +82,42 @@ class HomeFragment : Fragment() {
 
         // Setup RecyclerView
         setupRecyclerView(view)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Untuk Android 10 (Q) ke atas
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                    STEP_COUNTER_PERMISSION_REQUEST_CODE
+                )
+            }
+        }
+
+        // Initialize ActivityDetector
+        activityDetector = ActivityDetector(requireContext())
+        // Check if step detector is available
+        if (activityDetector.isSensorAvailable()) {
+            activityDetector.setOnWaterGoalIncreasedListener(object : ActivityDetector.OnWaterGoalIncreasedListener {
+                override fun onWaterGoalIncreased(newGoal: Int) {
+                    DAILY_WATER_GOAL += newGoal
+                    updateWaterIntakeDisplay(DAILY_WATER_GOAL)
+                }
+            })
+            activityDetector.start()
+        } else {
+            // Optional: Show a message to the user that step tracking is not available
+            Toast.makeText(requireContext(), "Step tracking not available on this device", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Stop the sensor when the fragment is destroyed
+        activityDetector.stop()
     }
 
     private fun initializeViews(view: View) {
@@ -631,7 +672,33 @@ class HomeFragment : Fragment() {
         val timestamp: Any // Make it non-nullable
     )
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == STEP_COUNTER_PERMISSION_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
+                    // Izin diberikan, mulai deteksi langkah
+                    activityDetector.start()
+                } else {
+                    // Izin ditolak
+                    Toast.makeText(
+                        requireContext(),
+                        "Step tracking permission denied",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     companion object {
         fun newInstance() = HomeFragment()
+        private const val STEP_COUNTER_PERMISSION_REQUEST_CODE = 100
     }
 }
