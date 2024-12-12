@@ -24,7 +24,7 @@
         <!-- Left Content Container -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="85dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -45,24 +45,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
+                <!-- Monday -->
                 <!-- Monday -->
                 <TextView
                     android:id="@+id/tvMonday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_unselected_background"
+                    android:gravity="center"
                     android:text="M"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
-
                 <!-- Tuesday -->
                 <TextView
                     android:id="@+id/tvTuesday"
@@ -70,8 +70,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_unselected_background"
+                    android:gravity="center"
                     android:text="T"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
@@ -85,8 +85,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_selected_background"
+                    android:gravity="center"
                     android:text="W"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
@@ -100,8 +100,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_unselected_background"
+                    android:gravity="center"
                     android:text="Th"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
@@ -115,8 +115,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_unselected_background"
+                    android:gravity="center"
                     android:text="F"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
@@ -130,8 +130,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_unselected_background"
+                    android:gravity="center"
                     android:text="St"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
@@ -144,8 +144,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
                     android:background="@drawable/day_unselected_background"
+                    android:gravity="center"
                     android:text="S"
                     android:textColor="@android:color/black"
                     android:textSize="14sp"

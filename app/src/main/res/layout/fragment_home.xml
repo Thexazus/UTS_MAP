@@ -8,16 +8,18 @@
     android:padding="16dp"
     tools:ignore="HardcodedText">
 
-    <View
-        android:id="@+id/backgroundView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#33A5D7EB"
-        app:layout_constraintBottom_toBottomOf="@id/cardViewGoal"
+    <!-- Current Card -->
+    <ImageView
+        android:id="@+id/background_home"
+        android:layout_width="387dp"
+        android:layout_height="333dp"
+        android:layout_marginTop="16dp"
+        android:alpha="0.4"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background_home"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
     <!-- Greeting Text -->
     <TextView
@@ -26,9 +28,11 @@
         android:layout_height="wrap_content"
         android:text="Hi, User!"
         android:textSize="24sp"
-        android:textColor="@color/black"
+        android:textColor="@color/deep_blue"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewProfile"
