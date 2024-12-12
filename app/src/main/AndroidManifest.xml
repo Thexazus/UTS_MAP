@@ -84,6 +84,8 @@
             android:exported="true"
             tools:ignore="ExportedReceiver" />
 
+        <receiver android:name=".AlarmReceiver" />
+
     </application>
 
 </manifest>
