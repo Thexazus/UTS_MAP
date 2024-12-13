@@ -80,12 +80,6 @@ class ActivityDetector(context: Context) : SensorEventListener {
         }
     }
 
-    // Reset step count if needed
-    fun resetStepCount() {
-        stepCount = 0
-        Log.d("ActivityDetector", "Step count reset")
-    }
-
     interface OnWaterGoalIncreasedListener {
         fun onWaterGoalIncreased(newGoal: Int)
     }

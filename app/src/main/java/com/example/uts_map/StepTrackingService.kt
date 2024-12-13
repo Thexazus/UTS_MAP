@@ -1,3 +1,5 @@
+package com.example.uts_map
+
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -11,7 +13,6 @@ import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.example.uts_map.SaveStepsWorker
 import java.util.concurrent.TimeUnit
 
 class StepTrackingService : Service(), SensorEventListener {
@@ -48,7 +49,7 @@ class StepTrackingService : Service(), SensorEventListener {
                 ExistingPeriodicWorkPolicy.KEEP,
                 saveStepsWork
             )
-        } ?: Log.w("StepTrackingService", "Step detector sensor not available")
+        } ?: Log.w("com.example.uts_map.StepTrackingService", "Step detector sensor not available")
     }
 
     override fun onSensorChanged(event: SensorEvent?) {

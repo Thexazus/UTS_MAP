@@ -36,6 +36,7 @@ import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Build
+import com.google.android.material.chip.Chip
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -198,10 +199,22 @@ class HomeFragment : Fragment() {
     private fun setupChipGroup() {
         chipGroupVolumes.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isNotEmpty()) {
-                when (checkedIds[0]) {
+                val selectedChipId = checkedIds[0]
+                when (selectedChipId) {
                     R.id.chip330ml -> selectChip(330)
                     R.id.chip600ml -> selectChip(600)
                     R.id.chip1500ml -> selectChip(1500)
+                }
+
+                // Change background color for selected chip
+                val selectedChip = view?.findViewById<Chip>(selectedChipId)
+                selectedChip?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.blue_accent))
+
+                // Reset background color for other chips
+                for (id in listOf(R.id.chip330ml, R.id.chip600ml, R.id.chip1500ml)) {
+                    if (id != selectedChipId) {
+                        view?.findViewById<Chip>(id)?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
+                    }
                 }
             }
         }
