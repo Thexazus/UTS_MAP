@@ -4,7 +4,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView
-import org.w3c.dom.Attr
 
 class Topbar @JvmOverloads constructor(
     context: Context,

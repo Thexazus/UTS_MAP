@@ -30,6 +30,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.Query
 import kotlin.math.roundToInt
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorManager
+import android.os.Build
+import com.google.android.material.chip.Chip
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -41,9 +48,12 @@ class HomeFragment : Fragment() {
     private lateinit var textViewCurrentIntake: TextView
     private lateinit var textViewSelectedVolume: TextView
     private lateinit var chipGroupVolumes: ChipGroup
-    private var selectedAmount = 50
+    private val waterIntakeList = mutableListOf<WaterIntakeHistoryItem>()
+    private var selectedAmount = 330
     // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
     private var DAILY_WATER_GOAL = 1000 // Default goal, will be overridden by personalized calculation
+
+    private lateinit var activityDetector: ActivityDetector
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,6 +87,74 @@ class HomeFragment : Fragment() {
 
         // Setup RecyclerView
         setupRecyclerView(view)
+
+        // Initialize ActivityDetector
+        activityDetector = ActivityDetector(requireContext())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                    STEP_COUNTER_PERMISSION_REQUEST_CODE
+                )
+            } else {
+                // Permission already granted, start tracking
+                if (activityDetector.isSensorAvailable()) {
+                    Log.d("HomeFragment", "Step sensor is available")
+                    activityDetector.start()
+                } else {
+                    Log.e("HomeFragment", "Step sensor is NOT available on this device")
+                    // Provide more detailed error information
+                    val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                    val stepDetectorSensors = sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)
+
+                    if (stepDetectorSensors.isEmpty()) {
+                        Log.e("HomeFragment", "No step detector sensors found on this device")
+                    } else {
+                        Log.e("HomeFragment", "Step detector sensors found but not accessible")
+                    }
+                }
+            }
+        } else {
+            // For older Android versions, start tracking directly
+            if (activityDetector.isSensorAvailable()) {
+                Log.d("HomeFragment", "Step sensor is available")
+                activityDetector.start()
+            } else {
+                Log.e("HomeFragment", "Step sensor is NOT available on this device")
+                // Provide more detailed error information
+                val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                val stepDetectorSensors = sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)
+
+                if (stepDetectorSensors.isEmpty()) {
+                    Log.e("HomeFragment", "No step detector sensors found on this device")
+                } else {
+                    Log.e("HomeFragment", "Step detector sensors found but not accessible")
+                }
+            }
+        }
+
+
+        // Check if step detector is available
+        if (activityDetector.isSensorAvailable()) {
+            activityDetector.setOnWaterGoalIncreasedListener(object : ActivityDetector.OnWaterGoalIncreasedListener {
+                override fun onWaterGoalIncreased(newGoal: Int) {
+                    DAILY_WATER_GOAL += newGoal
+                    updateWaterIntakeDisplay(DAILY_WATER_GOAL)
+                }
+            })
+            activityDetector.start()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Stop the sensor when the fragment is destroyed
+        activityDetector.stop()
     }
 
     private fun initializeViews(view: View) {
@@ -121,10 +199,22 @@ class HomeFragment : Fragment() {
     private fun setupChipGroup() {
         chipGroupVolumes.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isNotEmpty()) {
-                when (checkedIds[0]) {
-                    R.id.chip50ml -> selectChip(50)
-                    R.id.chip200ml -> selectChip(200)
-                    R.id.chip550ml -> selectChip(550)
+                val selectedChipId = checkedIds[0]
+                when (selectedChipId) {
+                    R.id.chip330ml -> selectChip(330)
+                    R.id.chip600ml -> selectChip(600)
+                    R.id.chip1500ml -> selectChip(1500)
+                }
+
+                // Change background color for selected chip
+                val selectedChip = view?.findViewById<Chip>(selectedChipId)
+                selectedChip?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.blue_accent))
+
+                // Reset background color for other chips
+                for (id in listOf(R.id.chip330ml, R.id.chip600ml, R.id.chip1500ml)) {
+                    if (id != selectedChipId) {
+                        view?.findViewById<Chip>(id)?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
+                    }
                 }
             }
         }
@@ -135,10 +225,10 @@ class HomeFragment : Fragment() {
         textViewSelectedVolume.text = "$amount ml"
 
         val chipId = when (amount) {
-            50 -> R.id.chip50ml
-            200 -> R.id.chip200ml
-            550 -> R.id.chip550ml
-            else -> R.id.chip50ml
+            330 -> R.id.chip330ml
+            600 -> R.id.chip600ml
+            1500 -> R.id.chip1500ml
+            else -> R.id.chip330ml
         }
 
         chipGroupVolumes.check(chipId)
@@ -227,6 +317,10 @@ class HomeFragment : Fragment() {
 
             // Tambahkan item baru ke adapter
             (requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).adapter as? WaterIntakeHistoryAdapter)?.addItem(newHistoryItem)
+
+            // Scroll ke posisi paling atas
+            requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).scrollToPosition(0)
+
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
@@ -276,6 +370,7 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { document ->
                 val currentAmount = document.getLong("totalAmount") ?: 0
                 updateWaterIntakeDisplay(currentAmount.toInt())
+                setTextWithAnimation(textViewCurrentIntake, "$currentAmount ml") // Animate the current intake
             }
             .addOnFailureListener { e ->
                 showToast("Error loading water intake: ${e.message}")
@@ -296,12 +391,13 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { querySnapshot ->
                 val historyList = querySnapshot.documents.mapNotNull { doc ->
                     val amount = doc.getLong("amount")?.toInt()
-                    val timestamp = doc.getTimestamp("timestamp")?.toDate()
+                    val timestamp = doc.getTimestamp("timestamp")
+
                     if (amount != null && timestamp != null) {
                         WaterIntakeHistoryItem(
-                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp),
+                            date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp.toDate()),
                             amount = amount,
-                            timestamp = timestamp // Pass the timestamp here
+                            timestamp = timestamp.toDate() // Simpan sebagai Date
                         )
                     } else null
                 }
@@ -326,17 +422,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteWaterIntake(item: WaterIntakeHistoryItem) {
-        val userId = auth.currentUser ?.uid ?: return
+        val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // First, find the specific intake document to delete
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
             .document(date)
             .collection("intakes")
             .whereEqualTo("amount", item.amount)
-            .whereEqualTo("timestamp", item.timestamp) // Pastikan ini sesuai dengan format yang disimpan
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (querySnapshot.isEmpty) {
@@ -344,35 +438,35 @@ class HomeFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                // Get the first (and should be only) matching document
-                val intakeDocumentId = querySnapshot.documents[0]. id
+                // Pilih dokumen pertama yang cocok
+                val intakeDocumentId = querySnapshot.documents[0].id
 
-                // Reference to the daily intake document
+                // Referensi ke dokumen intake harian
                 val dailyIntakeRef = firestore.collection("users")
                     .document(userId)
                     .collection("daily_water_intake")
                     .document(date)
 
-                // Start a transaction to safely update the total amount
+                // Jalankan transaksi untuk update total amount
                 firestore.runTransaction { transaction ->
                     val snapshot = transaction.get(dailyIntakeRef)
 
-                    // Get current total amount
+                    // Dapatkan total amount saat ini
                     val currentAmount = snapshot.getLong("totalAmount") ?: 0
                     val newAmount = (currentAmount - item.amount).coerceAtLeast(0)
 
-                    // Update the total amount
+                    // Update total amount
                     transaction.update(dailyIntakeRef, "totalAmount", newAmount)
 
-                    // Delete the specific intake document
+                    // Hapus dokumen intake spesifik
                     dailyIntakeRef.collection("intakes").document(intakeDocumentId).delete()
 
                     newAmount
                 }.addOnSuccessListener { newTotal ->
-                    // Update the display with the new total
+                    // Update tampilan dengan total baru
                     updateWaterIntakeDisplay(newTotal.toInt())
 
-                    // Reload the water intake history
+                    // Muat ulang riwayat air minum
                     loadWaterIntakeHistory(requireView().findViewById(R.id.recyclerViewHistory))
 
                 }.addOnFailureListener { e ->
@@ -466,6 +560,16 @@ class HomeFragment : Fragment() {
         return maxOf(1000, (personalizedGoal / 50.0).roundToInt() * 50)
     }
 
+    private fun setTextWithAnimation(textView: TextView, text: String) {
+        textView.text = text
+        textView.animate()
+            .alpha(1f)
+            .setDuration(500)
+            .setListener(null)
+            .start()
+    }
+
+
     // Fungsi perhitungan durasi tidur tetap sama
     private fun calculateSleepDuration(sleepingTime: String, wakeUpTime: String): Double {
         val (sleepHour, sleepMinute) = sleepingTime.split(":").map { it.toInt() }
@@ -494,7 +598,7 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val firstName = document.getString("firstName") ?: "User "
-                    greetingTextView.text = "Hi, $firstName!"
+                    setTextWithAnimation(greetingTextView, "Hi, $firstName!")
 
                     // Ambil data profil untuk kalkulasi
                     val height = document.getDouble("height") ?: 170.0
@@ -511,6 +615,12 @@ class HomeFragment : Fragment() {
 
                     // Update DAILY_WATER_GOAL dengan kalkulasi personal
                     DAILY_WATER_GOAL = personalizedWaterGoal
+
+                    // Animate the goal display
+                    val goalTextView = view?.findViewById<TextView>(R.id.textViewGoal)
+                    if (goalTextView != null) {
+                        setTextWithAnimation(goalTextView, "${personalizedWaterGoal / 1000.0} Liter")
+                    }
 
                     // Update TextView Goal dengan goal dalam Liter
                     view?.findViewById<TextView>(R.id.textViewGoal)?.text =
@@ -571,10 +681,10 @@ class HomeFragment : Fragment() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        val firstName = document.getString("firstName") ?: "User"
-                        greetingTextView.text = "Hi, $firstName!"
+                        val firstName = document.getString("firstName") ?: "User "
+                        setTextWithAnimation(greetingTextView, "Hi, $firstName!")
                     } else {
-                        greetingTextView.text = "Hi, User!"
+                        setTextWithAnimation(greetingTextView, "Hi, User!")
                         Log.w("Firestore", "Document for user ${user.email} does not exist.")
                     }
                 }
@@ -631,7 +741,33 @@ class HomeFragment : Fragment() {
         val timestamp: Any // Make it non-nullable
     )
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == STEP_COUNTER_PERMISSION_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+                ) {
+                    // Izin diberikan, mulai deteksi langkah
+                    activityDetector.start()
+                } else {
+                    // Izin ditolak
+                    Toast.makeText(
+                        requireContext(),
+                        "Step tracking permission denied",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     companion object {
         fun newInstance() = HomeFragment()
+        private const val STEP_COUNTER_PERMISSION_REQUEST_CODE = 100
     }
 }
