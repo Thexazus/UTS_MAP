@@ -47,18 +47,30 @@ class ActivityDetector(context: Context) : SensorEventListener {
                 // Only increment if enough time has passed since last step
                 val currentTimeMillis = System.currentTimeMillis()
                 if (currentTimeMillis - lastStepTimeMillis > 300) { // Prevent over-counting
-                    stepCount++
-                    lastStepTimeMillis = currentTimeMillis
+                    // Validate the step using accelerometer data
+                    if (isValidStep(event)) {
+                        stepCount++
+                        lastStepTimeMillis = currentTimeMillis
 
-                    Log.d("ActivityDetector", "Step detected: $stepCount")
+                        Log.d("ActivityDetector", "Step detected: $stepCount")
 
-                    // Increase water goal every 10 steps
-                    if (stepCount % 10 == 0) {
-                        increaseWaterGoal()
+                        // Increase water goal every 10 steps
+                        if (stepCount % 10 == 0) {
+                            increaseWaterGoal()
+                        }
                     }
                 }
             }
+            Sensor.TYPE_ACCELEROMETER -> {
+                // Store accelerometer data for validation if needed
+            }
         }
+    }
+
+    private fun isValidStep(event: SensorEvent): Boolean {
+        val accelerometerData = event.values
+        val threshold = 1.0f // Define a threshold for acceleration
+        return accelerometerData.any { it > threshold }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
