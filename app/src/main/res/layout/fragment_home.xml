@@ -40,7 +40,6 @@
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
         app:shapeAppearanceOverlay="@style/circleImageView"
-        android:src="@drawable/profile_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageViewBell" />
 
@@ -242,27 +241,27 @@
                     app:selectionRequired="true">
 
                     <com.google.android.material.chip.Chip
-                        android:id="@+id/chip200ml"
+                        android:id="@+id/chip600ml"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="200 ml"
+                        android:text="600 ml"
                         app:chipBackgroundColor="@color/light_blue"
                         style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
                     <com.google.android.material.chip.Chip
-                        android:id="@+id/chip50ml"
+                        android:id="@+id/chip330ml"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="50 ml"
+                        android:text="330 ml"
                         android:checked="true"
                         app:chipBackgroundColor="@color/blue"
                         style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
                     <com.google.android.material.chip.Chip
-                        android:id="@+id/chip550ml"
+                        android:id="@+id/chip1500ml"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="550 ml"
+                        android:text="1500 ml"
                         app:chipBackgroundColor="@color/light_blue"
                         style="@style/Widget.MaterialComponents.Chip.Choice"/>
 
@@ -307,7 +306,6 @@
         android:id="@+id/textViewToday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Today, 14 Okt"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/buttonDrinkNow"

@@ -83,7 +83,6 @@
                         android:id="@+id/profilePicture"
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:src="@drawable/profile_placeholder"
                         app:shapeAppearanceOverlay="@style/circleImageView"
                         android:layout_gravity="center" />
 
@@ -106,7 +105,6 @@
                             android:id="@+id/userEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="email.com"
                             android:textColor="#757575"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -142,7 +140,6 @@
                         android:id="@+id/heightValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="180cm"
                         android:textColor="#87CEEB"
                         android:textSize="18sp"/>
 
@@ -174,7 +171,6 @@
                         android:id="@+id/weightValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="65kg"
                         android:textColor="#87CEEB"
                         android:textSize="18sp"/>
 
@@ -206,7 +202,6 @@
                         android:id="@+id/ageValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="20yo"
                         android:textColor="#87CEEB"
                         android:textSize="18sp"/>
 
@@ -250,7 +245,6 @@
                 android:id="@+id/intakeValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0 ml"
                 android:textColor="#87CEEB"
                 android:layout_marginStart="8dp"
                 android:textSize="24sp" />
@@ -279,15 +273,13 @@
                 android:id="@+id/genderImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="Gender Icon"
-                android:src="@drawable/male_icon" />
+                android:contentDescription="Gender Icon" />
 
             <TextView
                 android:id="@+id/genderDisplayText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5sp"
-                android:text="Gender Text"
                 android:textColor="#757575"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -310,7 +302,6 @@
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/sleepingTimeTitle"
             app:layout_constraintStart_toStartOf="parent"
-            android:text="10:00 PM"
             android:textSize="18sp"
             android:textColor="#757575"/>
 
@@ -332,7 +323,6 @@
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/wakeUpTimeTitle"
             app:layout_constraintStart_toStartOf="parent"
-            android:text="7:00 AM"
             android:textSize="18sp"
             android:textColor="#757575"/>
 

@@ -198,9 +198,9 @@ class HomeFragment : Fragment() {
         chipGroupVolumes.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 when (checkedIds[0]) {
-                    R.id.chip50ml -> selectChip(50)
-                    R.id.chip200ml -> selectChip(200)
-                    R.id.chip550ml -> selectChip(550)
+                    R.id.chip330ml -> selectChip(330)
+                    R.id.chip600ml -> selectChip(600)
+                    R.id.chip1500ml -> selectChip(1500)
                 }
             }
         }
@@ -211,10 +211,10 @@ class HomeFragment : Fragment() {
         textViewSelectedVolume.text = "$amount ml"
 
         val chipId = when (amount) {
-            50 -> R.id.chip50ml
-            200 -> R.id.chip200ml
-            550 -> R.id.chip550ml
-            else -> R.id.chip50ml
+            330 -> R.id.chip330ml
+            600 -> R.id.chip600ml
+            1500 -> R.id.chip1500ml
+            else -> R.id.chip330ml
         }
 
         chipGroupVolumes.check(chipId)
@@ -304,8 +304,9 @@ class HomeFragment : Fragment() {
             // Tambahkan item baru ke adapter
             (requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).adapter as? WaterIntakeHistoryAdapter)?.addItem(newHistoryItem)
 
-            // Scroll to the top after adding a new item
+            // Scroll ke posisi paling atas
             requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).scrollToPosition(0)
+
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
@@ -355,6 +356,7 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { document ->
                 val currentAmount = document.getLong("totalAmount") ?: 0
                 updateWaterIntakeDisplay(currentAmount.toInt())
+                setTextWithAnimation(textViewCurrentIntake, "$currentAmount ml") // Animate the current intake
             }
             .addOnFailureListener { e ->
                 showToast("Error loading water intake: ${e.message}")
@@ -544,6 +546,16 @@ class HomeFragment : Fragment() {
         return maxOf(1000, (personalizedGoal / 50.0).roundToInt() * 50)
     }
 
+    private fun setTextWithAnimation(textView: TextView, text: String) {
+        textView.text = text
+        textView.animate()
+            .alpha(1f)
+            .setDuration(500)
+            .setListener(null)
+            .start()
+    }
+
+
     // Fungsi perhitungan durasi tidur tetap sama
     private fun calculateSleepDuration(sleepingTime: String, wakeUpTime: String): Double {
         val (sleepHour, sleepMinute) = sleepingTime.split(":").map { it.toInt() }
@@ -572,7 +584,7 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val firstName = document.getString("firstName") ?: "User "
-                    greetingTextView.text = "Hi, $firstName!"
+                    setTextWithAnimation(greetingTextView, "Hi, $firstName!")
 
                     // Ambil data profil untuk kalkulasi
                     val height = document.getDouble("height") ?: 170.0
@@ -589,6 +601,12 @@ class HomeFragment : Fragment() {
 
                     // Update DAILY_WATER_GOAL dengan kalkulasi personal
                     DAILY_WATER_GOAL = personalizedWaterGoal
+
+                    // Animate the goal display
+                    val goalTextView = view?.findViewById<TextView>(R.id.textViewGoal)
+                    if (goalTextView != null) {
+                        setTextWithAnimation(goalTextView, "${personalizedWaterGoal / 1000.0} Liter")
+                    }
 
                     // Update TextView Goal dengan goal dalam Liter
                     view?.findViewById<TextView>(R.id.textViewGoal)?.text =
@@ -649,10 +667,10 @@ class HomeFragment : Fragment() {
                 .get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
-                        val firstName = document.getString("firstName") ?: "User"
-                        greetingTextView.text = "Hi, $firstName!"
+                        val firstName = document.getString("firstName") ?: "User "
+                        setTextWithAnimation(greetingTextView, "Hi, $firstName!")
                     } else {
-                        greetingTextView.text = "Hi, User!"
+                        setTextWithAnimation(greetingTextView, "Hi, User!")
                         Log.w("Firestore", "Document for user ${user.email} does not exist.")
                     }
                 }
