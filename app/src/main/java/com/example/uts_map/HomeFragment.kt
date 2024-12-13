@@ -36,6 +36,7 @@ import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Build
+import android.widget.ProgressBar
 import com.google.android.material.chip.Chip
 
 class HomeFragment : Fragment() {
@@ -48,6 +49,7 @@ class HomeFragment : Fragment() {
     private lateinit var textViewCurrentIntake: TextView
     private lateinit var textViewSelectedVolume: TextView
     private lateinit var chipGroupVolumes: ChipGroup
+    private lateinit var progressBarLoading: ProgressBar
     private val waterIntakeList = mutableListOf<WaterIntakeHistoryItem>()
     private var selectedAmount = 330
     // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
@@ -90,7 +92,18 @@ class HomeFragment : Fragment() {
 
         // Initialize ActivityDetector
         activityDetector = ActivityDetector(requireContext())
+        activityDetector.setOnWaterGoalIncreasedListener(object : ActivityDetector.OnWaterGoalIncreasedListener {
+            override fun onWaterGoalIncreased(newGoal: Int) {
+                DAILY_WATER_GOAL += newGoal
+                updateWaterIntakeDisplay(DAILY_WATER_GOAL)
+            }
+        })
 
+        // Check for permissions and start tracking
+        checkPermissionsAndStartTracking()
+    }
+
+    private fun checkPermissionsAndStartTracking() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -103,51 +116,19 @@ class HomeFragment : Fragment() {
                 )
             } else {
                 // Permission already granted, start tracking
-                if (activityDetector.isSensorAvailable()) {
-                    Log.d("HomeFragment", "Step sensor is available")
-                    activityDetector.start()
-                } else {
-                    Log.e("HomeFragment", "Step sensor is NOT available on this device")
-                    // Provide more detailed error information
-                    val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
-                    val stepDetectorSensors = sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)
-
-                    if (stepDetectorSensors.isEmpty()) {
-                        Log.e("HomeFragment", "No step detector sensors found on this device")
-                    } else {
-                        Log.e("HomeFragment", "Step detector sensors found but not accessible")
-                    }
-                }
+                startActivityTracking()
             }
         } else {
             // For older Android versions, start tracking directly
-            if (activityDetector.isSensorAvailable()) {
-                Log.d("HomeFragment", "Step sensor is available")
-                activityDetector.start()
-            } else {
-                Log.e("HomeFragment", "Step sensor is NOT available on this device")
-                // Provide more detailed error information
-                val sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
-                val stepDetectorSensors = sensorManager.getSensorList(Sensor.TYPE_STEP_DETECTOR)
-
-                if (stepDetectorSensors.isEmpty()) {
-                    Log.e("HomeFragment", "No step detector sensors found on this device")
-                } else {
-                    Log.e("HomeFragment", "Step detector sensors found but not accessible")
-                }
-            }
+            startActivityTracking()
         }
+    }
 
-
-        // Check if step detector is available
+    private fun startActivityTracking() {
         if (activityDetector.isSensorAvailable()) {
-            activityDetector.setOnWaterGoalIncreasedListener(object : ActivityDetector.OnWaterGoalIncreasedListener {
-                override fun onWaterGoalIncreased(newGoal: Int) {
-                    DAILY_WATER_GOAL += newGoal
-                    updateWaterIntakeDisplay(DAILY_WATER_GOAL)
-                }
-            })
             activityDetector.start()
+        } else {
+            Log.e("HomeFragment", "Step sensor is NOT available on this device")
         }
     }
 
@@ -165,6 +146,7 @@ class HomeFragment : Fragment() {
         textViewCurrentIntake = view.findViewById(R.id.textViewCurrentIntake)
         textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
         chipGroupVolumes = view.findViewById(R.id.chipGroupVolumes)
+        progressBarLoading = view.findViewById(R.id.progressBarLoading)
     }
 
     private fun setupClickListeners(view: View) {
@@ -362,6 +344,9 @@ class HomeFragment : Fragment() {
         val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
+        // Show loading indicator
+        progressBarLoading.visibility = View.VISIBLE
+
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
@@ -373,6 +358,8 @@ class HomeFragment : Fragment() {
                 setTextWithAnimation(textViewCurrentIntake, "$currentAmount ml") // Animate the current intake
             }
             .addOnFailureListener { e ->
+                // Hide loading indicator
+                progressBarLoading.visibility = View.GONE
                 showToast("Error loading water intake: ${e.message}")
             }
     }
@@ -380,6 +367,9 @@ class HomeFragment : Fragment() {
     private fun loadWaterIntakeHistory(recyclerView: RecyclerView) {
         val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        // Show loading indicator
+        progressBarLoading.visibility = View.VISIBLE
 
         firestore.collection("users")
             .document(userId)
@@ -417,6 +407,8 @@ class HomeFragment : Fragment() {
                 recyclerView.adapter = adapter
             }
             .addOnFailureListener { e ->
+                // Hide loading indicator
+                progressBarLoading.visibility = View.GONE
                 showToast("Error loading water intake history: ${e.message}")
             }
     }
