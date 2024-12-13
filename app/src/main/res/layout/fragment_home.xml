@@ -33,18 +33,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
+
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewProfile"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
-        app:shapeAppearanceOverlay="@style/circleImageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageViewBell" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/circleImageView" />
 
-
-    <!-- Bell Icon -->
     <ImageView
         android:id="@+id/imageViewBell"
         android:layout_width="40dp"
@@ -54,8 +53,8 @@
         android:focusable="true"
         android:src="@drawable/set_notification"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText,TouchTargetSizeCheck" />
+        app:layout_constraintTop_toBottomOf="@id/imageViewProfile"
+        tools:ignore="HardcodedText,TouchTargetSizeCheck"/>.
 
     <!-- Circular Progress - Enhanced Version -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
