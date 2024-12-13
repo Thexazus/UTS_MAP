@@ -110,6 +110,7 @@ class ReminderFragment : Fragment() {
 
     private fun showEditReminderDialog(reminder: Reminder) {
         val dialogFragment = ReminderDialogFragment.newInstance()
+        dialogFragment.setReminder(reminder)
         dialogFragment.setOnTimeSetListener { hour, minute, daysOfWeek ->
             val updatedTimeString = String.format("%02d:%02d", hour, minute)
             val updatedReminder = reminder.copy(time = updatedTimeString, daysOfWeek = daysOfWeek)

@@ -231,7 +231,7 @@
                     android:id="@+id/textViewSelectedVolume"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="50 ml"
+                    android:text="330 ml"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"/>
