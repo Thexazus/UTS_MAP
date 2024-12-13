@@ -47,6 +47,7 @@ class HomeFragment : Fragment() {
     private lateinit var textViewCurrentIntake: TextView
     private lateinit var textViewSelectedVolume: TextView
     private lateinit var chipGroupVolumes: ChipGroup
+    private val waterIntakeList = mutableListOf<WaterIntakeHistoryItem>()
     private var selectedAmount = 50
     // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
     private var DAILY_WATER_GOAL = 1000 // Default goal, will be overridden by personalized calculation
