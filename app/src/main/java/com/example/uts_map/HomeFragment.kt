@@ -303,6 +303,9 @@ class HomeFragment : Fragment() {
 
             // Tambahkan item baru ke adapter
             (requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).adapter as? WaterIntakeHistoryAdapter)?.addItem(newHistoryItem)
+
+            // Scroll to the top after adding a new item
+            requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).scrollToPosition(0)
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
