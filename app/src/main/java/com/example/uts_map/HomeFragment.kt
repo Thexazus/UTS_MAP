@@ -1,6 +1,7 @@
 package com.example.uts_map
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -64,6 +65,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         // Initialize Firebase Firestore and Authentication
         firestore = FirebaseFirestore.getInstance()
@@ -321,6 +323,8 @@ class HomeFragment : Fragment() {
             // Scroll ke posisi paling atas
             requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).scrollToPosition(0)
 
+            // Check user progress after updating water intake
+            checkUserProgress()
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
@@ -696,6 +700,44 @@ class HomeFragment : Fragment() {
             greetingTextView.text = "Hi, User!"
             Log.w("Auth", "No authenticated user found.")
         }
+    }
+
+    private fun checkUserProgress() {
+        val userId = auth.currentUser?.uid ?: return
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("daily_water_intake")
+            .document(date)
+            .get()
+            .addOnSuccessListener { document ->
+                val currentAmount = document.getLong("totalAmount") ?: 0
+                val progress = (currentAmount.toFloat() / DAILY_WATER_GOAL * 100).toInt()
+
+                if (progress >= 100) {
+                    showAchieveGoalFragment()
+                } else {
+                    showNotAchieveFragment()
+                }
+            }
+            .addOnFailureListener { e ->
+                showToast("Error checking progress: ${e.message}")
+            }
+    }
+
+    private fun showAchieveGoalFragment() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment, AchieveDayGoalFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun showNotAchieveFragment() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment, NotAchieveFragment())
+            .addToBackStack(null)
+            .commit()
     }
 
 
