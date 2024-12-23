@@ -20,9 +20,6 @@ class AlarmStopReceiver : BroadcastReceiver() {
             val notificationManager = NotificationManagerCompat.from(context)
             notificationManager.cancelAll()
 
-            // Optional: Tambahkan Toast untuk feedback
-            Toast.makeText(context, "Alarm stopped", Toast.LENGTH_SHORT).show()
-
         } catch (e: Exception) {
             Log.e("AlarmStopReceiver", "Error stopping alarm", e)
             Toast.makeText(context, "Error stopping alarm", Toast.LENGTH_SHORT).show()
