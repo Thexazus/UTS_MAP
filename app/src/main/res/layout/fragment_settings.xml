@@ -335,18 +335,20 @@
 
         </LinearLayout>
 
-        <Button
+        <ImageButton
             android:id="@+id/logoutButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="60sp"
-            android:backgroundTint="@color/blue"
-            android:text="Logout"
-            android:textColor="#FFFFFF"
+            android:src="@drawable/icon_logout"
+            android:background="@android:color/transparent"
+            android:layout_gravity="end"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

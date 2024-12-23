@@ -136,8 +136,8 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/confetti"
-                tools:layout_editor_absoluteX="251dp"
-                tools:layout_editor_absoluteY="-16dp" />
+                tools:layout_editor_absoluteX="240dp"
+                tools:layout_editor_absoluteY="162dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
