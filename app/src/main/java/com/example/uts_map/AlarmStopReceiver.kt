@@ -3,20 +3,29 @@ package com.example.uts_map
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.RingtoneManager
+import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationManagerCompat
 
 class AlarmStopReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        // Stop the AlarmService
-        val serviceIntent = Intent(context, AlarmService::class.java)
-        context.stopService(serviceIntent)
+        // Log untuk debugging
+        Log.d("AlarmStopReceiver", "Stop alarm received")
 
-        // Stop the ringtone if it's still playing
-        val alarmReceiver = AlarmReceiver()
-        alarmReceiver.stopRingtone()
+        try {
+            // Stop ringtone
+            RingtoneManagerSingleton.stopRingtone()
 
-        // Optionally, you can also cancel the notification if needed
-        NotificationManagerCompat.from(context).cancelAll()
+            // Cancel notification
+            val notificationManager = NotificationManagerCompat.from(context)
+            notificationManager.cancelAll()
+
+            // Optional: Tambahkan Toast untuk feedback
+            Toast.makeText(context, "Alarm stopped", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            Log.e("AlarmStopReceiver", "Error stopping alarm", e)
+            Toast.makeText(context, "Error stopping alarm", Toast.LENGTH_SHORT).show()
+        }
     }
 }

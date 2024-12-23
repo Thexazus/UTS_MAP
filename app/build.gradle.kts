@@ -110,6 +110,8 @@ dependencies {
     // Material Design
     implementation("com.google.android.material:material:1.9.0")
 
-//    implementation (libs.mpandroidchart)
+
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
+    implementation ("androidx.lifecycle:lifecycle-service:2.6.2")
 
 }

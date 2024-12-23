@@ -1,6 +1,7 @@
 package com.example.uts_map
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -16,75 +17,73 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.uts_map.R
 
 class AlarmReceiver : BroadcastReceiver() {
-
     private val channelId = "reminder_channel"
     private val channelName = "Reminder Notifications"
-    private var ringtone: Ringtone? = null // Simpan instance ringtone
 
     override fun onReceive(context: Context, intent: Intent) {
-        // Start the AlarmService to play the alarm sound
-        val serviceIntent = Intent(context, AlarmService::class.java)
-        context.startService(serviceIntent)
-
-        // Get the reminder time from intent
         val reminderTime = intent.getStringExtra("reminderTime") ?: "Time not set"
 
-        // Create notification channel for Android 8.0 (API 26) and above
+        // Create notification channel
         createNotificationChannel(context)
 
-        // Play alarm sound using the singleton
+        // Play alarm sound
         RingtoneManagerSingleton.playRingtone(context)
 
-        // Get default alarm sound
-        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        // Create and show notification
+        showNotification(context, reminderTime)
+    }
 
-        // Create an intent to stop the alarm
+    // Di AlarmReceiver.kt
+    private fun showNotification(context: Context, reminderTime: String) {
         val stopIntent = Intent(context, AlarmStopReceiver::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("reminderTime", reminderTime)
+            putExtra("alarmId", System.currentTimeMillis().toInt())
         }
+
         val stopPendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            System.currentTimeMillis().toInt(),
             stopIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE // Gunakan FLAG_ONE_SHOT
         )
 
-        // Create notification builder
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.set_notification) // Replace with your own icon
+            .setSmallIcon(R.drawable.set_notification)
             .setContentTitle("Reminder Alarm")
             .setContentText("It's time for your reminder at $reminderTime")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
-            .setSound(alarmSound)
-            .setVibrate(longArrayOf(1000, 1000, 1000, 1000))
-            .addAction(R.drawable.ic_stop, "Stop Alarm", stopPendingIntent) // Add stop action
-            .setDeleteIntent(stopPendingIntent) // Set delete intent for swipe-to-dismiss
+            .setOngoing(true) // Tambahkan ini agar notifikasi tidak bisa di-swipe
+            .addAction(
+                R.drawable.ic_stop,
+                "Stop Alarm",
+                stopPendingIntent
+            )
+
+        // Tambahkan full screen intent untuk memastikan notifikasi bisa diinteraksi
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder.setChannelId(channelId)
+        }
 
         try {
-            // Check for notification permission (especially on Android 13+)
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                // Post notification with unique ID
                 NotificationManagerCompat.from(context).notify(
                     System.currentTimeMillis().toInt(),
                     builder.build()
                 )
-
-                // Play alarm sound
-                ringtone = RingtoneManager.getRingtone(context, alarmSound)
-                ringtone?.play()
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }  
+    }
 
-    // Function to create notification channel for Android 8.0 and above
+    // Pastikan channel notification dibuat dengan benar
     private fun createNotificationChannel(context: Context) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -94,19 +93,12 @@ class AlarmReceiver : BroadcastReceiver() {
             ).apply {
                 description = "Channel for reminder alarms"
                 enableVibration(true)
+                setShowBadge(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC // Tambahkan ini
             }
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
 
-    // Method to stop the ringtone
-    fun stopRingtone() {
-        ringtone?.let {
-            if (it.isPlaying) {
-                it.stop()
-            }
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

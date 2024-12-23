@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -175,8 +176,10 @@ class ReminderFragment : Fragment() {
     private fun setAlarm(reminder: Reminder) {
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(requireContext(), AlarmReceiver::class.java).apply {
-            putExtra("reminderTime", reminder.time) // Mengirim data ke AlarmReceiver
+            putExtra("reminderTime", reminder.time)
+            putExtra("alarmId", reminder.id.hashCode())
         }
+
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
             reminder.id.hashCode(),
@@ -192,7 +195,7 @@ class ReminderFragment : Fragment() {
         }
 
         if (calendar.before(Calendar.getInstance())) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1) // Jika waktu telah berlalu, atur untuk hari berikutnya
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
         alarmManager.setExactAndAllowWhileIdle(
@@ -204,14 +207,21 @@ class ReminderFragment : Fragment() {
 
     private fun cancelAlarm(reminder: Reminder) {
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(requireContext(), AlarmReceiver::class.java)
+        val intent = Intent(requireContext(), AlarmReceiver::class.java).apply {
+            putExtra("alarmId", reminder.id.hashCode())
+        }
+
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
             reminder.id.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
         alarmManager.cancel(pendingIntent)
+
+        // Also cancel any existing notification
+        NotificationManagerCompat.from(requireContext()).cancel(reminder.id.hashCode())
     }
 
     companion object {
