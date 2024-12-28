@@ -45,111 +45,104 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:gravity="center"
                 android:orientation="horizontal">
 
                 <!-- Monday -->
-                <!-- Monday -->
                 <TextView
                     android:id="@+id/tvMonday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/day_unselected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="M"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
+
                 <!-- Tuesday -->
                 <TextView
                     android:id="@+id/tvTuesday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/day_unselected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="T"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
 
                 <!-- Wednesday -->
                 <TextView
                     android:id="@+id/tvWednesday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/day_selected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="W"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
 
                 <!-- Thursday -->
                 <TextView
                     android:id="@+id/tvThursday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/day_unselected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="Th"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
 
                 <!-- Friday -->
                 <TextView
                     android:id="@+id/tvFriday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/day_unselected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="F"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
 
                 <!-- Saturday -->
                 <TextView
                     android:id="@+id/tvSaturday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:background="@drawable/day_unselected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="St"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
 
                 <!-- Sunday -->
                 <TextView
                     android:id="@+id/tvSunday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/day_unselected_background"
                     android:gravity="center"
+                    android:padding="2dp"
                     android:text="S"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
         </LinearLayout>
