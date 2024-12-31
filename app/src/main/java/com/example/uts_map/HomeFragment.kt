@@ -76,6 +76,7 @@ import kotlin.math.roundToInt
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Button
 import android.widget.ProgressBar
 
 class HomeFragment : Fragment() {
@@ -986,30 +987,34 @@ class HomeFragment : Fragment() {
     }
 
 
-    fun showAddWaterDialog(context: Context, updateWaterAmounts: (List<Int>) -> Unit) {
+    private fun showAddWaterDialog(context: Context, updateWaterAmounts: (List<Int>) -> Unit) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_water, null)
         val editTextAmount = dialogView.findViewById<EditText>(R.id.editTextAmount)
+        val addWaterButton = dialogView.findViewById<Button>(R.id.btnAddWaterIntake) // Reference to the blue button
+
         editTextAmount.inputType = InputType.TYPE_CLASS_NUMBER
 
-        AlertDialog.Builder(context)
-            .setTitle("Add Water")
+        val dialog = AlertDialog.Builder(context)
             .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                val input = editTextAmount.text.toString()
-                val amount = input.toIntOrNull()
-                if (amount != null && amount > 0) {
-                    val currentList = getWaterIntakeList(context).toMutableList()
-                    if (!currentList.contains(amount)) {
-                        currentList.add(amount)
-                        saveWaterIntakeList(context, currentList)
-                        updateWaterAmounts(currentList.sorted()) // Update the state
-                    }
-                } else {
-                    Toast.makeText(context, "Invalid input. Please enter a positive number.", Toast.LENGTH_SHORT).show()
+            .create()
+
+        addWaterButton.setOnClickListener {
+            val input = editTextAmount.text.toString()
+            val amount = input.toIntOrNull()
+            if (amount != null && amount > 0) {
+                val currentList = getWaterIntakeList(context).toMutableList()
+                if (!currentList.contains(amount)) {
+                    currentList.add(amount)
+                    saveWaterIntakeList(context, currentList)
+                    updateWaterAmounts(currentList.sorted()) // Update the state
+                    dialog.dismiss() // Close the dialog after adding
                 }
+            } else {
+                Toast.makeText(context, "Invalid input. Please enter a positive number.", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        dialog.show()
     }
 
     private fun showDeleteConfirmationDialog(
