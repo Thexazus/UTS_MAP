@@ -1,14 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/white">
 
+    <!-- Title section -->
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Input Water Intake"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:paddingBottom="8dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Input quantity label -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Input the quantity"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:fontFamily="sans-serif"
+        android:paddingBottom="8dp" />
+
+    <!-- Input field -->
     <EditText
         android:id="@+id/editTextAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter amount (ml)"
-        android:inputType="number" />
+        android:inputType="number"
+        android:background="@drawable/edittext_border"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Add Water Intake button -->
+    <Button
+        android:id="@+id/btnAddWaterIntake"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Water Intake"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/blue"
+        android:fontFamily="sans-serif-medium"
+        android:padding="12dp" />
+
 
 </LinearLayout>

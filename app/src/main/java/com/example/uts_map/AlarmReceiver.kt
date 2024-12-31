@@ -1,12 +1,15 @@
 package com.example.uts_map
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Ringtone
 import android.media.RingtoneManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -14,54 +17,73 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.uts_map.R
 
 class AlarmReceiver : BroadcastReceiver() {
-
     private val channelId = "reminder_channel"
     private val channelName = "Reminder Notifications"
 
     override fun onReceive(context: Context, intent: Intent) {
-        // Get the reminder time from intent
         val reminderTime = intent.getStringExtra("reminderTime") ?: "Time not set"
 
-        // Create notification channel for Android 8.0 (API 26) and above
+        // Create notification channel
         createNotificationChannel(context)
 
-        // Get default alarm sound
-        val alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        // Play alarm sound
+        RingtoneManagerSingleton.playRingtone(context)
 
-        // Create notification builder
+        // Create and show notification
+        showNotification(context, reminderTime)
+    }
+
+    // Di AlarmReceiver.kt
+    private fun showNotification(context: Context, reminderTime: String) {
+        val stopIntent = Intent(context, AlarmStopReceiver::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("reminderTime", reminderTime)
+            putExtra("alarmId", System.currentTimeMillis().toInt())
+        }
+
+        val stopPendingIntent = PendingIntent.getBroadcast(
+            context,
+            System.currentTimeMillis().toInt(),
+            stopIntent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE // Gunakan FLAG_ONE_SHOT
+        )
+
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.set_notification) // Replace with your own icon
+            .setSmallIcon(R.drawable.set_notification)
             .setContentTitle("Reminder Alarm")
             .setContentText("It's time for your reminder at $reminderTime")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
-            .setSound(alarmSound)
-            .setVibrate(longArrayOf(1000, 1000, 1000, 1000))
+            .setOngoing(true) // Tambahkan ini agar notifikasi tidak bisa di-swipe
+            .addAction(
+                R.drawable.ic_stop,
+                "Stop Alarm",
+                stopPendingIntent
+            )
+
+        // Tambahkan full screen intent untuk memastikan notifikasi bisa diinteraksi
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder.setChannelId(channelId)
+        }
 
         try {
-            // Check for notification permission (especially on Android 13+)
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                // Post notification with unique ID
                 NotificationManagerCompat.from(context).notify(
                     System.currentTimeMillis().toInt(),
                     builder.build()
                 )
-
-                // Play alarm sound
-                val ringtone = RingtoneManager.getRingtone(context, alarmSound)
-                ringtone.play()
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    // Function to create notification channel for Android 8.0 and above
+    // Pastikan channel notification dibuat dengan benar
     private fun createNotificationChannel(context: Context) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -71,9 +93,11 @@ class AlarmReceiver : BroadcastReceiver() {
             ).apply {
                 description = "Channel for reminder alarms"
                 enableVibration(true)
+                setShowBadge(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC // Tambahkan ini
             }
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
     }

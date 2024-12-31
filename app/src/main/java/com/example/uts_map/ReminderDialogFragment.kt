@@ -19,6 +19,9 @@ class ReminderDialogFragment : DialogFragment() {
     private var selectedMinute = Calendar.getInstance().get(Calendar.MINUTE)
     private var selectedDays = List(7) { false }
 
+    // Tambahkan parameter untuk menerima Reminder
+    private var reminder: Reminder? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,6 +32,13 @@ class ReminderDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Jika reminder tidak null, ambil data dari reminder
+        reminder?.let {
+            selectedHour = it.time.split(":")[0].toInt()
+            selectedMinute = it.time.split(":")[1].toInt()
+            selectedDays = it.daysOfWeek.toMutableList()
+        }
 
         val timePickerText = view.findViewById<TextView>(R.id.timePicker)
         val closeButton = view.findViewById<ImageButton>(R.id.btnClose)
@@ -44,19 +54,22 @@ class ReminderDialogFragment : DialogFragment() {
             view.findViewById<TextView>(R.id.tvSaturday)
         )
 
+        // Set text untuk time picker
         timePickerText.text = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute)
 
-        timePickerText.setOnClickListener {
-            showTimePickerDialog()
-        }
-
+        // Set status hari-hari berdasarkan selectedDays
         dayViews.forEachIndexed { index, textView ->
+            updateDayViewAppearance(textView, selectedDays[index])
             textView.setOnClickListener {
                 selectedDays = selectedDays.toMutableList().apply {
                     this[index] = !this[index]
                 }
                 updateDayViewAppearance(textView, selectedDays[index])
             }
+        }
+
+        timePickerText.setOnClickListener {
+            showTimePickerDialog()
         }
 
         closeButton.setOnClickListener {
@@ -97,6 +110,11 @@ class ReminderDialogFragment : DialogFragment() {
 
     fun setOnTimeSetListener(listener: (Int, Int, List<Boolean>) -> Unit) {
         onTimeSetListener = listener
+    }
+
+    // Tambahkan fungsi untuk menerima Reminder
+    fun setReminder(reminder: Reminder) {
+        this.reminder = reminder
     }
 
     override fun onStart() {

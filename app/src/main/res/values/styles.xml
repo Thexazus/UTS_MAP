@@ -26,5 +26,7 @@
     <style name="Widget.Theme.UTS_MAP.MyView" parent="">
         <item name="android:background">@color/gray_400</item>
         <item name="exampleColor">@color/light_blue_400</item>
+
+
     </style>
 </resources>

@@ -107,10 +107,12 @@ dependencies {
     // Glide (for image loading)
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
-
+    implementation ("androidx.fragment:fragment-ktx:1.6.1")
     // Material Design
     implementation("com.google.android.material:material:1.9.0")
 
-//    implementation (libs.mpandroidchart)
+
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
+    implementation ("androidx.lifecycle:lifecycle-service:2.6.2")
 
 }

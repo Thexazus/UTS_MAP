@@ -39,7 +39,8 @@ class WaterIntakeHistoryAdapter(
 
     // Fungsi untuk menambahkan item baru ke daftar
     fun addItem(item: HomeFragment.WaterIntakeHistoryItem) {
-        historyList.add(0, item) // Tambahkan di posisi paling atas
-        notifyItemInserted(0) // Notifikasi bahwa item baru ditambahkan
+        historyList.add(0, item) // Menambahkan item baru di posisi paling atas
+        notifyItemInserted(0) // Memberitahu adapter bahwa item baru telah ditambahkan
+        notifyItemRangeChanged(0, historyList.size) // Memperbarui tampilan
     }
 }
