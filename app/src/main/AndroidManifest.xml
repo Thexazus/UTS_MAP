@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Izin yang diperlukan untuk aplikasi -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -24,7 +23,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
-
+        <activity
+            android:name=".WaterControl"
+            android:exported="false"
+            android:label="@string/title_activity_water_control"
+            android:theme="@style/Theme.UTS_MAP" />
         <!-- Aktivitas utama aplikasi -->
         <activity
             android:name=".LoginActivity"
@@ -47,6 +50,7 @@
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -58,6 +62,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -68,24 +73,18 @@
             android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
             android:exported="true"
             tools:node="merge"
-            tools:replace="android:exported" />
-
-        <!-- Meta-data untuk Firebase -->
+            tools:replace="android:exported" /> <!-- Meta-data untuk Firebase -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="firebase_analytics_collection_enabled"
-            android:value="true" />
-
-        <!-- Daftarkan BroadcastReceiver untuk notifikasi -->
+            android:value="true" /> <!-- Daftarkan BroadcastReceiver untuk notifikasi -->
         <receiver
             android:name=".PushNotificationReceiver"
             android:exported="true"
             tools:ignore="ExportedReceiver" />
-
         <receiver android:name=".AlarmReceiver" />
-
     </application>
 
 </manifest>

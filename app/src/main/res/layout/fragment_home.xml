@@ -183,122 +183,14 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Water Control -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardViewWaterControl"
+<!-- Water Controll   -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/waterControlCompose"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/cardViewCurrent"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="4dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="16dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:contentDescription="Minus"
-                android:id="@+id/buttonMinus"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:icon="@drawable/minus"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
-                app:cornerRadius="24dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/textViewSelectedVolume"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="50 ml"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"/>
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupVolumes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:selectionRequired="true">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip200ml"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="200 ml"
-                        app:chipBackgroundColor="@color/light_blue"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"/>
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip50ml"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="50 ml"
-                        android:checked="true"
-                        app:chipBackgroundColor="@color/blue"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"/>
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chip550ml"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="550 ml"
-                        app:chipBackgroundColor="@color/light_blue"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"/>
-
-                </com.google.android.material.chip.ChipGroup>
-
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:contentDescription="Plus"
-                android:id="@+id/buttonPlus"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:icon="@drawable/plus"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
-                app:cornerRadius="24dp"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Drink Now Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonDrinkNow"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Drink Now"
-        android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@id/cardViewWaterControl"
-        android:layout_marginTop="16dp"
-        app:cornerRadius="24dp"
-        android:backgroundTint="@color/blue"
-        style="@style/Widget.MaterialComponents.Button" />
+        />
 
     <!-- Today Text -->
     <TextView
@@ -308,7 +200,7 @@
         android:text="Today, 14 Okt"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/buttonDrinkNow"
+        app:layout_constraintTop_toBottomOf="@id/waterControlCompose"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 
