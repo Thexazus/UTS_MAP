@@ -1,6 +1,7 @@
 package com.example.uts_map
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -15,7 +16,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -28,17 +28,56 @@ import java.time.temporal.WeekFields
 import java.util.Date
 import java.util.Locale
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
+import com.example.uts_map.ui.theme.UTS_MAP_NEWTheme
+import com.google.common.reflect.TypeToken
 import com.google.firebase.firestore.Query
+import com.google.gson.Gson
 import kotlin.math.roundToInt
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.os.Build
+import android.widget.Button
 import android.widget.ProgressBar
-import com.google.android.material.chip.Chip
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -67,6 +106,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        context?.let { initializeWaterIntakeSelection(it) }
 
 
         // Initialize Firebase Firestore and Authentication
@@ -75,8 +115,13 @@ class HomeFragment : Fragment() {
 
         // Initialize views
         initializeViews(view)
+        val composeView = view.findViewById<ComposeView>(R.id.waterControlCompose)
+        composeView.setContent {
+            ComposeContent(modifier = Modifier)
+        }
+
         setupClickListeners(view)
-        setupChipGroup()
+//        setupChipGroup()
 
         // Load initial data
         loadCurrentAmount()
@@ -146,9 +191,228 @@ class HomeFragment : Fragment() {
         profileImageView = view.findViewById(R.id.imageViewProfile)
         textViewProgress = view.findViewById(R.id.textViewProgress)
         textViewCurrentIntake = view.findViewById(R.id.textViewCurrentIntake)
-        textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
-        chipGroupVolumes = view.findViewById(R.id.chipGroupVolumes)
+//        textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
+//        chipGroupVolumes = view.findViewById(R.id.chipGroupVolumes)
         progressBarLoading = view.findViewById(R.id.progressBarLoading)
+//        textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
+//        chipGroupVolumes = view.findViewById(R.id.chipGroupVolumes)
+    }
+
+    fun initializeWaterIntakeSelection(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("water_intake_prefs", Context.MODE_PRIVATE)
+        if (!sharedPreferences.contains("water_intake_selection")) {
+            val defaultIntakes = listOf(50, 100, 200)
+            saveWaterIntakeList(context, defaultIntakes)
+        }
+    }
+
+    fun saveWaterIntakeList(context: Context, intakeList: List<Int>) {
+        val sharedPreferences = context.getSharedPreferences("water_intake_prefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        val gson = Gson()
+        val sortedList = intakeList.sorted() // Sort the list in ascending order
+        val json = gson.toJson(sortedList) // Convert the sorted list to JSON
+        editor.putString("water_intake_selection", json)
+        editor.apply()
+    }
+
+    fun getWaterIntakeList(context: Context): List<Int> {
+        val sharedPreferences = context.getSharedPreferences("water_intake_prefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val json = sharedPreferences.getString("water_intake_selection", null)
+
+        val type = object : TypeToken<List<Int>>() {}.type
+        return if (json != null) gson.fromJson(json, type) else emptyList()
+    }
+
+    fun addWaterIntakeList(context: Context, newVolume: Int) {
+        val currentList = getWaterIntakeList(context).toMutableList()
+        if (!currentList.contains(newVolume)) {
+            currentList.add(newVolume)
+            saveWaterIntakeList(context, currentList)
+        }
+    }
+
+    fun deleteWaterIntake(context: Context, amount: Int, updateWaterAmounts: (List<Int>) -> Unit) {
+        val sharedPreferences = context.getSharedPreferences("water_intake_prefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        // Retrieve the current list of water intakes
+        val json = sharedPreferences.getString("water_intake_selection", null)
+        val waterIntakeList = if (json != null) {
+            gson.fromJson(json, ArrayList::class.java) as ArrayList<Int>
+        } else {
+            ArrayList<Int>()
+        }
+
+        // Remove the selected amount from the list
+        waterIntakeList.remove(amount)
+
+        // Save the updated list back to SharedPreferences
+        val sortedList = waterIntakeList.sorted() // Sort the list before saving
+        val updatedJson = gson.toJson(sortedList)
+        val editor = sharedPreferences.edit()
+        editor.putString("water_intake_selection", updatedJson)
+        editor.apply()
+
+        // Update the UI by passing the updated list back to the callback
+        updateWaterAmounts(sortedList) // Pass the updated list back to the function
+    }
+
+    @Composable
+    fun ComposeContent(modifier: Modifier) {
+        val context = LocalContext.current
+        val waterAmounts = remember { mutableStateOf(getWaterIntakeList(context)) }
+        var selectedAmount by remember { mutableStateOf(50) } // Default selected amount
+
+        // Function to update the waterAmounts state
+        fun updateWaterAmounts(newList: List<Int>) {
+            waterAmounts.value = newList
+        }
+
+        UTS_MAP_NEWTheme {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.White, shape = RoundedCornerShape(32.dp))
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Minus Button
+                    PlusMinusButton(
+                        onClickFunction = {
+                            val amountToDelete = selectedAmount
+                            showDeleteConfirmationDialog(amountToDelete, context) { updatedList ->
+                                updateWaterAmounts(updatedList)
+                            }
+                        },
+                        drawableId = R.drawable.minus
+                    )
+
+                    // Center Section
+                    Column(
+                        modifier = Modifier
+                            .height(120.dp)
+                            .weight(1f)
+                            .padding(horizontal = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "${selectedAmount} ml",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp)
+                                .padding(32.dp, 0.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            items(waterAmounts.value) { amount ->
+                                WaterAmountChip(
+                                    amount = amount,
+                                    isSelected = amount == selectedAmount,
+                                    onChipClick = { selectedAmount = amount }
+                                )
+                            }
+                        }
+                    }
+
+                    // Plus Button
+                    PlusMinusButton(
+                        onClickFunction = {
+                            showAddWaterDialog(context) { updatedList ->
+                                updateWaterAmounts(updatedList)
+                            }
+                        },
+                        drawableId = R.drawable.plus
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { addWaterIntake(selectedAmount) },
+                    modifier = Modifier.width(200.dp)
+                ) {
+                    Text(
+                        text = "DRINK NOW",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun WaterAmountChip(
+        amount: Int,
+        isSelected: Boolean,
+        onChipClick: () -> Unit
+    ) {
+        Chip(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .then(
+                    if (!isSelected) {
+                        Modifier
+                            .graphicsLayer(
+                                scaleX = 0.8f,  // Shrink size for unselected
+                                scaleY = 0.8f,
+                                alpha = 0.5f    // Reduce opacity for unselected
+                            )
+                    } else Modifier
+                ),
+            onClick = { onChipClick() }, // Trigger parent composable's logic
+            border = ChipDefaults.chipBorder(),
+            colors = ChipDefaults.chipColors(
+                backgroundColor = if (isSelected) Color(0xFF5DCCFC) else Color(0xFFB0E6FF)
+            ),
+            contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "$amount ml", color = Color.White)
+            }
+        }
+    }
+
+    @Composable
+    fun PlusMinusButton(
+        onClickFunction: () -> Unit,
+        drawableId: Int
+    ) {
+        Button(
+            onClick = onClickFunction,
+            modifier = Modifier.wrapContentWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 12.dp, pressedElevation = 8.dp)
+        ) {
+            Image(modifier = Modifier.width(14.dp),
+                painter = painterResource(drawableId),
+                contentDescription = "Button"
+                )
+        }
+    }
+
+    @Preview(showBackground = true)
+    @Composable
+    fun previewContent() {
+        UTS_MAP_NEWTheme {
+            Scaffold(modifier = Modifier.fillMaxSize(),
+                containerColor = Color.White) { innerPadding ->
+                ComposeContent(modifier = Modifier.padding(innerPadding))
+            }
+        }
     }
 
     private fun setupClickListeners(view: View) {
@@ -160,19 +424,19 @@ class HomeFragment : Fragment() {
                 .commit()
         }
 
-        view.findViewById<MaterialButton>(R.id.buttonPlus).setOnClickListener {
-            showAddWaterDialog()
-        }
-
-        view.findViewById<MaterialButton>(R.id.buttonMinus).setOnClickListener {
-            val amountToDelete = selectedAmount
-            showDeleteConfirmationDialog(amountToDelete)
-        }
+//        view.findViewById<MaterialButton>(R.id.buttonPlus).setOnClickListener {
+//            showAddWaterDialog()
+//        }
+//
+//        view.findViewById<MaterialButton>(R.id.buttonMinus).setOnClickListener {
+//            val amountToDelete = selectedAmount
+//            showDeleteConfirmationDialog(amountToDelete)
+//        }
 
         // Drink now button click listener
-        view.findViewById<MaterialButton>(R.id.buttonDrinkNow).setOnClickListener {
-            addWaterIntake(selectedAmount)
-        }
+//        view.findViewById<MaterialButton>(R.id.buttonDrinkNow).setOnClickListener {
+//            addWaterIntake(selectedAmount)
+//        }
 
         // Profile image click listener
         view.findViewById<ShapeableImageView>(R.id.imageViewProfile).setOnClickListener {
@@ -180,43 +444,31 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setupChipGroup() {
-        chipGroupVolumes.setOnCheckedStateChangeListener { _, checkedIds ->
-            if (checkedIds.isNotEmpty()) {
-                val selectedChipId = checkedIds[0]
-                when (selectedChipId) {
-                    R.id.chip330ml -> selectChip(330)
-                    R.id.chip600ml -> selectChip(600)
-                    R.id.chip1500ml -> selectChip(1500)
-                }
+//    private fun setupChipGroup() {
+//        chipGroupVolumes.setOnCheckedStateChangeListener { _, checkedIds ->
+//            if (checkedIds.isNotEmpty()) {
+//                when (checkedIds[0]) {
+//                    R.id.chip330ml -> selectChip(330)
+//                    R.id.chip600ml -> selectChip(600)
+//                    R.id.chip1500ml -> selectChip(1500)
+//                }
+//            }
+//        }
+//    }
 
-                // Change background color for selected chip
-                val selectedChip = view?.findViewById<Chip>(selectedChipId)
-                selectedChip?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.blue_accent))
-
-                // Reset background color for other chips
-                for (id in listOf(R.id.chip330ml, R.id.chip600ml, R.id.chip1500ml)) {
-                    if (id != selectedChipId) {
-                        view?.findViewById<Chip>(id)?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.red))
-                    }
-                }
-            }
-        }
-    }
-
-    private fun selectChip(amount: Int) {
-        selectedAmount = amount
-        textViewSelectedVolume.text = "$amount ml"
-
-        val chipId = when (amount) {
-            330 -> R.id.chip330ml
-            600 -> R.id.chip600ml
-            1500 -> R.id.chip1500ml
-            else -> R.id.chip330ml
-        }
-
-        chipGroupVolumes.check(chipId)
-    }
+//    private fun selectChip(amount: Int) {
+//        selectedAmount = amount
+//        textViewSelectedVolume.text = "$amount ml"
+//
+//        val chipId = when (amount) {
+//            330 -> R.id.chip330ml
+//            600 -> R.id.chip600ml
+//            1500 -> R.id.chip1500ml
+//            else -> R.id.chip330ml
+//        }
+//
+//        chipGroupVolumes.check(chipId)
+//    }
 
     private fun setupRecyclerView(view: View) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewHistory)
@@ -421,12 +673,14 @@ class HomeFragment : Fragment() {
         val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
+        // First, find the specific intake document to delete
         firestore.collection("users")
             .document(userId)
             .collection("daily_water_intake")
             .document(date)
             .collection("intakes")
             .whereEqualTo("amount", item.amount)
+            .whereEqualTo("timestamp", item.timestamp) // Pastikan ini sesuai dengan format yang disimpan
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (querySnapshot.isEmpty) {
@@ -733,33 +987,51 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun showAddWaterDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_water, null)
+    private fun showAddWaterDialog(context: Context, updateWaterAmounts: (List<Int>) -> Unit) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_water, null)
         val editTextAmount = dialogView.findViewById<EditText>(R.id.editTextAmount)
+        val addWaterButton = dialogView.findViewById<Button>(R.id.btnAddWaterIntake) // Reference to the blue button
+
         editTextAmount.inputType = InputType.TYPE_CLASS_NUMBER
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Add Water")
+        val dialog = AlertDialog.Builder(context)
             .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                val input = editTextAmount.text.toString()
-                val amount = input.toIntOrNull()
-                if (amount != null && amount > 0) {
-                    addWaterIntake(amount)
-                } else {
-                    showToast("Invalid input. Please enter a positive number.")
+            .create()
+
+        addWaterButton.setOnClickListener {
+            val input = editTextAmount.text.toString()
+            val amount = input.toIntOrNull()
+            if (amount != null && amount > 0) {
+                val currentList = getWaterIntakeList(context).toMutableList()
+                if (!currentList.contains(amount)) {
+                    currentList.add(amount)
+                    saveWaterIntakeList(context, currentList)
+                    updateWaterAmounts(currentList.sorted()) // Update the state
+                    dialog.dismiss() // Close the dialog after adding
                 }
+            } else {
+                Toast.makeText(context, "Invalid input. Please enter a positive number.", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        dialog.show()
     }
 
-    private fun showDeleteConfirmationDialog(amount: Int) {
-        AlertDialog.Builder(requireContext())
+    private fun showDeleteConfirmationDialog(
+        amount: Int,
+        context: Context,
+        updateWaterAmounts: (List<Int>) -> Unit
+    ) {
+        AlertDialog.Builder(context)
             .setTitle("Delete Water")
             .setMessage("Are you sure you want to delete $amount ml?")
             .setPositiveButton("Yes") { _, _ ->
-                removeWaterIntake(amount)
+                val currentList = getWaterIntakeList(context).toMutableList()
+                if (currentList.contains(amount)) {
+                    currentList.remove(amount)
+                    saveWaterIntakeList(context, currentList)
+                    updateWaterAmounts(currentList.sorted()) // Trigger LazyColumn recomposition
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -803,5 +1075,6 @@ class HomeFragment : Fragment() {
     companion object {
         fun newInstance() = HomeFragment()
         private const val STEP_COUNTER_PERMISSION_REQUEST_CODE = 100
+
     }
 }
