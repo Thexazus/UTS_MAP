@@ -124,7 +124,7 @@ class ReminderFragment : Fragment() {
         reminderRepository.getReminders(
             onSuccess = { reminders ->
                 reminderList.clear()
-                reminderList.addAll(reminders)
+                reminderList.addAll(reminders.sortedBy { parseTime(it.time) })
                 reminderAdapter.notifyDataSetChanged()
             },
             onFailure = { exception ->
@@ -132,6 +132,18 @@ class ReminderFragment : Fragment() {
             }
         )
     }
+
+    // Fungsi untuk mengonversi string waktu menjadi objek Calendar
+    private fun parseTime(time: String): Calendar {
+        val (hour, minute) = time.split(":").map { it.toInt() }
+        return Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+    }
+
 
     private fun addReminderToFirestore(reminder: Reminder) {
         reminderRepository.addReminder(
