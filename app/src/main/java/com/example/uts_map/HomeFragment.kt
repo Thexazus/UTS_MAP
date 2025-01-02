@@ -99,7 +99,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
 
-    private lateinit var activityDetector: ActivityDetector
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -142,53 +141,12 @@ class HomeFragment : Fragment() {
         // Setup RecyclerView
         setupRecyclerView(view)
 
-        // Initialize ActivityDetector
-        activityDetector = ActivityDetector(requireContext())
-        activityDetector.setOnWaterGoalIncreasedListener(object : ActivityDetector.OnWaterGoalIncreasedListener {
-            override fun onWaterGoalIncreased(newGoal: Int) {
-                DAILY_WATER_GOAL += newGoal
-                updateWaterIntakeDisplay(DAILY_WATER_GOAL)
-            }
-        })
-
-        // Check for permissions and start tracking
-        checkPermissionsAndStartTracking()
     }
 
-    private fun checkPermissionsAndStartTracking() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACTIVITY_RECOGNITION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
-                    STEP_COUNTER_PERMISSION_REQUEST_CODE
-                )
-            } else {
-                // Permission already granted, start tracking
-                startActivityTracking()
-            }
-        } else {
-            // For older Android versions, start tracking directly
-            startActivityTracking()
-        }
-    }
-
-    private fun startActivityTracking() {
-        if (activityDetector.isSensorAvailable()) {
-            activityDetector.start()
-        } else {
-            Log.e("HomeFragment", "Step sensor is NOT available on this device")
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        // Stop the sensor when the fragment is destroyed
-        activityDetector.stop()
     }
 
     private fun initializeViews(view: View) {
@@ -1052,30 +1010,6 @@ class HomeFragment : Fragment() {
         val timestamp: Any // Make it non-nullable
     )
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == STEP_COUNTER_PERMISSION_REQUEST_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (grantResults.isNotEmpty() &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED
-                ) {
-                    // Izin diberikan, mulai deteksi langkah
-                    activityDetector.start()
-                } else {
-                    // Izin ditolak
-                    Toast.makeText(
-                        requireContext(),
-                        "Step tracking permission denied",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
 
     companion object {
         fun newInstance() = HomeFragment()
