@@ -86,7 +86,6 @@
                         app:shapeAppearanceOverlay="@style/circleImageView"
                         android:layout_gravity="center" />
 
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -325,30 +324,38 @@
             android:textSize="18sp"
             android:textColor="#757575"/>
 
-
-        <!-- Logout Button -->
+        <!-- Logout Button with Text -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            tools:layout_editor_absoluteY="68dp">
-
-        </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/logoutButton"
-            android:layout_width="match_parent"
+            android:id="@+id/logoutContainer"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="90sp"
-            android:src="@drawable/icon_logout"
-            android:background="@android:color/transparent"
-            android:layout_gravity="end"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay" />
+            app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay">
 
+            <ImageButton
+                android:id="@+id/logoutButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_logout"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical" />
 
+            <TextView
+                android:id="@+id/logoutText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginStart="8dp"
+                android:layout_gravity="center_vertical" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

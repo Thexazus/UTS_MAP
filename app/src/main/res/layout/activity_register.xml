@@ -58,6 +58,19 @@
     android:textColor="#FFFFFF"
     android:layout_marginBottom="10dp" />
 
+    <!-- Google Sign In Button -->
+    <ImageButton
+        android:id="@+id/googleSignInButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_google"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/ic_google_logo"
+        android:contentDescription="@string/google_sign_in"
+        android:layout_gravity="center"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp" />
+
     <!-- Already have an account? -->
     <TextView
         android:id="@+id/loginTextView"

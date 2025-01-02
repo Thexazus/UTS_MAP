@@ -34,22 +34,22 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupUI() {
-        val currentUser  = auth.currentUser
-        if (currentUser  == null) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
             navigateToLogin()
             return
         }
 
         binding.apply {
-            db.collection("users").document(currentUser .email ?: "").get().addOnSuccessListener { document ->
+            db.collection("users").document(currentUser.email ?: "").get().addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     // Load user data
                     userName.text = "${document.getString("firstName") ?: "Unknown"} ${document.getString("lastName") ?: "User "}"
-                    userEmail.text = document.getString("email") ?: currentUser .email
+                    userEmail.text = document.getString("email") ?: currentUser.email
                     heightValue.text = "${document.getDouble("height")?.toInt() ?: 0} cm"
                     weightValue.text = "${document.getDouble("weight")?.toInt() ?: 0} kg"
                     ageValue.text = "${document.getLong("age") ?: 0} yo"
-                    intakeValue.text = "${document.getDouble("targetAmount")?.toInt() ?: 0} ml" // Display target amount
+                    intakeValue.text = "${document.getDouble("targetAmount")?.toInt() ?: 0} ml"
 
                     // Display gender
                     val gender = document.getString("gender") ?: "Other"
@@ -116,10 +116,15 @@ class SettingsFragment : Fragment() {
             startActivity(intent)
         }
 
-        logoutButton.setOnClickListener {
+        // Create a logout function to avoid code duplication
+        val performLogout = {
             auth.signOut()
             navigateToLogin()
         }
+
+        // Set click listener for both the logout button and text
+        logoutButton.setOnClickListener { performLogout() }
+        logoutText.setOnClickListener { performLogout() }
     }
 
     private fun updateTimeDisplay(time: String, textView: TextView) {

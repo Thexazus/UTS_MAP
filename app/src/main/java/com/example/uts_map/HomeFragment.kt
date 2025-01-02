@@ -78,6 +78,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Button
 import android.widget.ProgressBar
+import com.example.uts_map.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -94,13 +95,18 @@ class HomeFragment : Fragment() {
     // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
     private var DAILY_WATER_GOAL = 1000 // Default goal, will be overridden by personalized calculation
 
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+
     private lateinit var activityDetector: ActivityDetector
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -180,6 +186,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding = null
         // Stop the sensor when the fragment is destroyed
         activityDetector.stop()
     }
@@ -521,7 +528,6 @@ class HomeFragment : Fragment() {
         // Transaction untuk update total dan tambah entri
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(dailyIntakeRef)
-
             val currentAmount = snapshot.getLong("totalAmount") ?: 0
             val newAmount = currentAmount + amount
 
@@ -538,25 +544,24 @@ class HomeFragment : Fragment() {
 
             // Tambah entri ke subkoleksi
             dailyIntakeRef.collection("intakes").add(intakeEntry)
-
             newAmount
         }.addOnSuccessListener { newTotal ->
-            updateWaterIntakeDisplay(newTotal.toInt())
+            // Make sure view exists before accessing it
+            view?.let { fragmentView ->
+                updateWaterIntakeDisplay(newTotal.toInt())
 
-            val newHistoryItem = WaterIntakeHistoryItem(
-                date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()), // Waktu saat ini
-                amount = amount,
-                timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
-            )
+                val newHistoryItem = WaterIntakeHistoryItem(
+                    date = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()),
+                    amount = amount,
+                    timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+                )
 
-            // Tambahkan item baru ke adapter
-            (requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).adapter as? WaterIntakeHistoryAdapter)?.addItem(newHistoryItem)
+                val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.recyclerViewHistory)
+                (recyclerView.adapter as? WaterIntakeHistoryAdapter)?.addItem(newHistoryItem)
+                recyclerView.scrollToPosition(0)
 
-            // Scroll ke posisi paling atas
-            requireView().findViewById<RecyclerView>(R.id.recyclerViewHistory).scrollToPosition(0)
-
-            // Check user progress after updating water intake
-            checkUserProgress()
+                checkUserProgress()
+            }
         }.addOnFailureListener { e ->
             showToast("Failed to add water intake: ${e.message}")
         }
