@@ -89,7 +89,6 @@ class HomeFragment : Fragment() {
     private lateinit var textViewCurrentIntake: TextView
     private lateinit var textViewSelectedVolume: TextView
     private lateinit var chipGroupVolumes: ChipGroup
-    private lateinit var progressBarLoading: ProgressBar
     private val waterIntakeList = mutableListOf<WaterIntakeHistoryItem>()
     private var selectedAmount = 330
     // Modify the class-level declaration to make DAILY_WATER_GOAL mutable
@@ -193,7 +192,6 @@ class HomeFragment : Fragment() {
         textViewCurrentIntake = view.findViewById(R.id.textViewCurrentIntake)
 //        textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
 //        chipGroupVolumes = view.findViewById(R.id.chipGroupVolumes)
-        progressBarLoading = view.findViewById(R.id.progressBarLoading)
 //        textViewSelectedVolume = view.findViewById(R.id.textViewSelectedVolume)
 //        chipGroupVolumes = view.findViewById(R.id.chipGroupVolumes)
     }
@@ -600,8 +598,6 @@ class HomeFragment : Fragment() {
         val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // Show loading indicator
-        progressBarLoading.visibility = View.VISIBLE
 
         firestore.collection("users")
             .document(userId)
@@ -614,8 +610,6 @@ class HomeFragment : Fragment() {
                 setTextWithAnimation(textViewCurrentIntake, "$currentAmount ml") // Animate the current intake
             }
             .addOnFailureListener { e ->
-                // Hide loading indicator
-                progressBarLoading.visibility = View.GONE
                 showToast("Error loading water intake: ${e.message}")
             }
     }
@@ -623,9 +617,6 @@ class HomeFragment : Fragment() {
     private fun loadWaterIntakeHistory(recyclerView: RecyclerView) {
         val userId = auth.currentUser?.uid ?: return
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
-        // Show loading indicator
-        progressBarLoading.visibility = View.VISIBLE
 
         firestore.collection("users")
             .document(userId)
@@ -663,8 +654,6 @@ class HomeFragment : Fragment() {
                 recyclerView.adapter = adapter
             }
             .addOnFailureListener { e ->
-                // Hide loading indicator
-                progressBarLoading.visibility = View.GONE
                 showToast("Error loading water intake history: ${e.message}")
             }
     }

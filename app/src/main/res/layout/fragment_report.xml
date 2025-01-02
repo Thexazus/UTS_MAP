@@ -47,7 +47,6 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/profile_placeholder"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toBottomOf="@id/topbar"
         app:layout_constraintStart_toStartOf="parent"

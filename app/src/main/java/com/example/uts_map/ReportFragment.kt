@@ -40,13 +40,11 @@ import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import java.time.LocalDate
 import kotlin.math.min
 
-
 sealed class ReportType {
     data object WeeklyReport : ReportType()
     data object MonthlyReport : ReportType()
     data object YearlyReport : ReportType()
 }
-
 
 class ReportFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -59,7 +57,6 @@ class ReportFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentReportBinding.inflate(inflater, container, false)
-
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
         return binding.root
@@ -70,7 +67,9 @@ class ReportFragment : Fragment() {
         val userId = auth.currentUser?.uid
 
         if (userId != null) {
-            auth.currentUser?.email?.let { fetchUserName(it) }
+            auth.currentUser?.email?.let {
+                fetchUserData(it)
+            }
             val today = LocalDate.now()
             val yesterday = today.minusDays(1)
             val twoDaysAgo = today.minusDays(2)
@@ -83,28 +82,50 @@ class ReportFragment : Fragment() {
         binding.composeView.setContent {
             ReportScreen()
         }
+
+        // Setup back button click listener
+        binding.btnBack.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
-    private fun fetchUserName(email: String) {
+    private fun fetchUserData(email: String) {
         val userDocumentRef = db.collection("users").document(email)
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
-                // Fetch the user's name from the document
-                val username = documentSnapshot.getString("firstName") ?: "User"  // Default to "User" if name is not found
-                binding.tvUsername.text = username  // Set the user's name in the TextView
+                // Fetch both user's name and gender
+                val firstName = documentSnapshot.getString("firstName") ?: ""
+                val lastName = documentSnapshot.getString("lastName") ?: ""
+                val fullName = if (lastName.isNotEmpty()) "$firstName $lastName" else firstName
+                val gender = documentSnapshot.getString("gender") ?: "Other"
+
+                // Update UI
+                binding.tvUsername.text = fullName.ifEmpty { "User" }
+                updateProfileImage(gender)
             } else {
-                binding.tvUsername.text = "User"  // Default to "User" if document does not exist
+                binding.tvUsername.text = "User"
+                updateProfileImage("Other")
                 Log.w("ReportFragment", "User document not found for $email")
             }
         }.addOnFailureListener { exception ->
-            binding.tvUsername.text = "User"  // Default to "User" if fetch fails
-            Log.e("ReportFragment", "Failed to fetch user name for $email", exception)
+            binding.tvUsername.text = "User"
+            updateProfileImage("Other")
+            Log.e("ReportFragment", "Failed to fetch user data for $email", exception)
         }
+    }
 
+    private fun updateProfileImage(gender: String) {
+        binding.profileImage.setImageResource(
+            when (gender.lowercase()) {
+                "male" -> R.drawable.profile_placeholder
+                "female" -> R.drawable.female_profile
+                else -> R.drawable.male_profile
+            }
+        )
     }
 
     private fun fetchWaterIntake(date: LocalDate, userId: String, progressBar: CircularProgressBar, progressTextView: TextView) {
-        val dateString = date.toString()  // Convert LocalDate to String for Firestore query
+        val dateString = date.toString()
 
         val dateDocumentRef = db
             .collection("users")
@@ -112,47 +133,34 @@ class ReportFragment : Fragment() {
             .collection("daily_water_intake")
             .document(dateString)
 
-        // Query Firestore to get data for the specified date
         dateDocumentRef.get().addOnSuccessListener { dateDocumentSnapshot ->
             if (dateDocumentSnapshot.exists()) {
-                // Get the daily goal for the day
-                val dailyGoal = dateDocumentSnapshot.getDouble("goal") ?: 2000.0  // Default to 2000 if not set
-
-                // Get the total amount from the date document
+                val dailyGoal = dateDocumentSnapshot.getDouble("goal") ?: 2000.0
                 val totalAmount = dateDocumentSnapshot.getDouble("totalAmount") ?: 0.0
 
-                // Calculate the progress percentage
                 val progress = if (dailyGoal > 0) {
                     (totalAmount.toFloat() / dailyGoal.toFloat()) * 100
                 } else {
                     0f
                 }
 
-                // Update the progress bar with the calculated value
-                progressBar.setProgressWithAnimation(progress) // Update the progress bar smoothly
-
-                // Update the TextView to show the progress percentage
-                progressTextView.text = "${min(progress.toInt(), 100)}%"  // Display progress as an integer value with a percentage sign
+                progressBar.setProgressWithAnimation(progress)
+                progressTextView.text = "${min(progress.toInt(), 100)}%"
             } else {
-                // If the date document doesn't exist, set progress to 0
                 progressBar.setProgressWithAnimation(0f)
-                progressTextView.text = "0%"  // Set progress text to 0%
-
+                progressTextView.text = "0%"
                 Log.w("ReportFragment", "Date document not found for $dateString")
             }
         }.addOnFailureListener { exception ->
-            progressBar.setProgressWithAnimation(0f)  // Handle error
-            progressTextView.text = "0%"  // Set progress text to 0%
-
+            progressBar.setProgressWithAnimation(0f)
+            progressTextView.text = "0%"
             Log.e("ReportFragment", "Failed to fetch date document for $dateString", exception)
         }
     }
 
     @Composable
     fun ReportScreen() {
-        // State to track the current report type
         val currentReport = remember { mutableStateOf<ReportType>(ReportType.WeeklyReport) }
-
         var dropdownExpanded by remember { mutableStateOf(false) }
         val reportOptions = mapOf(
             "Weekly" to ReportType.WeeklyReport,
@@ -161,7 +169,6 @@ class ReportFragment : Fragment() {
         )
 
         Column(modifier = Modifier.fillMaxHeight()) {
-            // Buttons to switch between reports
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,17 +176,21 @@ class ReportFragment : Fragment() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text="Activity Progress",
+                Text(
+                    text = "Activity Progress",
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = TextUnit(20.0F, TextUnitType.Sp)
                 )
 
                 Box {
-                    Button(onClick = { dropdownExpanded = true },
+                    Button(
+                        onClick = { dropdownExpanded = true },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF5DCCFC), // Set background color
-                            contentColor = Color.White)) {
+                            containerColor = Color(0xFF5DCCFC),
+                            contentColor = Color.White
+                        )
+                    ) {
                         Text(
                             when (currentReport.value) {
                                 is ReportType.WeeklyReport -> "Weekly"
@@ -197,8 +208,8 @@ class ReportFragment : Fragment() {
                             androidx.compose.material3.DropdownMenuItem(
                                 text = { Text(label) },
                                 onClick = {
-                                    currentReport.value = reportType // Update the report type
-                                    dropdownExpanded = false         // Close the menu
+                                    currentReport.value = reportType
+                                    dropdownExpanded = false
                                 }
                             )
                         }
@@ -206,20 +217,16 @@ class ReportFragment : Fragment() {
                 }
             }
 
-            // Show the selected report
             when (currentReport.value) {
                 is ReportType.WeeklyReport -> WeeklyReport()
                 is ReportType.MonthlyReport -> MonthlyReport()
                 is ReportType.YearlyReport -> YearlyReport()
             }
-
-
         }
     }
 
     @Composable
     fun WeeklyReport() {
-        // Directly call the WeeklyChartScreen Composable
         WeeklyChartScreen()
     }
 
@@ -229,8 +236,10 @@ class ReportFragment : Fragment() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text("Monthly Report (Coming Soon)",
-                color = Color.Black)
+            Text(
+                "Monthly Report (Coming Soon)",
+                color = Color.Black
+            )
         }
     }
 
@@ -247,4 +256,8 @@ class ReportFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
