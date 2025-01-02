@@ -226,10 +226,16 @@
         android:id="@+id/recyclerViewHistory"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/textViewToday"
         android:layout_marginTop="8dp"
-        android:scrollbars="vertical"
         android:layout_marginBottom="8dp"
+        android:clipToPadding="false"
+        android:fadeScrollbars="true"
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="ifContentScrolls"
+        android:paddingBottom="16dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/textViewToday"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_water_intake" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

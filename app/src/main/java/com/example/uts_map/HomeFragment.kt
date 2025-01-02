@@ -478,6 +478,17 @@ class HomeFragment : Fragment() {
     private fun setupRecyclerView(view: View) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewHistory)
         recyclerView.layoutManager = LinearLayoutManager(context) // Mendukung scrolling
+
+        // Hide scrollbar but keep scrolling functionality
+        recyclerView.isVerticalScrollBarEnabled = false
+
+        // Enable smooth scrolling
+        recyclerView.setHasFixedSize(true)
+        recyclerView.isNestedScrollingEnabled = true
+
+        // Optional: Add overscroll effect (the bounce when you reach the end)
+        recyclerView.overScrollMode = View.OVER_SCROLL_IF_CONTENT_SCROLLS
+
         loadWaterIntakeHistory(recyclerView)
     }
 
