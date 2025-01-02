@@ -24,5 +24,5 @@ Fitur-Fitur yang disediakan dalam DrinkMe :
 
 Note : Semua data disimpan dalam Firebase.
 
-link video : 
+link video : https://drive.google.com/drive/folders/1PqrUDVnCI3fGqpLJv8N3Y8I1kDzUAKp-?usp=sharing
 link dokumentasi github : https://github.com/Thexazus/UTS_MAP.git
