@@ -327,38 +327,36 @@
         <!-- Logout Button with Text -->
         <LinearLayout
             android:id="@+id/logoutContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="70sp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/wakeUpTimeDisplay">
 
-            <ImageButton
-                android:id="@+id/logoutButton"
-                android:layout_width="48dp"
+        <ImageButton
+            android:id="@+id/logoutButton"
+            android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/icon_logout"
             android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
             android:scaleType="fitCenter"
             android:translationZ="4dp"
             android:padding="8dp" />
 
-            <TextView
-                android:id="@+id/logoutText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Logout"
-                android:textSize="16sp"
+        <TextView
+            android:id="@+id/logoutText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:textSize="16sp"
             android:textColor="#546E7A"
             android:textStyle="bold"
-
-            android:layout_gravity="center_vertical" />
-        </LinearLayout>
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
