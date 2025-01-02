@@ -30,11 +30,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UTS_MAP"
         tools:targetApi="31">
-        <activity
-            android:name=".WaterControl"
-            android:exported="false"
-            android:label="@string/title_activity_water_control"
-            android:theme="@style/Theme.UTS_MAP" />
+<!--        <activity-->
+<!--            android:name=".WaterControl"-->
+<!--            android:exported="false"-->
+<!--            android:label="@string/title_activity_water_control"-->
+<!--            android:theme="@style/Theme.UTS_MAP" />-->
         <!-- Aktivitas utama aplikasi -->
         <activity
             android:name=".LoginActivity"
